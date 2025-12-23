@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum TipoIntegrante {
+  CORPO_MUSICAL
+  LINHA_FRENTE
+}
+
+enum SubtipoIntegrante {
+  INSTRUMENTOS
+  COMANDANTE_MOR
+  PAVILHAO_NACIONAL
+  CORPO_COREOGRAFICO
+  BALIZAS
+}
+
+enum OrigemInstrumento {
+  PROJETO
+  EMPRESA
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Responsavel {
+  id         String   @id @default(uuid())
+  nome       String
+  cpf        String   @unique
+  telefone   String
+  email      String?
+  rua        String?
+  numero     String?
+  bairro     String?
+  cep        String?
+  parentesco String
+  alunos     Aluno[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([id])
+}
+
+model Escola {
+  id              String   @id @default(uuid())
+  nome            String   @unique
+  rua             String?
+  numero          String?
+  bairro          String?
+  cep             String?
+  telefone        String
+  serie           String?
+  email           String?
+  cidade          String?
+  estado          String?
+  contatoNome     String?
+  contatoTelefone String?
+  alunos          Aluno[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Aluno {
+  id                     String             @id @default(uuid())
+  nome                   String
+  dataNascimento         DateTime
+  cpf                    String             @unique
+  telefone               String
+  email                  String?
+  fotos                  String[]
+  rua                    String?
+  numero                 String?
+  bairro                 String?
+  cep                    String?
+  dataMatricula          DateTime
+  matriculaNumero        String?            @unique
+  turma                  String
+  tipoIntegrante         TipoIntegrante
+  subtipoIntegrante      SubtipoIntegrante?
+  tamanhoUniforme        String?
+  tamanhoBota            String?
+  instrumento            String?
+  instrumentoOrigem      OrigemInstrumento?
+  instrumentoRecebimento DateTime?
+  instrumentoDevolucao   DateTime?
+  observacoes            String?
+  responsavelId          String
+  responsavel            Responsavel        @relation(fields: [responsavelId], references: [id])
+  escolaId               String
+  escola                 Escola             @relation(fields: [escolaId], references: [id])
+  createdAt              DateTime           @default(now())
+  updatedAt              DateTime           @updatedAt
+
+  @@index([cpf])
+  @@index([matriculaNumero])
+  @@index([escolaId, turma])
+}

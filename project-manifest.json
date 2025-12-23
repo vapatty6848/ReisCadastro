@@ -1,0 +1,56 @@
+{
+  "projectName": "ReisCadastro",
+  "version": "1.0.0",
+  "stack": {
+    "backend": {
+      "runtime": "Node.js 22",
+      "framework": "Express",
+      "language": "TypeScript",
+      "orm": "Prisma",
+      "database": "PostgreSQL",
+      "port": 3001,
+      "dbPort": 5434
+    },
+    "frontend": {
+      "framework": "Next.js 14",
+      "styling": "Tailwind CSS",
+      "forms": "React Hook Form + Zod",
+      "port": 3000
+    },
+    "testing": {
+      "e2e": [
+        "Cypress",
+        "Playwright"
+      ],
+      "unit": "Jest"
+    },
+    "devops": {
+      "containers": "Docker Compose",
+      "ci": "GitHub Actions"
+    }
+  },
+  "features": [
+    "JWT Authentication",
+    "Full CRUD for Alunos",
+    "Atomic creation of Responsavel and Escola",
+    "Multi-file upload (up to 5 photos)",
+    "Swagger API Documentation",
+    "Zod validation on both ends"
+  ],
+  "credentials": {
+    "admin": {
+      "email": "admin@fanfarra.com",
+      "password": "admin123"
+    }
+  },
+  "environment": {
+    "backend": [
+      "DATABASE_URL",
+      "JWT_SECRET",
+      "PORT"
+    ],
+    "frontend": [
+      "NEXT_PUBLIC_API_URL"
+    ]
+  }
+}

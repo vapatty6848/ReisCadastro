@@ -1,0 +1,277 @@
+# 🎯 Master Blueprint: Sistema de Gestão de Integrantes (Fanfarra)
+
+Este documento serve como a especificação técnica definitiva e guia de execução para o projeto **ReisCadastro**. Ele contém todos os detalhes necessários para reconstruir ou expandir a aplicação sem erros.
+
+---
+
+## 🚀 Visão Geral do Sistema
+
+Sistema Full-Stack para gestão de integrantes de uma fanfarra, permitindo o cadastro completo de alunos, seus responsáveis e informações escolares, incluindo upload de fotos e controle de instrumentos/uniformes.
+
+### Fluxo Principal:
+
+1. **Autenticação:** Login administrativo via JWT.
+2. **Gestão (CRUD):** Cadastro, listagem, edição e exclusão de integrantes.
+3. **Relacionamentos:** Criação atômica de Aluno + Responsável + Escola.
+4. **Arquivos:** Upload de até 5 fotos por integrante (armazenamento local em `backend/uploads`).
+
+---
+
+## 🛠️ Stack Tecnológica
+
+### Backend:
+
+- **Runtime:** Node.js 22 (LTS)
+- **Framework:** Express.js
+- **Linguagem:** TypeScript
+- **ORM:** Prisma
+- **Banco de Dados:** PostgreSQL (Porta: **5434** para evitar conflitos)
+- **Documentação:** Swagger (JSDoc)
+- **Segurança:** JWT + Bcrypt
+
+### Frontend:
+
+- **Framework:** Next.js 14+ (App Router)
+- **Estilização:** Tailwind CSS + Lucide React (Ícones)
+- **Formulários:** React Hook Form + Zod (Validação)
+- **HTTP Client:** Axios
+- **Gerenciamento de Estado:** Context API (AuthContext)
+
+### QA & DevOps:
+
+- **E2E Testing:** Cypress (Visual) & Playwright (Headless)
+- **Unit Testing:** Jest
+- **Containerização:** Docker + Docker Compose
+- **CI/CD:** GitHub Actions (Jobs: Lint, Test, Backend, Frontend)
+
+---
+
+## 📊 Modelo de Dados (Prisma)
+
+### Entidades Principais:
+
+- **User:** Admin (email, password).
+- **Aluno:** Dados pessoais, fotos (array de strings), enums `TipoIntegrante` (CORPO_MUSICAL, LINHA_FRENTE).
+- **Responsável:** Dados de contato e endereço, vinculado ao Aluno.
+- **Escola:** Dados da instituição de ensino, vinculada ao Aluno.
+
+---
+
+## 🔌 API Endpoints (Swagger em `/api-docs`)
+
+| Método | Rota               | Descrição                        | Protegida? |
+| :----- | :----------------- | :------------------------------- | :--------- |
+| POST   | `/api/auth/login`  | Autenticação e geração de Token  | Não        |
+| GET    | `/api/alunos`      | Listagem com filtros (nome, CPF) | Sim        |
+| POST   | `/api/alunos`      | Cadastro (Multipart/Form-Data)   | Sim        |
+| GET    | `/api/alunos/{id}` | Detalhes de um integrante        | Sim        |
+| PATCH  | `/api/alunos/{id}` | Atualização parcial              | Sim        |
+| DELETE | `/api/alunos/{id}` | Exclusão lógica/física           | Sim        |
+
+---
+
+## ⚙️ Configuração e Execução (Sem Erros)
+
+### 1. Variáveis de Ambiente (.env)
+
+**Backend (`backend/.env`):**
+
+```env
+DATABASE_URL="postgresql://admin:admin123@localhost:5434/fanfarra_db?schema=public"
+JWT_SECRET="sua_chave_secreta_aqui"
+PORT=3001
+```
+
+**Frontend (`frontend/.env.local`):**
+
+```env
+NEXT_PUBLIC_API_URL="http://localhost:3001/api"
+```
+
+### 2. Comandos de Inicialização
+
+```bash
+# No Root: Subir Banco de Dados
+docker-compose up -d
+
+# No Backend:
+npm install
+npx prisma migrate dev
+npm run dev
+
+# No Frontend:
+npm install
+npm run dev
+```
+
+### 3. Credenciais Padrão
+
+- **Usuário:** `admin@fanfarra.com`
+- **Senha:** `admin123`
+
+---
+
+## 🧪 Estratégia de Testes
+
+### Cypress (E2E Interativo)
+
+- **Configuração:** `supportFile: false` no `cypress.config.js`.
+- **Execução:** `cd frontend && npx cypress run`.
+- **Fluxos:** Login, Cadastro Completo, Edição e Exclusão.
+
+### Playwright (E2E Headless)
+
+- **Execução:** `cd frontend && npx playwright test`.
+
+### GitHub Actions
+
+O workflow está dividido em 4 estágios para facilitar o debug:
+
+1. **Lint:** Verifica padrões de código.
+2. **Test:** Executa testes unitários (Jest).
+3. **Backend:** Valida build e migrações.
+4. **Frontend:** Valida build e testes E2E.
+
+---
+
+## 📝 Notas de Implementação (Dicas para o Dev)
+
+- **Upload de Fotos:** O backend usa `multer`. As fotos são salvas em `backend/uploads/` e servidas como estáticos.
+- **CPF:** Validação rigorosa de 11 dígitos (apenas números) em ambos os lados.
+- **Hidratação Next.js:** Em testes E2E, sempre use `cy.wait(1000)` ou verifique a visibilidade do formulário antes de interagir para evitar erros de hidratação do React.
+- **Portas:** Backend (3001), Frontend (3000), Postgres (5434).
+
+  - Backend: `src/schemas/` com schemas Zod separados por domínio
+  - Frontend: `schemas/` com validações de formulário
+  - Criar `utilits.ts` para validações compartilhadas (CPF, telefone, etc)
+
+6. **Estrutura de Pastas:**
+
+- aqui depois colocar a estrutura
+
+7. **Documentar casos de testes para futura melhoria**
+
+### Etapas de Desenvolvimento:
+
+### Para Adaptar Stack:
+
+- Trocar PostgreSQL
+- Usar Next.js
+- Adicionar Redis para cache
+- Usar tRPC ao invés de RES
+
+**Fase 1 - Setup Inicial:**
+
+1. Criar estrutura de pastas (frontend + backend) dentro de cada a sua pasta infra deixando facil o entendimento
+2. Configurar Docker Compose (PostgreSQL)
+3. Setup Prisma com schema inicial
+4. Configurar Express com middlewares básicos
+5. Setup Next + Tailwind + typescript + lint + jest
+6. workflows (github)
+
+**Fase 2 - Autenticação:**
+
+1. Criar model User no Prisma
+2. Implementar POST /api/auth/login
+3. Implementar GET /api/auth/me
+4. Criar AuthContext no frontend
+5. Criar LoginPage com validação
+
+**Fase 3 - CRUD Principal:**
+
+1. Criar models no Prisma ([ENTIDADE_PRINCIPAL] + relacionadas)
+2. Criar schemas Zod (backend)
+3. Implementar resolvers para entidades relacionadas
+4. Criar rotas da API (POST, GET, PATCH, DELETE)
+5. Adicionar validação e autenticação
+
+**Fase 4 - Frontend:**
+
+1. Criar schemas Zod (frontend)
+2. Criar página principal login e de cadastro
+3. Separar em componentes especializados
+4. Criar componentes base reutilizáveis
+5. Integrar com API
+
+**Fase 5 - Testes:**
+
+1. Configurar (frontend + backend)
+2. Criar testes unitários de componentes
+3. Criar testes de integração
+4. Criar testes E2E da API
+5. Organizar em pastas **tests**/
+
+**Fase 6 - Refatoração:**
+
+1. Identificar código duplicado
+2. Extrair para utils/
+3. Remover rotas não utilizadas
+4. Simplificar Swagger
+5. Atualizar documentação
+
+**Fase 7 - Documentação:**
+
+1. Criar README.md completo
+2. Criar documentação para futuras manutenções e melhorias
+
+### Endpoints Esperados:
+
+- `POST /api/auth/login` — Login
+- `GET /api/auth/me` — Usuário autenticado
+- `POST /api/[entidade]` — Criar (com relacionadas)
+- `GET /api/[entidade]` — Listar/filtrar
+- `PATCH /api/[entidade]/:id` — Atualizar
+- `DELETE /api/[entidade]/:id` — Deletar
+
+### Scripts Necessários:
+
+**Backend:**
+
+- `npm run dev` — Desenvolvimento
+- `npm run build` — Build produção
+- `npm run test` — Rodar testes
+- `npm run prisma:migrate` — Rodar migrations
+- `npm run prisma:seed` — Popular banco
+- `npm run prisma:studio` — GUI do banco
+
+**Frontend:**
+
+- `npm run dev` — Desenvolvimento
+- `npm run build` — Build produção
+- `npm run test` — Rodar testes
+- `npm run test:e2e` — Testes E2E
+
+### Checklist de Qualidade:
+
+- [ ] Componentes com responsabilidade única (< 150 linhas)
+- [ ] Testes organizados em **tests**/
+- [ ] Sem código duplicado
+- [ ] Utils para lógica compartilhada
+- [ ] Apenas rotas utilizadas no frontend
+- [ ] Validação client-side e server-side
+- [ ] Tratamento de erros consistente
+- [ ] Swagger atualizado
+- [ ] README com estrutura e endpoints
+- [ ] Todos os testes passando
+- [ ] TypeScript sem erros
+- [ ] ESLint sem warnings
+
+### Observações Importantes:
+
+1. **Resolvers:** Use resolvers para criar entidades relacionadas automaticamente (ex: buscar ou criar por identificador único como CPF, email, etc)
+
+2. **Validações Compartilhadas:** Extraia para `utils.ts` validações que podem ser reutilizadas (CPF, telefone, CEP, email, etc)
+
+3. **Formulários Modulares:** Separe formulários grandes em componentes menores e mais gerenciáveis
+
+4. **API Minimalista:** Implemente apenas o necessário. Se o frontend só usa GET e POST, não crie PUT/DELETE
+
+5. **Testes Pragmáticos:** Foque em testar comportamento crítico, não implemente testes apenas por cobertura
+
+6. **Formatar os commits com base nas boas praticas**- os commits serão validados e não será aceito commit direto na main principal, deverá primeiro abrir uma brench que sera validada pelo gitAction via pulll request e posterior merge
+
+7. **Documentação:** Mantenha README sincronizados com o código
+
+```
+
+```

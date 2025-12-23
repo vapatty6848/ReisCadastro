@@ -1,0 +1,145 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - generic [ref=e3]:
+    - heading "Ficha de Cadastro de Integrante" [level=2] [ref=e4]
+    - generic [ref=e5]:
+      - heading "01 Dados do Aluno" [level=3] [ref=e6]:
+        - generic [ref=e7]: "01"
+        - text: Dados do Aluno
+      - generic [ref=e8]:
+        - generic [ref=e10]:
+          - generic [ref=e11]: Nome Completo
+          - textbox [ref=e12]: Playwright Test Aluno 1766519222118
+        - generic [ref=e13]:
+          - generic [ref=e14]: CPF
+          - textbox [ref=e15]: "67599479852"
+        - generic [ref=e16]:
+          - generic [ref=e17]: Data de Nascimento
+          - textbox [ref=e18]: 2010-05-15
+        - generic [ref=e19]:
+          - generic [ref=e20]: Telefone
+          - textbox [ref=e21]: "11988887777"
+        - generic [ref=e22]:
+          - generic [ref=e23]: Email
+          - textbox [ref=e24]: playwright@teste.com
+        - generic [ref=e25]:
+          - generic [ref=e26]: Fotos / Documentos (Máx. 5)
+          - button "Choose File" [ref=e27]
+          - paragraph [ref=e28]: 0 de 5 arquivo(s) selecionado(s)
+      - generic [ref=e29]:
+        - generic [ref=e31]:
+          - generic [ref=e32]: Rua
+          - textbox [ref=e33]: Rua de Teste
+        - generic [ref=e34]:
+          - generic [ref=e35]: Número
+          - textbox [ref=e36]: "123"
+        - generic [ref=e37]:
+          - generic [ref=e38]: Bairro
+          - textbox [ref=e39]: Bairro Teste
+        - generic [ref=e40]:
+          - generic [ref=e41]: CEP
+          - textbox [ref=e42]: "01234567"
+    - generic [ref=e43]:
+      - heading "02 Dados do Responsável" [level=3] [ref=e44]:
+        - generic [ref=e45]: "02"
+        - text: Dados do Responsável
+      - generic [ref=e46]:
+        - generic [ref=e48]:
+          - generic [ref=e49]: Nome do Responsável
+          - textbox [ref=e50]: Responsavel Playwright
+        - generic [ref=e51]:
+          - generic [ref=e52]: CPF do Responsável
+          - textbox [ref=e53]: "11122233344"
+        - generic [ref=e54]:
+          - generic [ref=e55]: Parentesco
+          - textbox [ref=e56]: Pai
+        - generic [ref=e57]:
+          - generic [ref=e58]: Telefone
+          - textbox [ref=e59]: "11977776666"
+        - generic [ref=e60]:
+          - generic [ref=e61]: Email
+          - textbox [ref=e62]
+      - generic [ref=e63]:
+        - generic [ref=e65]:
+          - generic [ref=e66]: Rua
+          - textbox [ref=e67]
+        - generic [ref=e68]:
+          - generic [ref=e69]: Número
+          - textbox [ref=e70]
+        - generic [ref=e71]:
+          - generic [ref=e72]: Bairro
+          - textbox [ref=e73]
+    - generic [ref=e74]:
+      - heading "03 Dados Escolares" [level=3] [ref=e75]:
+        - generic [ref=e76]: "03"
+        - text: Dados Escolares
+      - generic [ref=e77]:
+        - generic [ref=e79]:
+          - generic [ref=e80]: Nome da Escola
+          - textbox [ref=e81]: Escola Playwright
+        - generic [ref=e82]:
+          - generic [ref=e83]: Telefone da Escola
+          - textbox [ref=e84]: "1133334444"
+        - generic [ref=e85]:
+          - generic [ref=e86]: Série/Ano
+          - textbox [ref=e87]
+        - generic [ref=e88]:
+          - generic [ref=e89]: Turma
+          - textbox [ref=e90]: 7º Ano A
+        - generic [ref=e91]:
+          - generic [ref=e92]: Data de Matrícula
+          - textbox [ref=e93]: 2023-02-01
+        - generic [ref=e94]:
+          - generic [ref=e95]: Número da Matrícula
+          - textbox [ref=e96]
+    - generic [ref=e97]:
+      - heading "04 Atuação na Fanfarra" [level=3] [ref=e98]:
+        - generic [ref=e99]: "04"
+        - text: Atuação na Fanfarra
+      - generic [ref=e100]:
+        - generic [ref=e101]:
+          - generic [ref=e102]: Tipo de Integrante
+          - combobox [ref=e103]:
+            - option "Selecione..."
+            - option "Corpo Musical" [selected]
+            - option "Linha de Frente"
+        - generic [ref=e104]:
+          - generic [ref=e105]: Subtipo
+          - combobox [active] [ref=e106]:
+            - option "Selecione..." [selected]
+            - option "Instrumentos"
+            - option "Comandante Mor"
+            - option "Pavilhão Nacional"
+            - option "Corpo Coreográfico"
+            - option "Balizas"
+          - paragraph [ref=e107]: Invalid enum value. Expected 'INSTRUMENTOS' | 'COMANDANTE_MOR' | 'PAVILHAO_NACIONAL' | 'CORPO_COREOGRAFICO' | 'BALIZAS', received ''
+        - generic [ref=e108]:
+          - generic [ref=e109]: Instrumento
+          - combobox [ref=e110]:
+            - option "Selecione..." [selected]
+            - option "Nenhum"
+            - option "Trompete"
+            - option "Trombone"
+            - option "Tuba"
+            - option "Caixa"
+            - option "Bumbo"
+            - option "Pratos"
+            - option "Outro"
+        - generic [ref=e111]:
+          - generic [ref=e112]: Tamanho Uniforme (0-999)
+          - textbox [ref=e113]
+        - generic [ref=e114]:
+          - generic [ref=e115]: Tamanho Bota (0-999)
+          - textbox [ref=e116]
+      - generic [ref=e117]:
+        - generic [ref=e118]: Observações
+        - textbox [ref=e119]
+    - generic [ref=e120]:
+      - button "Cancelar" [ref=e121] [cursor=pointer]
+      - button "Finalizar Cadastro" [ref=e122] [cursor=pointer]
+  - button "Open Next.js Dev Tools" [ref=e128] [cursor=pointer]:
+    - img [ref=e129]
+  - alert [ref=e132]
+```
