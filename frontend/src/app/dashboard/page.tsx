@@ -1,6 +1,6 @@
 'use client';
 
-import { AlunoForm } from '@/components/aluno/AlunoForm';
+import { IntegranteForm } from '@/components/integrante/IntegranteForm';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -20,7 +20,7 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-blue-800 text-white p-4 flex justify-between items-center">
-        <h1 className="text-xl font-bold">Fanfarra Admin</h1>
+        <h1 className="text-xl font-bold">Corporação Admin</h1>
         <div className="flex items-center gap-4">
           <span>Olá, {user?.name}</span>
           <button onClick={logout} className="bg-red-500 px-3 py-1 rounded text-sm">Sair</button>
@@ -28,7 +28,7 @@ export default function DashboardPage() {
       </nav>
 
       <main className="p-8">
-        <AlunoForm />
+        <IntegranteForm />
       </main>
     </div>
   );

@@ -31,15 +31,15 @@
   },
   "features": [
     "JWT Authentication",
-    "Full CRUD for Alunos",
-    "Atomic creation of Responsavel and Escola",
+    "Full CRUD for Integrantes",
+    "Atomic creation of Responsavel and Corporacao",
     "Multi-file upload (up to 5 photos)",
     "Swagger API Documentation",
     "Zod validation on both ends"
   ],
   "credentials": {
     "admin": {
-      "email": "admin@fanfarra.com",
+      "email": "admin@corporacao.com",
       "password": "admin123"
     }
   },

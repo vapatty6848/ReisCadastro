@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Iniciando setup do projeto Cadastro Integrantes Fanfarra..."
+echo "🚀 Iniciando setup do projeto Cadastro Integrantes Corporação..."
 
 # Backend
 echo "📦 Configurando Backend..."

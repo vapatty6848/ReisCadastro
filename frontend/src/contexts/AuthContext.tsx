@@ -25,8 +25,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const storedToken = localStorage.getItem('@Fanfarra:token');
-    const storedUser = localStorage.getItem('@Fanfarra:user');
+    const storedToken = localStorage.getItem('@Corporacao:token');
+    const storedUser = localStorage.getItem('@Corporacao:user');
 
     if (storedToken && storedUser) {
       setToken(storedToken);
@@ -35,16 +35,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = (newToken: string, newUser: User) => {
-    localStorage.setItem('@Fanfarra:token', newToken);
-    localStorage.setItem('@Fanfarra:user', JSON.stringify(newUser));
+    localStorage.setItem('@Corporacao:token', newToken);
+    localStorage.setItem('@Corporacao:user', JSON.stringify(newUser));
     setToken(newToken);
     setUser(newUser);
     router.push('/dashboard');
   };
 
   const logout = () => {
-    localStorage.removeItem('@Fanfarra:token');
-    localStorage.removeItem('@Fanfarra:user');
+    localStorage.removeItem('@Corporacao:token');
+    localStorage.removeItem('@Corporacao:user');
     setToken(null);
     setUser(null);
     router.push('/login');

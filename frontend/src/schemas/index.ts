@@ -10,7 +10,7 @@ const numericSizeSchema = z.string()
   .optional()
   .or(z.literal(''));
 
-export const alunoSchema = z.object({
+export const integranteSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
   dataNascimento: z.string().min(10, 'Data inválida'),
   cpf: z.string().length(11, 'CPF deve ter 11 dígitos'),
@@ -29,6 +29,7 @@ export const alunoSchema = z.object({
   tamanhoUniforme: numericSizeSchema,
   tamanhoBota: numericSizeSchema,
   instrumento: z.string().optional(),
+  patrimonio: z.string().optional(),
   instrumentoOrigem: z.enum(['PROJETO', 'EMPRESA']).optional(),
   instrumentoRecebimento: z.string().optional(),
   instrumentoDevolucao: z.string().optional(),
@@ -44,13 +45,13 @@ export const alunoSchema = z.object({
     cep: z.string().optional(),
     parentesco: z.string().min(1, 'Parentesco é obrigatório'),
   }),
-  escola: z.object({
-    nome: z.string().min(3, 'Nome da escola deve ter pelo menos 3 caracteres'),
+  corporacao: z.object({
+    nome: z.string().min(3, 'Nome da corporação deve ter pelo menos 3 caracteres'),
     rua: z.string().optional(),
     numero: z.string().optional(),
     bairro: z.string().optional(),
     cep: z.string().optional(),
-    telefone: z.string().min(10, 'Telefone da escola é obrigatório'),
+    telefone: z.string().min(10, 'Telefone da corporação é obrigatório'),
     serie: z.string().optional(),
     email: z.string().email().optional().or(z.literal('')),
     cidade: z.string().optional(),
@@ -61,4 +62,4 @@ export const alunoSchema = z.object({
 });
 
 export type LoginData = z.infer<typeof loginSchema>;
-export type AlunoData = z.infer<typeof alunoSchema>;
+export type IntegranteData = z.infer<typeof integranteSchema>;

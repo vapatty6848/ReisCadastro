@@ -2,10 +2,10 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const resolveResponsavel = async (data: { 
-  nome: string; 
-  cpf: string; 
-  telefone: string; 
+export const resolveResponsavel = async (data: {
+  nome: string;
+  cpf: string;
+  telefone: string;
   email?: string;
   rua?: string;
   numero?: string;
@@ -25,8 +25,8 @@ export const resolveResponsavel = async (data: {
   return await prisma.responsavel.create({ data });
 };
 
-export const resolveEscola = async (data: { 
-  nome: string; 
+export const resolveCorporacao = async (data: {
+  nome: string;
   rua?: string;
   numero?: string;
   bairro?: string;
@@ -39,14 +39,14 @@ export const resolveEscola = async (data: {
   contatoNome?: string;
   contatoTelefone?: string;
 }) => {
-  const existing = await prisma.escola.findUnique({ where: { nome: data.nome } });
+  const existing = await prisma.corporacao.findUnique({ where: { nome: data.nome } });
   if (existing) {
-    // Opcional: Atualizar dados da escola se já existir
-    return await prisma.escola.update({
+    // Opcional: Atualizar dados da corporação se já existir
+    return await prisma.corporacao.update({
       where: { nome: data.nome },
       data
     });
   }
 
-  return await prisma.escola.create({ data });
+  return await prisma.corporacao.create({ data });
 };

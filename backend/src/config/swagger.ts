@@ -4,9 +4,9 @@ const options: swaggerJsdoc.Options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'API de Cadastro de Integrantes de Fanfarra',
+      title: 'API de Cadastro de Integrantes de Corporação',
       version: '1.0.0',
-      description: 'Documentação da API para o sistema de gestão de fanfarra',
+      description: 'Documentação da API para o sistema de gestão de corporação',
     },
     servers: [
       {

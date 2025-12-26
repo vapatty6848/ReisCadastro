@@ -15,7 +15,7 @@ test.describe('Exemplos do Plano de Testes', () => {
 
   // ID: AUTH-02 - Login com Senha Inválida
   test('AUTH-02: deve exibir erro ao inserir senha incorreta', async ({ page }) => {
-    await page.fill('input[name="email"]', 'admin@fanfarra.com');
+    await page.fill('input[name="email"]', 'admin@corporacao.com');
     await page.fill('input[name="password"]', 'senha_errada_123');
     await page.click('button[type="submit"]');
 
@@ -30,7 +30,7 @@ test.describe('Exemplos do Plano de Testes', () => {
     // (Em um teste real, usaríamos o token no localStorage para ganhar tempo)
 
     // Simulando navegação para o cadastro (assumindo que já está logado ou injetando token)
-    await page.goto('/dashboard/alunos/novo');
+    await page.goto('/dashboard/integrantes/novo');
 
     // Aguarda hidratação do React
     await page.waitForTimeout(3000);
@@ -44,20 +44,20 @@ test.describe('Exemplos do Plano de Testes', () => {
 
     // Verifica se a mensagem de erro do Zod/Hook Form aparece
     // O texto exato depende da sua tradução/configuração do Zod
-    await expect(page.locator('text=CPF inválido')).toBeVisible();
+    await expect(page.locator('text=CPF deve ter 11 dígitos')).toBeVisible();
   });
 
   // ID: SRCH-03 - Filtro Vazio
   test('SRCH-03: deve exibir mensagem quando nenhum resultado for encontrado', async ({ page }) => {
     // Injeta token para pular login
     await page.evaluate(() => {
-      localStorage.setItem('@Fanfarra:token', 'fake-token');
-      localStorage.setItem('@Fanfarra:user', JSON.stringify({ nome: 'Admin' }));
+      localStorage.setItem('@Corporacao:token', 'fake-token');
+      localStorage.setItem('@Corporacao:user', JSON.stringify({ nome: 'Admin' }));
     });
 
-    await page.goto('/dashboard/alunos');
+    await page.goto('/dashboard/integrantes');
 
-    await page.fill('input[placeholder="Pesquisar por nome..."]', 'Nome Que Nao Existe 123456');
+    await page.fill('input[placeholder="Nome..."]', 'Nome Que Nao Existe 123456');
     await page.click('button:has-text("Filtrar")');
 
     await expect(page.locator('text=Nenhum integrante encontrado')).toBeVisible();

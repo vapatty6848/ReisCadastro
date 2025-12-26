@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('deve carregar a página de login', async ({ page }) => {
   await page.goto('/login');
-  await expect(page).toHaveTitle(/Fanfarra/);
+  await expect(page).toHaveTitle(/Corporação/);
   await expect(page.locator('button:has-text("Entrar")')).toBeVisible();
 });
 

@@ -1,7 +1,7 @@
 {
-  "name": "cadastro-integrantes-fanfarra-backend",
+  "name": "cadastro-integrantes-corporacao-backend",
   "version": "1.0.0",
-  "description": "Backend para o sistema de cadastro de integrantes de fanfarra",
+  "description": "Backend para o sistema de cadastro de integrantes de corporação",
   "main": "src/server.ts",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",

@@ -1,4 +1,4 @@
-# 🎯 Master Blueprint: Sistema de Gestão de Integrantes (Fanfarra)
+# 🎯 Master Blueprint: Sistema de Gestão de Integrantes (Corporação)
 
 Este documento serve como a especificação técnica definitiva e guia de execução para o projeto **ReisCadastro**. Ele contém todos os detalhes necessários para reconstruir ou expandir a aplicação sem erros.
 
@@ -6,13 +6,13 @@ Este documento serve como a especificação técnica definitiva e guia de execu�
 
 ## 🚀 Visão Geral do Sistema
 
-Sistema Full-Stack para gestão de integrantes de uma fanfarra, permitindo o cadastro completo de alunos, seus responsáveis e informações escolares, incluindo upload de fotos e controle de instrumentos/uniformes.
+Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o cadastro completo de integrantes, seus responsáveis e informações da corporação, incluindo upload de fotos e controle de instrumentos/uniformes.
 
 ### Fluxo Principal:
 
 1. **Autenticação:** Login administrativo via JWT.
 2. **Gestão (CRUD):** Cadastro, listagem, edição e exclusão de integrantes.
-3. **Relacionamentos:** Criação atômica de Aluno + Responsável + Escola.
+3. **Relacionamentos:** Criação atômica de Integrante + Responsável + Corporação.
 4. **Arquivos:** Upload de até 5 fotos por integrante (armazenamento local em `backend/uploads`).
 
 ---
@@ -51,22 +51,22 @@ Sistema Full-Stack para gestão de integrantes de uma fanfarra, permitindo o cad
 ### Entidades Principais:
 
 - **User:** Admin (email, password).
-- **Aluno:** Dados pessoais, fotos (array de strings), enums `TipoIntegrante` (CORPO_MUSICAL, LINHA_FRENTE).
-- **Responsável:** Dados de contato e endereço, vinculado ao Aluno.
-- **Escola:** Dados da instituição de ensino, vinculada ao Aluno.
+- **Integrante:** Dados pessoais, fotos (array de strings), enums `TipoIntegrante` (CORPO_MUSICAL, LINHA_FRENTE).
+- **Responsável:** Dados de contato e endereço, vinculado ao Integrante.
+- **Corporacao:** Dados da instituição, vinculada ao Integrante.
 
 ---
 
 ## 🔌 API Endpoints (Swagger em `/api-docs`)
 
-| Método | Rota               | Descrição                        | Protegida? |
-| :----- | :----------------- | :------------------------------- | :--------- |
-| POST   | `/api/auth/login`  | Autenticação e geração de Token  | Não        |
-| GET    | `/api/alunos`      | Listagem com filtros (nome, CPF) | Sim        |
-| POST   | `/api/alunos`      | Cadastro (Multipart/Form-Data)   | Sim        |
-| GET    | `/api/alunos/{id}` | Detalhes de um integrante        | Sim        |
-| PATCH  | `/api/alunos/{id}` | Atualização parcial              | Sim        |
-| DELETE | `/api/alunos/{id}` | Exclusão lógica/física           | Sim        |
+| Método | Rota                    | Descrição                        | Protegida? |
+| :----- | :---------------------- | :------------------------------- | :--------- |
+| POST   | `/api/auth/login`       | Autenticação e geração de Token  | Não        |
+| GET    | `/api/integrantes`      | Listagem com filtros (nome, CPF) | Sim        |
+| POST   | `/api/integrantes`      | Cadastro (Multipart/Form-Data)   | Sim        |
+| GET    | `/api/integrantes/{id}` | Detalhes de um integrante        | Sim        |
+| PATCH  | `/api/integrantes/{id}` | Atualização parcial              | Sim        |
+| DELETE | `/api/integrantes/{id}` | Exclusão                         | Sim        |
 
 ---
 
@@ -77,7 +77,7 @@ Sistema Full-Stack para gestão de integrantes de uma fanfarra, permitindo o cad
 **Backend (`backend/.env`):**
 
 ```env
-DATABASE_URL="postgresql://admin:admin123@localhost:5434/fanfarra_db?schema=public"
+DATABASE_URL="postgresql://user:password@localhost:5434/corporacao_db?schema=public"
 JWT_SECRET="sua_chave_secreta_aqui"
 PORT=3001
 ```
@@ -106,7 +106,7 @@ npm run dev
 
 ### 3. Credenciais Padrão
 
-- **Usuário:** `admin@fanfarra.com`
+- **Usuário:** `admin@corporacao.com`
 - **Senha:** `admin123`
 
 ---

@@ -6,9 +6,9 @@ import { AuthProvider } from '@/contexts/AuthContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Cadastro Integrantes Fanfarra',
-  description: 'Sistema de cadastro de integrantes de fanfarra',
-}
+  title: 'Cadastro Integrantes Corporação',
+  description: 'Sistema de cadastro de integrantes de corporação',
+};
 
 export default function RootLayout({
   children,

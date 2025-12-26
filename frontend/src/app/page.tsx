@@ -3,7 +3,7 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-50">
-      <h1 className="text-4xl font-bold text-blue-800">Cadastro Integrantes Fanfarra</h1>
+      <h1 className="text-4xl font-bold text-blue-800">Cadastro Integrantes Corporação</h1>
       <p className="mt-4 text-xl text-gray-600">Bem-vindo ao sistema de gestão.</p>
 
       <div className="mt-8 flex gap-4">

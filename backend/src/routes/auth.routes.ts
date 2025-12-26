@@ -22,7 +22,7 @@ const authRoutes = Router();
  *             properties:
  *               email:
  *                 type: string
- *                 example: admin@fanfarra.com
+ *                 example: admin@corporacao.com
  *               password:
  *                 type: string
  *                 example: admin123
