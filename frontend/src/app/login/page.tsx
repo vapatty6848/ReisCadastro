@@ -26,7 +26,7 @@ export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md p-8 bg-white rounded shadow-md">
-        <h2 className="mb-6 text-2xl font-bold text-center">Login Fanfarra</h2>
+        <h2 className="mb-6 text-2xl font-bold text-center">Login Corporação</h2>
 
         {error && <p className="mb-4 text-red-500">{error}</p>}
 

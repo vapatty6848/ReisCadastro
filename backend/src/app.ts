@@ -4,7 +4,7 @@ import path from 'path';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger';
 import { authRoutes } from './routes/auth.routes';
-import alunoRoutes from './routes/aluno.routes';
+import integranteRoutes from './routes/integrante.routes';
 
 const app = express();
 
@@ -19,6 +19,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Rotas
 app.use('/api/auth', authRoutes);
-app.use('/api/alunos', alunoRoutes);
+app.use('/api/integrantes', integranteRoutes);
 
 export { app };

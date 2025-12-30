@@ -14,8 +14,13 @@ describe('Input Component', () => {
   });
 
   it('shows error message when provided', () => {
-    const { register } = { register: jest.fn() } as any;
-    render(<Input label="Test" register={register} error="Error message" />);
+    const mockRegister = {
+      name: 'test',
+      onChange: jest.fn(),
+      onBlur: jest.fn(),
+      ref: jest.fn(),
+    } as any;
+    render(<Input label="Test" register={mockRegister} error="Error message" />);
     expect(screen.getByText('Error message')).toBeInTheDocument();
   });
 });

@@ -5,12 +5,18 @@ node_modules/
 
 # Testing
 /coverage
-/test-results/
-/playwright-report/
+test-results/
+report-data/
+playwright-report/
+playwright-report/data/
 /blob-report/
 /playwright/.cache
 cypress/screenshots/
 cypress/videos/
+
+# Uploads
+backend/uploads/
+!backend/uploads/.gitkeep
 
 # Next.js
 .next/

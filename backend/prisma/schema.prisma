@@ -35,26 +35,26 @@ model User {
 }
 
 model Responsavel {
-  id         String   @id @default(uuid())
-  nome       String
-  cpf        String   @unique
-  telefone   String
-  email      String?
-  rua        String?
-  numero     String?
-  bairro     String?
-  cep        String?
-  parentesco String
-  alunos     Aluno[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String       @id @default(uuid())
+  nome        String
+  cpf         String       @unique
+  telefone    String
+  email       String?
+  rua         String?
+  numero      String?
+  bairro      String?
+  cep         String?
+  parentesco  String
+  integrantes Integrante[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   @@index([id])
 }
 
-model Escola {
-  id              String   @id @default(uuid())
-  nome            String   @unique
+model Corporacao {
+  id              String       @id @default(uuid())
+  nome            String       @unique
   rua             String?
   numero          String?
   bairro          String?
@@ -66,12 +66,12 @@ model Escola {
   estado          String?
   contatoNome     String?
   contatoTelefone String?
-  alunos          Aluno[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  integrantes     Integrante[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }
 
-model Aluno {
+model Integrante {
   id                     String             @id @default(uuid())
   nome                   String
   dataNascimento         DateTime
@@ -94,15 +94,16 @@ model Aluno {
   instrumentoOrigem      OrigemInstrumento?
   instrumentoRecebimento DateTime?
   instrumentoDevolucao   DateTime?
+  patrimonio             String?
   observacoes            String?
   responsavelId          String
   responsavel            Responsavel        @relation(fields: [responsavelId], references: [id])
-  escolaId               String
-  escola                 Escola             @relation(fields: [escolaId], references: [id])
+  corporacaoId           String
+  corporacao             Corporacao         @relation(fields: [corporacaoId], references: [id])
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
 
   @@index([cpf])
   @@index([matriculaNumero])
-  @@index([escolaId, turma])
+  @@index([corporacaoId, turma])
 }

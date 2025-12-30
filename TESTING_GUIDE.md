@@ -9,7 +9,7 @@ Este guia detalha os procedimentos para garantir a qualidade, performance e segu
 ### 1.1 Interface (UI)
 
 1. Acesse `http://localhost:3000`.
-2. Realize o login com `admin@fanfarra.com` / `admin123`.
+2. Realize o login com `admin@corporacao.com` / `admin123`.
 3. Siga os fluxos descritos no arquivo `TEST_CASES.md`.
 
 ### 1.2 API (Swagger)

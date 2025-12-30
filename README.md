@@ -1,6 +1,6 @@
-# Cadastro Integrantes Fanfarra 🥁
+# Cadastro Integrantes Corporação 🥁
 
-Sistema full-stack para gestão de integrantes de fanfarra, incluindo dados de alunos, responsáveis e escolas.
+Sistema full-stack para gestão de integrantes de corporação, incluindo dados de integrantes, responsáveis e corporações.
 
 ## 🚀 Tecnologias
 
@@ -69,7 +69,7 @@ Sistema full-stack para gestão de integrantes de fanfarra, incluindo dados de a
 
 Para acessar o sistema em ambiente de desenvolvimento:
 
-- **Usuário:** `admin@fanfarra.com`
+- **Usuário:** `admin@corporacao.com`
 - **Senha:** `admin123`
 
 ## 📖 Documentação da API
@@ -80,11 +80,11 @@ A documentação Swagger está disponível em `http://localhost:3001/api-docs`.
 
 - `POST /api/auth/login` - Login do usuário
 - `GET /api/auth/me` - Dados do usuário logado
-- `POST /api/alunos` - Cadastrar aluno (com responsável e escola)
-- `GET /api/alunos` - Listar todos os alunos
-- `GET /api/alunos/:id` - Detalhes de um aluno
-- `PATCH /api/alunos/:id` - Atualizar aluno
-- `DELETE /api/alunos/:id` - Remover aluno
+- `POST /api/integrantes` - Cadastrar integrante (com responsável e corporação)
+- `GET /api/integrantes` - Listar todos os integrantes
+- `GET /api/integrantes/:id` - Detalhes de um integrante
+- `PATCH /api/integrantes/:id` - Atualizar integrante
+- `DELETE /api/integrantes/:id` - Remover integrante
 
 ## 🧪 Testes e Qualidade
 
@@ -161,3 +161,6 @@ O projeto possui um workflow de Integração Contínua (`.github/workflows/ci.ym
 ## 📝 Licença
 
 Este projeto está sob a licença MIT.
+
+
+

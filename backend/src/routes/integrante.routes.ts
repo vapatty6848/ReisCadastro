@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { createAluno, listAlunos, getAluno, updateAluno, deleteAluno } from '../controllers/aluno.controller';
+import { createIntegrante, listIntegrantes, getIntegrante, updateIntegrante, deleteIntegrante } from '../controllers/integrante.controller';
 import { authMiddleware } from '../middlewares/auth.middleware';
 
 const storage = multer.diskStorage({
@@ -22,11 +22,11 @@ router.use(authMiddleware);
 
 /**
  * @swagger
- * /api/alunos:
+ * /api/integrantes:
  *   post:
- *     summary: Cria um novo integrante (Aluno)
- *     description: Realiza o cadastro completo de um integrante, incluindo dados pessoais, responsável, escola e até 5 fotos.
- *     tags: [Alunos]
+ *     summary: Cria um novo integrante
+ *     description: Realiza o cadastro completo de um integrante, incluindo dados pessoais, responsável, corporação e até 5 fotos.
+ *     tags: [Integrantes]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -38,7 +38,7 @@ router.use(authMiddleware);
  *             properties:
  *               data:
  *                 type: string
- *                 description: JSON string contendo os dados do aluno (nome, cpf, responsavel, escola, etc.)
+ *                 description: JSON string contendo os dados do integrante (nome, cpf, responsavel, corporacao, etc.)
  *               fotos:
  *                 type: array
  *                 items:
@@ -64,7 +64,7 @@ router.use(authMiddleware);
  *   get:
  *     summary: Lista integrantes com filtros
  *     description: Retorna uma lista de integrantes. Permite filtrar por nome, responsável, instrumento e tipo.
- *     tags: [Alunos]
+ *     tags: [Integrantes]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -88,10 +88,10 @@ router.use(authMiddleware);
  *       401:
  *         description: Não autorizado.
  *
- * /api/alunos/{id}:
+ * /api/integrantes/{id}:
  *   get:
  *     summary: Obtém detalhes de um integrante
- *     tags: [Alunos]
+ *     tags: [Integrantes]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -107,7 +107,7 @@ router.use(authMiddleware);
  *   patch:
  *     summary: Atualiza um integrante existente
  *     description: Permite atualização parcial dos dados. Se novas fotos forem enviadas, elas substituirão as antigas.
- *     tags: [Alunos]
+ *     tags: [Integrantes]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -130,7 +130,7 @@ router.use(authMiddleware);
  *         description: Erro de validação ou CPF/Matrícula já em uso por outro integrante.
  *   delete:
  *     summary: Remove um integrante
- *     tags: [Alunos]
+ *     tags: [Integrantes]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -144,10 +144,10 @@ router.use(authMiddleware);
  *       500:
  *         description: Erro ao deletar.
  */
-router.post('/', upload.array('fotos', 5), createAluno);
-router.get('/', listAlunos);
-router.get('/:id', getAluno);
-router.patch('/:id', upload.array('fotos', 5), updateAluno);
-router.delete('/:id', deleteAluno);
+router.post('/', upload.array('fotos', 5), createIntegrante);
+router.get('/', listIntegrantes);
+router.get('/:id', getIntegrante);
+router.patch('/:id', upload.array('fotos', 5), updateIntegrante);
+router.delete('/:id', deleteIntegrante);
 
 export default router;

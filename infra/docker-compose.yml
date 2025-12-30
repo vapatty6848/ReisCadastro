@@ -3,12 +3,12 @@ version: '3.8'
 services:
   db:
     image: postgres:15-alpine
-    container_name: fanfarra_db
+    container_name: corporacao_db
     restart: always
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: fanfarra_db
+      POSTGRES_DB: corporacao_db
     ports:
       - "5434:5432"
     volumes:
