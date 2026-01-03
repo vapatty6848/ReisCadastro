@@ -13,7 +13,7 @@
     "db:migrate": "docker exec corporacao_backend npx prisma migrate deploy",
     "db:seed": "docker exec corporacao_backend npx prisma db seed",
     "lint": "npm --prefix backend run lint || true && npm --prefix frontend run lint",
-    "test": "npm --prefix backend test || true && npm --prefix frontend test"
+    "test": "npm --prefix backend test -- --forceExit --detectOpenHandles || true && npm --prefix frontend test"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"

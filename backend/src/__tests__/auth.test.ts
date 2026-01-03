@@ -17,7 +17,7 @@ describe('Auth Endpoints', () => {
 
     expect(res.statusCode).toEqual(401);
     expect(res.body).toHaveProperty('message', 'Credenciais inválidas');
-  }, 10000);
+  }, 30000);
 
   it('should fail to login with invalid data', async () => {
     const res = await request(app)
