@@ -80,7 +80,7 @@ Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o
 **Backend (`backend/.env`):**
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5434/corporacao_db?schema=public"
+DATABASE_URL="postgresql://user:password@localhost:5435/corporacao_db?schema=public"
 JWT_SECRET="sua_chave_secreta_aqui"
 PORT=3001
 ```
@@ -88,7 +88,7 @@ PORT=3001
 **Frontend (`frontend/.env.local`):**
 
 ```env
-NEXT_PUBLIC_API_URL="http://localhost:3001/api"
+NEXT_PUBLIC_API_URL="http://localhost:3001"
 ```
 
 ### 2. Comandos de Inicialização (Docker - Recomendado)

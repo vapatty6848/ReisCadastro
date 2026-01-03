@@ -23,6 +23,15 @@ Sistema full-stack para gestão de integrantes de corporação, incluindo dados 
 - **Jest** + **React Testing Library**
 - **Playwright** / **Cypress** para E2E
 
+## ✨ Novas Funcionalidades (Dashboard)
+
+O Dashboard principal foi modernizado e agora conta com:
+
+- **Aba de Consulta:** Pesquisa avançada por nome, corporação, instrumento, patrimônio e status de devolução.
+- **Aba de Cadastro:** Formulário integrado para novos integrantes.
+- **Gestão Direta:** Botões de Visualizar, Editar e Excluir diretamente na listagem.
+- **Exportação:** Exportação de relatórios em CSV e impressão formatada.
+
 ## 🛠️ Como rodar o projeto
 
 ### Pré-requisitos
