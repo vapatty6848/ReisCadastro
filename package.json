@@ -12,8 +12,8 @@
     "docker:build": "docker compose -f infra/docker-compose.yml build",
     "db:migrate": "docker exec corporacao_backend npx prisma migrate deploy",
     "db:seed": "docker exec corporacao_backend npx prisma db seed",
-    "lint": "npm run lint --prefix backend || true && npm run lint --prefix frontend",
-    "test": "npm test --prefix backend || true && npm test --prefix frontend"
+    "lint": "npm --prefix backend run lint || true && npm --prefix frontend run lint",
+    "test": "npm --prefix backend test || true && npm --prefix frontend test"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
