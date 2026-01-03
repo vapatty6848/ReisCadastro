@@ -1,7 +1,12 @@
 import request from 'supertest';
 import { app } from '../app';
+import prisma from '../lib/prisma';
 
 describe('Auth Endpoints', () => {
+  afterAll(async () => {
+    await prisma.$disconnect();
+  });
+
   it('should fail to login with invalid credentials', async () => {
     const res = await request(app)
       .post('/api/auth/login')

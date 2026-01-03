@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma';
 import { integranteSchema, updateIntegranteSchema } from '../schemas/integrante.schema';
 import { resolveResponsavel, resolveCorporacao } from '../utils/resolvers';
-
-const prisma = new PrismaClient();
 
 export const createIntegrante = async (req: Request, res: Response) => {
   // Se houver arquivo, adicionamos o caminho ao body para validação (opcional) ou apenas processamos
