@@ -5,7 +5,7 @@ API_URL="http://localhost:3001/api"
 echo "--- 0. Autenticação ---"
 LOGIN_RESPONSE=$(curl -s -X POST "$API_URL/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@admin.com", "password":"admin123"}')
+  -d '{"email":"admin@corporacao.com", "password":"admin123"}')
 
 TOKEN=$(echo $LOGIN_RESPONSE | grep -oP '"token":"\K[^"]+')
 

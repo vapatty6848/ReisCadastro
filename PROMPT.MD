@@ -117,7 +117,7 @@ npm run dev
 
 ### 4. Credenciais Padrão
 
-- **Usuário:** `admin@admin.com`
+- **Usuário:** `admin@corporacao.com`
 - **Senha:** `admin123`
 
 ---
