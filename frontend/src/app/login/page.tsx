@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { loginSchema, LoginData } from '@/schemas';
 import { useAuth } from '@/contexts/AuthContext';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useState } from 'react';
 
 export default function LoginPage() {
@@ -16,7 +16,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginData) => {
     try {
-      const response = await axios.post('http://localhost:3001/api/auth/login', data);
+      const response = await api.post('/api/auth/login', data);
       login(response.data.token, response.data.user);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao fazer login');

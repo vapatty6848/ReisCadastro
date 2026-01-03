@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/form/Input';
 import { Select } from '@/components/form/Select';
@@ -34,9 +34,7 @@ export default function IntegrantesPage() {
       if (filters.instrumento) params.append('instrumento', filters.instrumento);
       if (filters.naoDevolvido) params.append('naoDevolvido', 'true');
 
-      const response = await axios.get(`http://localhost:3001/api/integrantes?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.get(`/api/integrantes?${params.toString()}`);
       setIntegrantes(response.data);
     } catch (error) {
       console.error('Erro ao buscar integrantes:', error);
@@ -52,9 +50,7 @@ export default function IntegrantesPage() {
   const handleDelete = async (id: string, nome: string) => {
     if (confirm(`Tem certeza que deseja excluir o integrante ${nome}?`)) {
       try {
-        await axios.delete(`http://localhost:3001/api/integrantes/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.delete(`/api/integrantes/${id}`);
         alert('Integrante excluído com sucesso!');
         fetchIntegrantes();
       } catch (error) {

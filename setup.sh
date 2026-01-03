@@ -1,32 +1,29 @@
 #!/bin/bash
 
-echo "🚀 Iniciando setup do projeto Cadastro Integrantes Corporação..."
+echo "🚀 Iniciando setup automatizado do projeto Cadastro Integrantes Corporação..."
 
-# Backend
-echo "📦 Configurando Backend..."
-cd backend
-npm install
-# npx prisma generate # Requer banco rodando ou skip-generate
+# Instalação de dependências
+echo "📦 Instalando dependências em todos os módulos..."
+npm run install:all
 
-# Frontend
-echo "📦 Configurando Frontend..."
-cd ../frontend
-npm install
+# Infraestrutura
+echo "🐳 Subindo containers Docker (Banco, Backend, Frontend)..."
+npm run docker:up
 
-# Infra
-echo "🐳 Subindo infraestrutura (Docker)..."
-cd ../infra
-docker-compose up -d
+echo "⏳ Aguardando serviços ficarem prontos..."
+sleep 10
 
-echo "⏳ Aguardando banco de dados ficar pronto..."
-sleep 5
+# Banco de Dados
+echo "🔄 Aplicando migrações do Prisma..."
+npm run db:migrate
 
-# Backend Migrations
-echo "🔄 Executando migrações do banco de dados..."
-cd ../backend
-npx prisma migrate dev --name init
-npx prisma db seed
+echo "🌱 Populando banco de dados (Seed)..."
+npm run db:seed
 
-echo "✅ Setup concluído!
-Para rodar o backend: cd backend && npm run dev
-Para rodar o frontend: cd frontend && npm run dev"
+echo "✅ Setup concluído com sucesso!"
+echo "--------------------------------------------------"
+echo "Frontend: http://localhost:3000"
+echo "Backend:  http://localhost:3001"
+echo "Swagger:  http://localhost:3001/api-docs"
+echo "--------------------------------------------------"
+echo "Credenciais padrão: admin@admin.com / admin123"
