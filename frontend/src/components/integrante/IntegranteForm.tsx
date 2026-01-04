@@ -30,6 +30,7 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
   });
 
   const subtipoSelecionado = watch('subtipoIntegrante');
+  const fotosExistentes = watch('fotos') as string[] | undefined;
 
   useEffect(() => {
     if (id && token) {
@@ -134,33 +135,73 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
             <div className="md:col-span-2">
               <Input label="Nome Completo" register={register('nome')} error={errors.nome?.message} />
             </div>
-            <Input label="CPF" register={register('cpf')} error={errors.cpf?.message} />
+            <div className="relative">
+              <Input label="CPF" register={register('cpf')} error={errors.cpf?.message} />
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const respCpf = watch('responsavel.cpf');
+                    if (respCpf) {
+                      setValue('cpf', respCpf);
+                    } else {
+                      alert('Preencha o CPF do responsável primeiro.');
+                    }
+                  }}
+                  className="absolute right-0 top-0 text-[10px] text-blue-600 hover:underline"
+                >
+                  Copiar do Responsável
+                </button>
+              )}
+            </div>
             <Input label="Data de Nascimento" type="date" register={register('dataNascimento')} error={errors.dataNascimento?.message} />
             <Input label="Telefone" register={register('telefone')} error={errors.telefone?.message} />
             <Input label="Email" type="email" register={register('email')} error={errors.email?.message} />
             <Input label="Data de Matrícula" type="date" register={register('dataMatricula')} error={errors.dataMatricula?.message} />
 
-            {!readOnly && (
-              <div className="mb-4">
-                <label className="block mb-1 font-medium text-gray-700">Fotos / Documentos (Máx. 5)</label>
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
-                  accept="image/*,.pdf"
-                />
-                <div className="mt-2 space-y-1">
-                  {selectedFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 text-sm bg-gray-100 rounded">
-                      <span className="truncate max-w-[200px]">{file.name}</span>
-                      <button type="button" onClick={() => removeFile(index)} className="px-2 font-bold text-red-500 hover:text-red-700">✕</button>
-                    </div>
-                  ))}
+            <div className="md:col-span-3">
+              {fotosExistentes && fotosExistentes.length > 0 && (
+                <div className="mb-4">
+                  <label className="block mb-2 font-medium text-gray-700">Arquivos Atuais</label>
+                  <div className="flex flex-wrap gap-2">
+                    {fotosExistentes.map((foto, index) => (
+                      <div key={index} className="relative group">
+                        <a
+                          href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${foto}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block p-2 bg-blue-50 border border-blue-200 rounded text-blue-600 text-xs hover:bg-blue-100"
+                        >
+                          {foto.split('/').pop()}
+                        </a>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <p className="mt-1 text-xs text-gray-500">{selectedFiles.length} de 5 arquivo(s) selecionado(s)</p>
-              </div>
-            )}
+              )}
+
+              {!readOnly && (
+                <div className="mb-4">
+                  <label className="block mb-1 font-medium text-gray-700">Adicionar Fotos / Documentos (Máx. 5)</label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileChange}
+                    className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+                    accept="image/*,.pdf"
+                  />
+                  <div className="mt-2 space-y-1">
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 text-sm bg-gray-100 rounded">
+                        <span className="truncate max-w-[200px]">{file.name}</span>
+                        <button type="button" onClick={() => removeFile(index)} className="px-2 font-bold text-red-500 hover:text-red-700">✕</button>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-1 text-xs text-gray-500">{selectedFiles.length} de 5 arquivo(s) selecionado(s)</p>
+                </div>
+              )}
+            </div>
           </div>
           <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-4">
             <div className="md:col-span-2">
@@ -187,8 +228,22 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
             <Input label="Email" type="email" register={register('responsavel.email')} error={errors.responsavel?.email?.message} />
           </div>
           <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-4">
-            <div className="md:col-span-2">
+            <div className="md:col-span-2 relative">
               <Input label="Rua" register={register('responsavel.rua')} error={errors.responsavel?.rua?.message} />
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValue('responsavel.rua', watch('rua') || '');
+                    setValue('responsavel.numero', watch('numero') || '');
+                    setValue('responsavel.bairro', watch('bairro') || '');
+                    setValue('responsavel.cep', watch('cep') || '');
+                  }}
+                  className="absolute right-0 top-0 text-[10px] text-blue-600 hover:underline"
+                >
+                  Copiar Endereço do Integrante
+                </button>
+              )}
             </div>
             <Input label="Número" register={register('responsavel.numero')} error={errors.responsavel?.numero?.message} />
             <Input label="Bairro" register={register('responsavel.bairro')} error={errors.responsavel?.bairro?.message} />

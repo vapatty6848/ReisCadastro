@@ -21,11 +21,11 @@ export default function DashboardPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-blue-900 text-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+      <header className="text-white bg-blue-900 shadow-lg">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
               <div className="bg-white p-1.5 rounded-lg">
                 <Users className="text-blue-900" size={24} />
@@ -34,13 +34,13 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex items-center gap-6">
-              <div className="hidden md:block text-right">
+              <div className="hidden text-right md:block">
                 <p className="text-sm font-medium text-blue-100">Bem-vindo,</p>
                 <p className="text-sm font-bold">{user?.name}</p>
               </div>
               <button
                 onClick={logout}
-                className="flex items-center gap-2 bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors bg-red-500 rounded-lg shadow-sm hover:bg-red-600"
               >
                 <LogOut size={18} />
                 <span className="hidden sm:inline">Sair</span>
@@ -51,8 +51,8 @@ export default function DashboardPage() {
       </header>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+        <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <nav className="flex -mb-px space-x-8">
             <button
               onClick={() => setActiveTab('lista')}
@@ -79,13 +79,13 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+      <main className="flex-1 w-full px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
+        <div className="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl md:p-8">
           {activeTab === 'lista' ? (
             <IntegranteList />
           ) : (
             <div>
-              <div className="mb-6 flex justify-between items-center">
+              <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">Novo Cadastro</h2>
                 <button
                   onClick={() => setActiveTab('lista')}
@@ -101,8 +101,8 @@ export default function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 py-4">
-        <div className="max-w-7xl mx-auto px-4 text-center text-gray-500 text-xs">
+      <footer className="py-4 bg-white border-t border-gray-200">
+        <div className="px-4 mx-auto text-xs text-center text-gray-500 max-w-7xl">
           &copy; {new Date().getFullYear()} Corporação Admin - Sistema de Gestão de Integrantes
         </div>
       </footer>

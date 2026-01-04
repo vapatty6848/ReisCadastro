@@ -5,11 +5,11 @@ import { List } from 'lucide-react';
 export default function NovoIntegrantePage() {
   return (
     <div className="p-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-800">Novo Cadastro de Integrante</h1>
         <Link
           href="/dashboard/integrantes"
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 text-white transition-colors bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700"
         >
           <List size={20} /> Editar/ Pesquisar/Imprimir ou Deletar
         </Link>

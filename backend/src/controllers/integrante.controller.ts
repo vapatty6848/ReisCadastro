@@ -65,12 +65,40 @@ export const createIntegrante = async (req: Request, res: Response) => {
 };
 
 export const listIntegrantes = async (req: Request, res: Response) => {
-  const { nome, corporacao, tamanhoUniforme, tamanhoBota, patrimonio, instrumento, naoDevolvido } = req.query;
+  const {
+    nome,
+    cpf,
+    turma,
+    tipoIntegrante,
+    subtipoIntegrante,
+    corporacao,
+    tamanhoUniforme,
+    tamanhoBota,
+    patrimonio,
+    instrumento,
+    naoDevolvido
+  } = req.query;
 
   const where: any = {};
 
   if (nome) {
     where.nome = { contains: String(nome), mode: 'insensitive' };
+  }
+
+  if (cpf) {
+    where.cpf = { contains: String(cpf) };
+  }
+
+  if (turma) {
+    where.turma = { contains: String(turma), mode: 'insensitive' };
+  }
+
+  if (tipoIntegrante) {
+    where.tipoIntegrante = tipoIntegrante;
+  }
+
+  if (subtipoIntegrante) {
+    where.subtipoIntegrante = subtipoIntegrante;
   }
 
   if (corporacao) {

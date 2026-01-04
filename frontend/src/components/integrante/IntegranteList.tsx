@@ -12,6 +12,10 @@ export function IntegranteList() {
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({
     nome: '',
+    cpf: '',
+    turma: '',
+    tipoIntegrante: '',
+    subtipoIntegrante: '',
     corporacao: '',
     tamanhoBota: '',
     tamanhoUniforme: '',
@@ -25,6 +29,10 @@ export function IntegranteList() {
     try {
       const params = new URLSearchParams();
       if (filters.nome) params.append('nome', filters.nome);
+      if (filters.cpf) params.append('cpf', filters.cpf);
+      if (filters.turma) params.append('turma', filters.turma);
+      if (filters.tipoIntegrante) params.append('tipoIntegrante', filters.tipoIntegrante);
+      if (filters.subtipoIntegrante) params.append('subtipoIntegrante', filters.subtipoIntegrante);
       if (filters.corporacao) params.append('corporacao', filters.corporacao);
       if (filters.tamanhoBota) params.append('tamanhoBota', filters.tamanhoBota);
       if (filters.tamanhoUniforme) params.append('tamanhoUniforme', filters.tamanhoUniforme);
@@ -133,16 +141,48 @@ export function IntegranteList() {
       </div>
 
       {/* Filtros */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4 items-end print:hidden">
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end print:hidden">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Integrante (Nome)</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
           <input
             type="text"
             value={filters.nome}
             onChange={(e) => setFilters({ ...filters, nome: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
-            placeholder="Nome..."
+            placeholder="Filtrar por nome..."
           />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+          <input
+            type="text"
+            value={filters.cpf}
+            onChange={(e) => setFilters({ ...filters, cpf: e.target.value })}
+            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
+            placeholder="Filtrar por CPF..."
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Turma</label>
+          <input
+            type="text"
+            value={filters.turma}
+            onChange={(e) => setFilters({ ...filters, turma: e.target.value })}
+            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
+            placeholder="Filtrar por turma..."
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+          <select
+            value={filters.tipoIntegrante}
+            onChange={(e) => setFilters({ ...filters, tipoIntegrante: e.target.value })}
+            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
+          >
+            <option value="">Todos</option>
+            <option value="CORPO_MUSICAL">Corpo Musical</option>
+            <option value="LINHA_FRENTE">Linha de Frente</option>
+          </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Corporação</label>
@@ -151,17 +191,7 @@ export function IntegranteList() {
             value={filters.corporacao}
             onChange={(e) => setFilters({ ...filters, corporacao: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
-            placeholder="Corporação..."
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Instrumento</label>
-          <input
-            type="text"
-            value={filters.instrumento}
-            onChange={(e) => setFilters({ ...filters, instrumento: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
-            placeholder="Instrumento..."
+            placeholder="Filtrar por corporação..."
           />
         </div>
         <div>
@@ -171,27 +201,17 @@ export function IntegranteList() {
             value={filters.patrimonio}
             onChange={(e) => setFilters({ ...filters, patrimonio: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
-            placeholder="Patrimônio..."
+            placeholder="Filtrar por patrimônio..."
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tam. Bota</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Instrumento</label>
           <input
             type="text"
-            value={filters.tamanhoBota}
-            onChange={(e) => setFilters({ ...filters, tamanhoBota: e.target.value })}
+            value={filters.instrumento}
+            onChange={(e) => setFilters({ ...filters, instrumento: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
-            placeholder="Bota..."
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tam. Roupa</label>
-          <input
-            type="text"
-            value={filters.tamanhoUniforme}
-            onChange={(e) => setFilters({ ...filters, tamanhoUniforme: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
-            placeholder="Roupa..."
+            placeholder="Filtrar por instrumento..."
           />
         </div>
         <div className="flex items-center gap-2 pb-3">
@@ -205,11 +225,15 @@ export function IntegranteList() {
           <label htmlFor="naoDevolvido" className="text-sm font-medium text-gray-700">Não Devolvidos</label>
         </div>
 
-        <div className="md:col-span-4 lg:col-span-7 flex justify-end gap-2">
+        <div className="md:col-span-3 lg:col-span-5 flex justify-end gap-2">
           <button
             onClick={() => {
               setFilters({
                 nome: '',
+                cpf: '',
+                turma: '',
+                tipoIntegrante: '',
+                subtipoIntegrante: '',
                 corporacao: '',
                 tamanhoBota: '',
                 tamanhoUniforme: '',
@@ -225,7 +249,7 @@ export function IntegranteList() {
           </button>
           <button
             onClick={fetchIntegrantes}
-            className="bg-gray-800 text-white px-8 py-2 rounded-lg hover:bg-gray-900 flex items-center justify-center gap-2 transition-colors"
+            className="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors"
           >
             <Search size={20} /> Filtrar
           </button>
@@ -253,6 +277,7 @@ export function IntegranteList() {
               ) : (
                 <>
                   <th className="p-4 font-semibold text-gray-700">Corporação</th>
+                  <th className="p-4 font-semibold text-gray-700">Turma</th>
                   <th className="p-4 font-semibold text-gray-700">Tipo</th>
                   <th className="p-4 font-semibold text-gray-700">Patrimônio</th>
                 </>
@@ -289,6 +314,7 @@ export function IntegranteList() {
                   ) : (
                     <>
                       <td className="p-4 text-gray-600">{integrante.corporacao?.nome}</td>
+                      <td className="p-4 text-gray-600">{integrante.turma}</td>
                       <td className="p-4 text-gray-600 text-sm">
                         <span className={`px-2 py-1 rounded-full text-xs ${integrante.tipoIntegrante === 'CORPO_MUSICAL' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'} print:p-0 print:text-black`}>
                           {integrante.tipoIntegrante.replace('_', ' ')}
