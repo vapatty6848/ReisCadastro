@@ -77,6 +77,30 @@ router.use(authMiddleware);
  *         schema: { type: string }
  *         description: Filtro por nome do responsável.
  *       - in: query
+ *         name: corporacao
+ *         schema: { type: string }
+ *         description: Filtro por nome da corporação.
+ *       - in: query
+ *         name: tamanhoUniforme
+ *         schema: { type: string }
+ *         description: Filtro por tamanho do uniforme.
+ *       - in: query
+ *         name: tamanhoBota
+ *         schema: { type: string }
+ *         description: Filtro por tamanho da bota.
+ *       - in: query
+ *         name: patrimonio
+ *         schema: { type: string }
+ *         description: Filtro por número de patrimônio.
+ *       - in: query
+ *         name: instrumento
+ *         schema: { type: string }
+ *         description: Filtro por nome do instrumento.
+ *       - in: query
+ *         name: naoDevolvido
+ *         schema: { type: boolean }
+ *         description: Se true, retorna apenas instrumentos não devolvidos.
+ *       - in: query
  *         name: instrumentoOrigem
  *         schema: { type: string, enum: [PROJETO, EMPRESA] }
  *       - in: query

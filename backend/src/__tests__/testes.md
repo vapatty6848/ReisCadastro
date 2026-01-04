@@ -16,3 +16,10 @@ Verificar se o userId é extraído corretamente do token e injetado na requisiç
 O sistema cria automaticamente uma Corporação ou um Responsável se eles não existirem durante o cadastro do integrante. Precisamos testar se essa criação automática funciona e se não duplica registros existentes.
 4. Testes de Upload de Arquivos
 Garantir que, ao enviar fotos, elas sejam salvas no diretório correto e o caminho seja armazenado no banco de dados.
+Novos Testes Adicionados (integrante.test.ts):
+Segurança (Autenticação): Garante que rotas de integrantes não possam ser acessadas sem um token JWT válido (Erro 401).
+Criação de Integrante: Valida o cadastro completo, incluindo a criação automática de Corporação e Responsável caso não existam.
+Regra de Unicidade (CPF): Impede o cadastro de duplicatas, protegendo a integridade dos dados.
+Listagem e Filtros: Verifica se a recuperação de dados está funcionando corretamente.
+Atualização (PATCH): Garante que as edições de dados (como troca de nome ou tamanho de uniforme) persistam corretamente.
+Exclusão (DELETE): Valida a remoção completa do registro e confirma que ele não está mais acessível.

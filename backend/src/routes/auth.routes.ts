@@ -31,6 +31,19 @@ const authRoutes = Router();
  *         description: Login realizado com sucesso
  *       401:
  *         description: Credenciais inválidas
+ * /api/auth/me:
+ *   get:
+ *     summary: Obtém os dados do usuário autenticado
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Dados do usuário retornados com sucesso
+ *       401:
+ *         description: Token ausente ou inválido
+ *       404:
+ *         description: Usuário não encontrado
  */
 authRoutes.post('/login', login);
 authRoutes.get('/me', authMiddleware, me);
