@@ -76,7 +76,7 @@ model Integrante {
   id                     String             @id @default(uuid())
   nome                   String
   dataNascimento         DateTime
-  cpf                    String             @unique
+  cpf                    String
   telefone               String
   email                  String?
   fotos                  String[]

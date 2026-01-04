@@ -117,6 +117,37 @@ describe('Integrante Endpoints', () => {
     expect(res.body.message || JSON.stringify(res.body)).toContain('CPF');
   });
 
+  it('should allow creating another integrante with same CPF if they have the same responsible', async () => {
+    const integranteData = {
+      nome: 'TEST_INTEGRANTE_SIBLING',
+      cpf: '12345678901', // Mesmo CPF do TEST_INTEGRANTE_01
+      dataNascimento: '1995-05-05',
+      dataMatricula: '2023-01-01',
+      turma: 'Turma A',
+      tipoIntegrante: 'CORPO_MUSICAL',
+      telefone: '11999999999',
+      responsavel: {
+        nome: 'TEST_RESPONSAVEL', // Mesmo responsável do TEST_INTEGRANTE_01
+        cpf: '98765432100',
+        telefone: '11888888888',
+        parentesco: 'Pai'
+      },
+      corporacao: {
+        nome: 'TEST_CORPORACAO',
+        telefone: '11777777777'
+      }
+    };
+
+    const res = await request(app)
+      .post('/api/integrantes')
+      .set('Authorization', `Bearer ${token}`)
+      .send(integranteData);
+
+    expect(res.statusCode).toEqual(201);
+    expect(res.body.nome).toBe(integranteData.nome);
+    expect(res.body.cpf).toBe('12345678901');
+  });
+
   it('should list integrantes', async () => {
     const res = await request(app)
       .get('/api/integrantes')
