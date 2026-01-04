@@ -39,7 +39,8 @@ describe('Integrante Endpoints', () => {
     await prisma.integrante.deleteMany({
       where: { nome: { contains: 'TEST_INTEGRANTE' } }
     });
-    await prisma.user.delete({ where: { id: testUserId } });
+    // Usar deleteMany para evitar erro se o usuário já não existir
+    await prisma.user.deleteMany({ where: { id: testUserId } });
     await prisma.$disconnect();
   });
 

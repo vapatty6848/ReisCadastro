@@ -46,4 +46,21 @@ integrante.routes.ts
 Atualização da Configuração: Ajustei o swagger.ts para ler a documentação a partir da nova pasta src/docs.
 Agora o código das rotas foca apenas no que importa: o direcionamento das requisições. A documentação continua funcionando perfeitamente em /api-docs.
 
+Continuei com a limpeza e revisão do backend, focando em robustez, segurança e organização.
 
+Melhorias Realizadas:
+Gestão de Arquivos (Limpeza de Disco):
+
+Atualizei o controlador deleteIntegrante para que, ao excluir um integrante do banco de dados, as fotos associadas a ele também sejam removidas fisicamente da pasta uploads/. Isso evita o acúmulo de arquivos órfãos no servidor.
+Segurança e Robustez:
+
+Adicionei verificações explícitas para a variável de ambiente JWT_SECRET tanto no auth.controller.ts quanto no auth.middleware.ts. Agora, se a chave secreta não estiver configurada, o sistema emitirá um erro claro em vez de falhar silenciosamente ou de forma insegura.
+Sincronização da Documentação:
+
+Atualizei o arquivo api-spec.ts para refletir que novas fotos enviadas via PATCH são adicionadas à lista existente, e não substituídas, mantendo a documentação fiel ao comportamento real do código.
+Cobertura de Testes:
+
+Adicionei um novo teste no auth.test.ts para validar o endpoint /api/auth/me, garantindo que ele retorne os dados corretos do usuário autenticado.
+Status Atual:
+Testes: 11 testes passando (4 de autenticação e 7 de integrantes).
+Branch: fix/auth-review (local).
