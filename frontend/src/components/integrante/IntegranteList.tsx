@@ -122,18 +122,18 @@ export function IntegranteList() {
 
   return (
     <div className="space-y-6 print:p-0">
-      <div className="flex justify-between items-center print:hidden">
+      <div className="flex items-center justify-between print:hidden">
         <h1 className="text-2xl font-bold text-gray-800">Gestão de Integrantes</h1>
         <div className="flex gap-2">
           <button
             onClick={handleExportCSV}
-            className="bg-green-100 text-green-700 px-4 py-2 rounded-lg hover:bg-green-200 transition-colors flex items-center gap-2"
+            className="flex items-center gap-2 px-4 py-2 text-green-700 transition-colors bg-green-100 rounded-lg hover:bg-green-200"
           >
             <FileDown size={20} /> Exportar CSV
           </button>
           <button
             onClick={handlePrint}
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+            className="flex items-center gap-2 px-4 py-2 text-gray-700 transition-colors bg-gray-100 rounded-lg hover:bg-gray-200"
           >
             <Printer size={20} /> Imprimir
           </button>
@@ -141,43 +141,43 @@ export function IntegranteList() {
       </div>
 
       {/* Filtros */}
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 items-end print:hidden">
+      <div className="grid items-end grid-cols-1 gap-4 p-4 bg-white border border-gray-100 shadow-sm rounded-xl md:grid-cols-3 lg:grid-cols-5 print:hidden">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Nome</label>
           <input
             type="text"
             value={filters.nome}
             onChange={(e) => setFilters({ ...filters, nome: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="Filtrar por nome..."
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">CPF</label>
           <input
             type="text"
             value={filters.cpf}
             onChange={(e) => setFilters({ ...filters, cpf: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="Filtrar por CPF..."
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Turma</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Turma</label>
           <input
             type="text"
             value={filters.turma}
             onChange={(e) => setFilters({ ...filters, turma: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="Filtrar por turma..."
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Tipo</label>
           <select
             value={filters.tipoIntegrante}
             onChange={(e) => setFilters({ ...filters, tipoIntegrante: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
           >
             <option value="">Todos</option>
             <option value="CORPO_MUSICAL">Corpo Musical</option>
@@ -185,32 +185,32 @@ export function IntegranteList() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Corporação</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Corporação</label>
           <input
             type="text"
             value={filters.corporacao}
             onChange={(e) => setFilters({ ...filters, corporacao: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="Filtrar por corporação..."
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Patrimônio</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Patrimônio</label>
           <input
             type="text"
             value={filters.patrimonio}
             onChange={(e) => setFilters({ ...filters, patrimonio: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="Filtrar por patrimônio..."
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Instrumento</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Instrumento</label>
           <input
             type="text"
             value={filters.instrumento}
             onChange={(e) => setFilters({ ...filters, instrumento: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-200 outline-none"
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="Filtrar por instrumento..."
           />
         </div>
@@ -225,7 +225,7 @@ export function IntegranteList() {
           <label htmlFor="naoDevolvido" className="text-sm font-medium text-gray-700">Não Devolvidos</label>
         </div>
 
-        <div className="md:col-span-3 lg:col-span-5 flex justify-end gap-2">
+        <div className="flex justify-end gap-2 md:col-span-3 lg:col-span-5">
           <button
             onClick={() => {
               setFilters({
@@ -243,13 +243,13 @@ export function IntegranteList() {
               });
               setTimeout(fetchIntegrantes, 0);
             }}
-            className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+            className="px-6 py-2 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300"
           >
             Limpar
           </button>
           <button
             onClick={fetchIntegrantes}
-            className="bg-blue-600 text-white px-8 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center gap-2 transition-colors"
+            className="flex items-center justify-center gap-2 px-8 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
           >
             <Search size={20} /> Filtrar
           </button>
@@ -257,10 +257,10 @@ export function IntegranteList() {
       </div>
 
       {/* Tabela */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden print:border-none print:shadow-none">
+      <div className="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-xl print:border-none print:shadow-none">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100 print:bg-white">
+            <tr className="border-b border-gray-100 bg-gray-50 print:bg-white">
               <th className="p-4 font-semibold text-gray-700">Nome do Integrante</th>
               {filters.naoDevolvido ? (
                 <>
@@ -282,7 +282,7 @@ export function IntegranteList() {
                   <th className="p-4 font-semibold text-gray-700">Patrimônio</th>
                 </>
               )}
-              <th className="p-4 font-semibold text-gray-700 text-center print:hidden">Ações</th>
+              <th className="p-4 font-semibold text-center text-gray-700 print:hidden">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -292,7 +292,7 @@ export function IntegranteList() {
               <tr><td colSpan={7} className="p-8 text-center text-gray-500">Nenhum integrante encontrado.</td></tr>
             ) : (
               integrantes.map((integrante: any) => (
-                <tr key={integrante.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors print:hover:bg-white">
+                <tr key={integrante.id} className="transition-colors border-b border-gray-50 hover:bg-gray-50 print:hover:bg-white">
                   <td className="p-4 font-medium text-gray-800">{integrante.nome}</td>
 
                   {filters.naoDevolvido ? (
@@ -308,14 +308,14 @@ export function IntegranteList() {
                       <td className="p-4 text-gray-600">
                         {integrante.instrumentoDevolucao
                           ? formatDate(integrante.instrumentoDevolucao)
-                          : <span className="text-red-500 font-medium">Não devolvido</span>}
+                          : <span className="font-medium text-red-500">Não devolvido</span>}
                       </td>
                     </>
                   ) : (
                     <>
                       <td className="p-4 text-gray-600">{integrante.corporacao?.nome}</td>
                       <td className="p-4 text-gray-600">{integrante.turma}</td>
-                      <td className="p-4 text-gray-600 text-sm">
+                      <td className="p-4 text-sm text-gray-600">
                         <span className={`px-2 py-1 rounded-full text-xs ${integrante.tipoIntegrante === 'CORPO_MUSICAL' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'} print:p-0 print:text-black`}>
                           {integrante.tipoIntegrante.replace('_', ' ')}
                         </span>
@@ -328,21 +328,21 @@ export function IntegranteList() {
                     <div className="flex justify-center gap-2">
                       <Link
                         href={`/dashboard/integrantes/visualizar/${integrante.id}`}
-                        className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                        className="p-2 text-gray-600 transition-colors rounded-lg hover:bg-gray-100"
                         title="Visualizar"
                       >
                         <Eye size={18} />
                       </Link>
                       <Link
                         href={`/dashboard/integrantes/editar/${integrante.id}`}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        className="p-2 text-blue-600 transition-colors rounded-lg hover:bg-blue-50"
                         title="Editar"
                       >
                         <Edit size={18} />
                       </Link>
                       <button
                         onClick={() => handleDelete(integrante.id, integrante.nome)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-2 text-red-600 transition-colors rounded-lg hover:bg-red-50"
                         title="Excluir"
                       >
                         <Trash2 size={18} />

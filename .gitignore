@@ -11,8 +11,13 @@ playwright-report/
 playwright-report/data/
 /blob-report/
 /playwright/.cache
-cypress/screenshots/
-cypress/videos/
+**/cypress/screenshots/
+**/cypress/videos/
+*.png
+*.mp4
+*.jpg
+*.jpeg
+*.gif
 
 # Uploads
 backend/uploads/

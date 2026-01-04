@@ -29,6 +29,12 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
     }
   });
 
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.log('Form errors:', errors);
+    }
+  }, [errors]);
+
   const subtipoSelecionado = watch('subtipoIntegrante');
   const fotosExistentes = watch('fotos') as string[] | undefined;
 
@@ -92,6 +98,7 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
   };
 
   const onSubmit = async (data: IntegranteData) => {
+    console.log('Submitting data:', data);
     try {
       const formData = new FormData();
       selectedFiles.forEach((file) => {
@@ -170,7 +177,7 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
                           href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${foto}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="block p-2 bg-blue-50 border border-blue-200 rounded text-blue-600 text-xs hover:bg-blue-100"
+                          className="block p-2 text-xs text-blue-600 border border-blue-200 rounded bg-blue-50 hover:bg-blue-100"
                         >
                           {foto.split('/').pop()}
                         </a>
@@ -228,7 +235,7 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
             <Input label="Email" type="email" register={register('responsavel.email')} error={errors.responsavel?.email?.message} />
           </div>
           <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-4">
-            <div className="md:col-span-2 relative">
+            <div className="relative md:col-span-2">
               <Input label="Rua" register={register('responsavel.rua')} error={errors.responsavel?.rua?.message} />
               {!readOnly && (
                 <button

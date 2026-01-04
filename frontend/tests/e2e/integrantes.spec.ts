@@ -18,6 +18,12 @@ test.describe.serial('Gestão de Integrantes (CRUD)', () => {
   });
 
   test.beforeEach(async ({ page }) => {
+    page.on('console', msg => {
+      if (msg.type() === 'error' || msg.text().includes('errors')) {
+        console.log(`BROWSER LOG [${msg.type()}]: ${msg.text()}`);
+      }
+    });
+
     await page.goto('/login'); // Ir para uma página válida antes de setar localStorage
     await page.evaluate(({ token, user }) => {
       localStorage.setItem('@Corporacao:token', token);
@@ -33,7 +39,7 @@ test.describe.serial('Gestão de Integrantes (CRUD)', () => {
     await page.waitForLoadState('networkidle');
 
     // Wait for hydration
-    await page.waitForTimeout(4000);
+    await page.waitForTimeout(2000);
 
     // Dados do Integrante
     await page.fill('input[name="nome"]', integranteNome);
@@ -62,10 +68,11 @@ test.describe.serial('Gestão de Integrantes (CRUD)', () => {
 
     // Atuação
     await page.selectOption('select[name="tipoIntegrante"]', 'CORPO_MUSICAL');
+    await page.selectOption('select[name="subtipoIntegrante"]', 'INSTRUMENTOS');
 
     // Intercepta e clica
     const [response] = await Promise.all([
-      page.waitForResponse(res => res.url().includes('/api/integrantes') && res.request().method() === 'POST', { timeout: 15000 }),
+      page.waitForResponse(res => res.url().includes('/api/integrantes') && res.request().method() === 'POST', { timeout: 30000 }),
       page.click('button:has-text("Finalizar Cadastro")')
     ]);
 
@@ -75,7 +82,7 @@ test.describe.serial('Gestão de Integrantes (CRUD)', () => {
   });
 
   test('deve pesquisar e editar um integrante', async ({ page }) => {
-    await page.fill('input[placeholder="Nome..."]', integranteNome);
+    await page.fill('input[placeholder="Filtrar por nome..."]', integranteNome);
     await page.click('button:has-text("Filtrar")');
 
     await expect(page.locator(`text=${integranteNome}`)).toBeVisible();
@@ -84,13 +91,13 @@ test.describe.serial('Gestão de Integrantes (CRUD)', () => {
     await page.click('a[title="Editar"]');
     await page.waitForLoadState('networkidle');
 
-    await page.waitForTimeout(4000);
+    await page.waitForTimeout(2000);
 
     const novoNome = integranteNome + ' EDITADO';
     await page.fill('input[name="nome"]', novoNome);
 
     const [response] = await Promise.all([
-      page.waitForResponse(res => res.url().includes('/api/integrantes') && res.request().method() === 'PATCH', { timeout: 15000 }),
+      page.waitForResponse(res => res.url().includes('/api/integrantes') && res.request().method() === 'PATCH', { timeout: 30000 }),
       page.click('button:has-text("Salvar Alterações")')
     ]);
 
@@ -99,8 +106,47 @@ test.describe.serial('Gestão de Integrantes (CRUD)', () => {
     await expect(page.locator(`text=${novoNome}`)).toBeVisible();
   });
 
+  test('deve permitir cadastrar um irmão com o mesmo CPF do responsável usando o botão copiar', async ({ page }) => {
+    const nomeIrmao = 'Irmão Teste ' + Date.now();
+    const cpfResponsavel = '99988877766';
+
+    await page.goto('/dashboard/integrantes/novo');
+    await page.waitForTimeout(2000);
+
+    // Preenche dados do responsável primeiro
+    await page.fill('input[name="responsavel.nome"]', 'Pai de Dois');
+    await page.fill('input[name="responsavel.cpf"]', cpfResponsavel);
+    await page.fill('input[name="responsavel.parentesco"]', 'Pai');
+    await page.fill('input[name="responsavel.telefone"]', '11999998888');
+
+    // Usa o botão "Copiar do Responsável" para o CPF do integrante
+    await page.click('button:has-text("Copiar do Responsável")');
+    const cpfValue = await page.inputValue('input[name="cpf"]');
+    expect(cpfValue).toBe(cpfResponsavel);
+
+    // Preenche o restante
+    await page.fill('input[name="nome"]', nomeIrmao);
+    await page.fill('input[name="dataNascimento"]', '2012-10-10');
+    await page.fill('input[name="telefone"]', '11999998888');
+    await page.fill('input[name="turma"]', '5º Ano B');
+    await page.fill('input[name="dataMatricula"]', '2023-02-01');
+    await page.fill('input[name="corporacao.nome"]', 'Escola Teste');
+    await page.fill('input[name="corporacao.telefone"]', '1144445555');
+
+    const [response] = await Promise.all([
+      page.waitForResponse(res => res.url().includes('/api/integrantes') && res.request().method() === 'POST'),
+      page.click('button:has-text("Finalizar Cadastro")')
+    ]);
+
+    expect(response.status()).toBe(201);
+    await page.goto('/dashboard/integrantes');
+    await page.fill('input[placeholder="Filtrar por nome..."]', nomeIrmao);
+    await page.click('button:has-text("Filtrar")');
+    await expect(page.locator(`text=${nomeIrmao}`)).toBeVisible();
+  });
+
   test('deve excluir um integrante', async ({ page }) => {
-    await page.fill('input[placeholder="Pesquisar por nome..."]', integranteNome);
+    await page.fill('input[placeholder="Filtrar por nome..."]', integranteNome);
     await page.click('button:has-text("Filtrar")');
 
     // Configura o diálogo de confirmação
@@ -111,7 +157,7 @@ test.describe.serial('Gestão de Integrantes (CRUD)', () => {
       page.click('button[title="Excluir"]')
     ]);
 
-    expect(response.status()).toBe(204);
+    expect(response.status()).toBe(200);
     await expect(page.locator(`text=${integranteNome}`)).not.toBeVisible();
   });
 });

@@ -157,7 +157,19 @@ export const getIntegrante = async (req: Request, res: Response) => {
     return res.status(404).json({ message: 'Integrante não encontrado' });
   }
 
-  return res.json(integrante);
+  // Converte null para "" recursivamente para facilitar o uso no frontend
+  const sanitize = (obj: any): any => {
+    if (obj === null) return "";
+    if (Array.isArray(obj)) return obj.map(sanitize);
+    if (typeof obj === 'object' && obj !== null && !(obj instanceof Date)) {
+      return Object.fromEntries(
+        Object.entries(obj).map(([k, v]) => [k, sanitize(v)])
+      );
+    }
+    return obj;
+  };
+
+  return res.json(sanitize(integrante));
 };
 
 export const updateIntegrante = async (req: Request, res: Response) => {
