@@ -23,3 +23,18 @@ Regra de Unicidade (CPF): Impede o cadastro de duplicatas, protegendo a integrid
 Listagem e Filtros: Verifica se a recuperação de dados está funcionando corretamente.
 Atualização (PATCH): Garante que as edições de dados (como troca de nome ou tamanho de uniforme) persistam corretamente.
 Exclusão (DELETE): Valida a remoção completa do registro e confirma que ele não está mais acessível.
+Entendido. Essa é uma mudança importante para permitir que irmãos ou familiares que ainda não possuem CPF próprio possam ser cadastrados utilizando o CPF do responsável.
+
+Alterações Realizadas:
+Banco de Dados (schema.prisma):
+
+Removi a restrição @unique do campo cpf na tabela Integrante.
+Executei uma nova migração para aplicar essa mudança no PostgreSQL.
+Lógica do Controlador (integrante.controller.ts):
+
+Atualizei a validação de CPF tanto na criação quanto na edição.
+Nova Regra: O sistema agora permite CPFs duplicados, desde que os integrantes pertençam à mesma família (mesmo responsável). Se alguém tentar usar um CPF que já pertence a um integrante de um responsável diferente, o sistema ainda bloqueará para evitar erros de digitação ou fraudes.
+Testes Automatizados (integrante.test.ts):
+
+Adicionei um novo caso de teste: should allow creating another integrante with same CPF if they have the same responsible.
+O teste confirmou que a nova lógica funciona conforme o esperado
