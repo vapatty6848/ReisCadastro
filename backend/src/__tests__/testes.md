@@ -38,3 +38,12 @@ Testes Automatizados (integrante.test.ts):
 
 Adicionei um novo caso de teste: should allow creating another integrante with same CPF if they have the same responsible.
 O teste confirmou que a nova lógica funciona conforme o esperado
+O que foi feito:
+Novo Arquivo de Documentação: Criei o arquivo api-spec.ts contendo todas as definições da API.
+Limpeza das Rotas: Removi os blocos de comentários JSDoc dos arquivos:
+auth.routes.ts
+integrante.routes.ts
+Atualização da Configuração: Ajustei o swagger.ts para ler a documentação a partir da nova pasta src/docs.
+Agora o código das rotas foca apenas no que importa: o direcionamento das requisições. A documentação continua funcionando perfeitamente em /api-docs.
+
+

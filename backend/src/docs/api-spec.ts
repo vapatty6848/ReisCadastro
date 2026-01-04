@@ -147,7 +147,7 @@
  *         description: Integrante não encontrado.
  *   patch:
  *     summary: Atualiza um integrante existente
- *     description: Permite atualização parcial dos dados. Se novas fotos forem enviadas, elas substituirão as antigas.
+ *     description: Permite atualização parcial dos dados. Se novas fotos forem enviadas, elas serão adicionadas à lista existente.
  *     tags: [Integrantes]
  *     security:
  *       - bearerAuth: []

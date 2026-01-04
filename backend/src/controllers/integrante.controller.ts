@@ -1,4 +1,6 @@
 import { Request, Response } from 'express';
+import fs from 'fs';
+import path from 'path';
 import prisma from '../lib/prisma';
 import { integranteSchema, updateIntegranteSchema } from '../schemas/integrante.schema';
 import { resolveResponsavel, resolveCorporacao } from '../utils/resolvers';
@@ -215,6 +217,17 @@ export const updateIntegrante = async (req: Request, res: Response) => {
 export const deleteIntegrante = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
+    const integrante = await prisma.integrante.findUnique({ where: { id } });
+
+    if (integrante && integrante.fotos.length > 0) {
+      integrante.fotos.forEach(fotoPath => {
+        const fullPath = path.join(__dirname, '../../', fotoPath);
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
+        }
+      });
+    }
+
     await prisma.integrante.delete({ where: { id } });
     return res.status(204).send();
   } catch (error: any) {

@@ -15,3 +15,11 @@ Método de Atualização: Confirmei que o Swagger já estava usando patch, o que
 A configuração está correta, apontando para os arquivos de rotas e controladores para extrair as anotações JSDoc.
 Com essas mudanças, a documentação automática (acessível em /api-docs) agora reflete exatamente as capacidades da API.
 
+O que foi feito:
+Novo Arquivo de Documentação: Criei o arquivo api-spec.ts contendo todas as definições da API.
+Limpeza das Rotas: Removi os blocos de comentários JSDoc dos arquivos:
+auth.routes.ts
+integrante.routes.ts
+Atualização da Configuração: Ajustei o swagger.ts para ler a documentação a partir da nova pasta src/docs.
+Agora o código das rotas foca apenas no que importa: o direcionamento das requisições. A documentação continua funcionando perfeitamente em /api-docs.
+

@@ -68,4 +68,35 @@ describe('Auth Endpoints', () => {
     expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty('errors');
   });
+
+  it('should get current user data', async () => {
+    const email = 'test-me@example.com';
+    const password = 'password123';
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await prisma.user.deleteMany({ where: { email } });
+    const user = await prisma.user.create({
+      data: {
+        email,
+        name: 'Me User',
+        password: hashedPassword
+      }
+    });
+
+    const loginRes = await request(app)
+      .post('/api/auth/login')
+      .send({ email, password });
+
+    const token = loginRes.body.token;
+
+    const res = await request(app)
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.statusCode).toEqual(200);
+    expect(res.body).toHaveProperty('email', email);
+    expect(res.body).toHaveProperty('name', 'Me User');
+
+    await prisma.user.delete({ where: { id: user.id } });
+  });
 });

@@ -22,7 +22,13 @@ export const login = async (req: Request, res: Response) => {
     return res.status(401).json({ message: 'Credenciais inválidas' });
   }
 
-  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    console.error('JWT_SECRET não definido no ambiente');
+    return res.status(500).json({ message: 'Erro interno de configuração' });
+  }
+
+  const token = jwt.sign({ userId: user.id }, secret, {
     expiresIn: '1d',
   });
 
