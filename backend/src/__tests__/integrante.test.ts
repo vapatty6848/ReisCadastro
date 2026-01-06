@@ -1,204 +1,197 @@
+import { describe, it, expect, afterAll, beforeAll, beforeEach } from '@jest/globals';
 import request from 'supertest';
-import { describe, it, expect, afterAll, beforeAll } from '@jest/globals';
-import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { app } from '../app';
 import prisma from '../lib/prisma';
+import { createTestUser, clearIntegrantes, clearUsers, generateIntegranteData } from './utils/test.utils';
 
 describe('Integrante Endpoints', () => {
   let token: string;
-  let testUserId: string;
 
   beforeAll(async () => {
-    // Setup: Criar um usuário para obter o token
-    const email = 'auth-test@example.com';
-    const password = 'password123';
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    await prisma.user.deleteMany({ where: { email } });
-    const user = await prisma.user.create({
-      data: {
-        email,
-        name: 'Auth Test User',
-        password: hashedPassword
-      }
-    });
-    testUserId = user.id;
-
-    token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || 'test_secret', {
-      expiresIn: '1h',
-    });
-
-    // Limpar integrantes de teste
-    await prisma.integrante.deleteMany({
-      where: { nome: { contains: 'TEST_INTEGRANTE' } }
-    });
+    const setup = await createTestUser();
+    token = setup.token;
   });
 
   afterAll(async () => {
-    await prisma.integrante.deleteMany({
-      where: { nome: { contains: 'TEST_INTEGRANTE' } }
-    });
-    // Usar deleteMany para evitar erro se o usuário já não existir
-    await prisma.user.deleteMany({ where: { id: testUserId } });
+    await clearIntegrantes();
+    await clearUsers();
     await prisma.$disconnect();
   });
 
-  it('should fail to access without token', async () => {
-    const res = await request(app).get('/api/integrantes');
-    expect(res.statusCode).toEqual(401);
+  beforeEach(async () => {
+    await clearIntegrantes();
   });
 
-  it('should create a new integrante successfully', async () => {
-    const integranteData = {
-      nome: 'TEST_INTEGRANTE_01',
-      cpf: '12345678901',
-      dataNascimento: '1990-01-01',
-      dataMatricula: '2023-01-01',
-      turma: 'Turma A',
-      tipoIntegrante: 'CORPO_MUSICAL',
-      subtipoIntegrante: 'INSTRUMENTOS',
-      rg: '1234567',
-      telefone: '11999999999',
-      email: 'test01@example.com',
-      tamanhoUniforme: '40',
-      tamanhoBota: '42',
-      instrumento: 'Trompete',
-      patrimonio: 'PAT-001',
-      responsavel: {
-        nome: 'TEST_RESPONSAVEL',
-        cpf: '98765432100',
+  describe('POST /api/integrantes', () => {
+    it('should fail to access without token', async () => {
+      const res = await request(app).post('/api/integrantes').send({});
+      expect(res.statusCode).toEqual(401);
+    });
+
+    it('should create a new integrante successfully', async () => {
+      const data = generateIntegranteData({
+        nome: 'TEST_CREATE_SUCCESS',
+        tipoIntegrante: 'CORPO_MUSICAL',
+        subtipoIntegrante: 'INSTRUMENTOS'
+      });
+
+      const res = await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(data);
+
+      expect(res.statusCode).toEqual(201);
+      expect(res.body.nome).toBe(data.nome);
+      expect(res.body.subtipoIntegrante).toBe('INSTRUMENTOS');
+    });
+
+    it('should fail if CPF is already used by another family', async () => {
+      const sharedCpf = '11122233344';
+
+      // Create first member
+      await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(generateIntegranteData({ cpf: sharedCpf, nome: 'TEST_FAMILY_1' }));
+
+      // Try creating another with same CPF but different responsible
+      const data2 = generateIntegranteData({
+        cpf: sharedCpf,
+        nome: 'TEST_FAMILY_2',
+        responsavel: {
+          nome: 'DIFFERENT_RESP',
+          cpf: '00011122233',
+          telefone: '11000000000',
+          parentesco: 'Mãe'
+        }
+      });
+
+      const res = await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(data2);
+
+      expect(res.statusCode).toEqual(400);
+      expect(res.body.message).toContain('CPF já está sendo utilizado por um integrante de outra família');
+    });
+
+    it('should allow same CPF for the same family (sibling)', async () => {
+      const sharedCpf = '55566677788';
+      const responsavel = {
+        nome: 'TEST_RESPONSAVEL_SHARED',
+        cpf: '99988877766',
         telefone: '11888888888',
         parentesco: 'Pai'
-      },
-      corporacao: {
-        nome: 'TEST_CORPORACAO',
-        telefone: '11777777777'
-      }
-    };
+      };
 
-    const res = await request(app)
-      .post('/api/integrantes')
-      .set('Authorization', `Bearer ${token}`)
-      .send(integranteData);
+      await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(generateIntegranteData({ cpf: sharedCpf, nome: 'TEST_SIBLING_1', responsavel }));
 
-    expect(res.statusCode).toEqual(201);
-    expect(res.body).toHaveProperty('id');
-    expect(res.body.nome).toBe(integranteData.nome);
-    expect(res.body.cpf).toBe(integranteData.cpf);
+      const res = await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(generateIntegranteData({ cpf: sharedCpf, nome: 'TEST_SIBLING_2', responsavel }));
+
+      expect(res.statusCode).toEqual(201);
+      expect(res.body.nome).toBe('TEST_SIBLING_2');
+    });
   });
 
-  it('should fail to create integrante with duplicate CPF', async () => {
-    const integranteData = {
-      nome: 'TEST_INTEGRANTE_DUPLICATE',
-      cpf: '12345678901', // Mesmo CPF do teste anterior
-      dataNascimento: '1990-01-01',
-      dataMatricula: '2023-01-01',
-      turma: 'Turma B',
-      tipoIntegrante: 'CORPO_MUSICAL',
-      telefone: '11999999999',
-      responsavel: {
-        nome: 'RESP',
-        cpf: '00000000000',
-        telefone: '11000000000',
-        parentesco: 'Mãe'
-      },
-      corporacao: {
-        nome: 'CORP',
-        telefone: '11000000000'
-      }
-    };
+  describe('GET /api/integrantes', () => {
+    it('should list and filter integrantes', async () => {
+      await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(generateIntegranteData({ nome: 'TEST_SEARCH_TARGET', turma: 'SEARCH_TURMA' }));
 
-    const res = await request(app)
-      .post('/api/integrantes')
-      .set('Authorization', `Bearer ${token}`)
-      .send(integranteData);
+      const res = await request(app)
+        .get('/api/integrantes?turma=SEARCH_TURMA')
+        .set('Authorization', `Bearer ${token}`);
 
-    expect(res.statusCode).toEqual(400);
-    expect(res.body.message || JSON.stringify(res.body)).toContain('CPF');
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.length).toBeGreaterThan(0);
+      expect(res.body[0].nome).toBe('TEST_SEARCH_TARGET');
+    });
+
+    it('should filter by "não devolvido" status', async () => {
+      // Member with instrument not returned
+      await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(generateIntegranteData({
+          nome: 'TEST_NOT_RETURNED',
+          instrumentoRecebimento: '2023-01-01',
+          instrumentoDevolucao: null
+        }));
+
+      // Member with instrument already returned
+      await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(generateIntegranteData({
+          nome: 'TEST_ALREADY_RETURNED',
+          instrumentoRecebimento: '2023-01-01',
+          instrumentoDevolucao: '2023-12-01'
+        }));
+
+      const res = await request(app)
+        .get('/api/integrantes?naoDevolvido=true')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.statusCode).toEqual(200);
+      const names = res.body.map((i: any) => i.nome);
+      expect(names).toContain('TEST_NOT_RETURNED');
+      expect(names).not.toContain('TEST_ALREADY_RETURNED');
+    });
   });
 
-  it('should allow creating another integrante with same CPF if they have the same responsible', async () => {
-    const integranteData = {
-      nome: 'TEST_INTEGRANTE_SIBLING',
-      cpf: '12345678901', // Mesmo CPF do TEST_INTEGRANTE_01
-      dataNascimento: '1995-05-05',
-      dataMatricula: '2023-01-01',
-      turma: 'Turma A',
-      tipoIntegrante: 'CORPO_MUSICAL',
-      telefone: '11999999999',
-      responsavel: {
-        nome: 'TEST_RESPONSAVEL', // Mesmo responsável do TEST_INTEGRANTE_01
-        cpf: '98765432100',
-        telefone: '11888888888',
-        parentesco: 'Pai'
-      },
-      corporacao: {
-        nome: 'TEST_CORPORACAO',
-        telefone: '11777777777'
-      }
-    };
+  describe('PATCH /api/integrantes/:id', () => {
+    it('should update integrante and handle complex fields', async () => {
+      const createRes = await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(generateIntegranteData({ nome: 'TEST_UPDATE' }));
 
-    const res = await request(app)
-      .post('/api/integrantes')
-      .set('Authorization', `Bearer ${token}`)
-      .send(integranteData);
+      const id = createRes.body.id;
+      const updateData = {
+        nome: 'TEST_UPDATE_DONE',
+        tamanhoBota: '44',
+        instrumentoDevolucao: '2024-01-01'
+      };
 
-    expect(res.statusCode).toEqual(201);
-    expect(res.body.nome).toBe(integranteData.nome);
-    expect(res.body.cpf).toBe('12345678901');
+      const res = await request(app)
+        .patch(`/api/integrantes/${id}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send(updateData);
+
+      expect(res.statusCode).toEqual(200);
+      expect(res.body.nome).toBe('TEST_UPDATE_DONE');
+      expect(res.body.tamanhoBota).toBe('44');
+      expect(res.body.instrumentoDevolucao).toBeDefined();
+    });
   });
 
-  it('should list integrantes', async () => {
-    const res = await request(app)
-      .get('/api/integrantes')
-      .set('Authorization', `Bearer ${token}`);
+  describe('DELETE /api/integrantes/:id', () => {
+    it('should delete integrante', async () => {
+      const createRes = await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(generateIntegranteData({ nome: 'TEST_DELETE' }));
 
-    expect(res.statusCode).toEqual(200);
-    expect(Array.isArray(res.body)).toBeTruthy();
-    expect(res.body.length).toBeGreaterThan(0);
-  });
+      const id = createRes.body.id;
 
-  it('should update an integrante', async () => {
-    const listRes = await request(app)
-      .get('/api/integrantes?nome=TEST_INTEGRANTE_01')
-      .set('Authorization', `Bearer ${token}`);
+      const res = await request(app)
+        .delete(`/api/integrantes/${id}`)
+        .set('Authorization', `Bearer ${token}`);
 
-    const integranteId = listRes.body[0].id;
+      expect(res.statusCode).toEqual(204);
 
-    const updateData = {
-      nome: 'TEST_INTEGRANTE_01_UPDATED',
-      tamanhoBota: '43'
-    };
-
-    const res = await request(app)
-      .patch(`/api/integrantes/${integranteId}`)
-      .set('Authorization', `Bearer ${token}`)
-      .send(updateData);
-
-    expect(res.statusCode).toEqual(200);
-    expect(res.body.nome).toBe(updateData.nome);
-    expect(res.body.tamanhoBota).toBe(updateData.tamanhoBota);
-  });
-
-  it('should delete an integrante', async () => {
-    const listRes = await request(app)
-      .get('/api/integrantes?nome=TEST_INTEGRANTE_01_UPDATED')
-      .set('Authorization', `Bearer ${token}`);
-
-    const integranteId = listRes.body[0].id;
-
-    const res = await request(app)
-      .delete(`/api/integrantes/${integranteId}`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(res.statusCode).toEqual(204);
-
-    // Verificar se foi deletado
-    const checkRes = await request(app)
-      .get(`/api/integrantes/${integranteId}`)
-      .set('Authorization', `Bearer ${token}`);
-
-    expect(checkRes.statusCode).toEqual(404);
+      const checkRes = await request(app)
+        .get(`/api/integrantes/${id}`)
+        .set('Authorization', `Bearer ${token}`);
+      expect(checkRes.statusCode).toEqual(404);
+    });
   });
 });

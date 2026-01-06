@@ -233,11 +233,24 @@ export const updateIntegrante = async (req: Request, res: Response) => {
       updateData.corporacaoId = resolvedCorporacao.id;
     }
 
+    let fotosFinal = currentIntegrante.fotos;
+    if (integranteData.fotos !== undefined) {
+      // Identificar fotos removidas para exclusão física
+      const fotosRemovidas = currentIntegrante.fotos.filter(f => !integranteData.fotos!.includes(f));
+      fotosRemovidas.forEach(fotoPath => {
+        const fullPath = path.join(__dirname, '../../', fotoPath);
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
+        }
+      });
+      fotosFinal = integranteData.fotos;
+    }
+
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
       const novasFotos = req.files.map((file: any) => `/uploads/${file.filename}`);
-      // Aqui você pode decidir se substitui ou adiciona. Vamos adicionar.
-      updateData.fotos = [...(currentIntegrante.fotos || []), ...novasFotos];
+      fotosFinal = [...fotosFinal, ...novasFotos];
     }
+    updateData.fotos = fotosFinal;
 
     const integrante = await prisma.integrante.update({
       where: { id },

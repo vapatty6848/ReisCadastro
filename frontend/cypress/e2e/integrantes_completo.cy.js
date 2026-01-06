@@ -1,234 +1,134 @@
-/**
- * Casos de Teste: Gestão de Integrantes - Fluxo Completo (CRUD)
- */
+import { generateIntegrante } from '../support/utils';
 
-const IntegrantesPage = {
-  selectors: {
-    // Listagem
-    searchNome: 'input[placeholder="Filtrar por nome..."]',
-    filterBtn: 'button:contains("Filtrar")',
-    novoBtn: 'a:contains("Novo Cadastro")',
-    tableRow: 'table tbody tr',
-    editBtn: 'a[href*="/editar/"]',
-    deleteBtn: 'button[title="Excluir"]',
-    loading: ':contains("Carregando...")',
-
-    // Formulário
-    form: {
-      nome: 'input[name="nome"]',
-      cpf: 'input[name="cpf"]',
-      dataNasc: 'input[name="dataNascimento"]',
-      telefone: 'input[name="telefone"]',
-      email: 'input[name="email"]',
-      rua: 'input[name="rua"]',
-      numero: 'input[name="numero"]',
-      bairro: 'input[name="bairro"]',
-      cep: 'input[name="cep"]',
-      respNome: 'input[name="responsavel.nome"]',
-      respCpf: 'input[name="responsavel.cpf"]',
-      respParentesco: 'input[name="responsavel.parentesco"]',
-      respTelefone: 'input[name="responsavel.telefone"]',
-      corpNome: 'input[name="corporacao.nome"]',
-      corpTelefone: 'input[name="corporacao.telefone"]',
-      corpSerie: 'input[name="corporacao.serie"]',
-      turma: 'input[name="turma"]',
-      matriculaNumero: 'input[name="matriculaNumero"]',
-      dataMatricula: 'input[name="dataMatricula"]',
-      tipo: 'select[name="tipoIntegrante"]',
-      subtipo: 'select[name="subtipoIntegrante"]',
-      instrumento: 'input[name="instrumento"]',
-      patrimonio: 'input[name="patrimonio"]',
-      origemInstrumento: 'select[name="instrumentoOrigem"]',
-      dataRecebimento: 'input[name="instrumentoRecebimento"]',
-      tamanhoUniforme: 'input[name="tamanhoUniforme"]',
-      tamanhoBota: 'input[name="tamanhoBota"]',
-      submit: 'button[type="submit"]'
-    }
-  },
-
-  login() {
-    cy.session('admin-session', () => {
-      cy.visit('/login');
-      cy.get('input[name="email"]').type('admin@corporacao.com');
-      cy.get('input[name="password"]').type('admin123');
-      cy.get('button[type="submit"]').click();
-      cy.url().should('include', '/dashboard');
-    });
-  },
-
-  preencherFormulario(dados) {
-    cy.get(this.selectors.form.nome).clear().type(dados.nome);
-    cy.get(this.selectors.form.cpf).clear().type(dados.cpf);
-    cy.get(this.selectors.form.dataNasc).clear().type('2005-10-20');
-    cy.get(this.selectors.form.telefone).clear().type('11999998888');
-    cy.get(this.selectors.form.email).clear().type('teste@cypress.com');
-
-    cy.get(this.selectors.form.rua).clear().type('Rua Teste');
-    cy.get(this.selectors.form.numero).clear().type('100');
-    cy.get(this.selectors.form.bairro).clear().type('Centro');
-    cy.get(this.selectors.form.cep).clear().type('12345678');
-
-    cy.get(this.selectors.form.respNome).clear().type('Responsável Teste');
-    cy.get(this.selectors.form.respCpf).clear().type('99988877766');
-    cy.get(this.selectors.form.respParentesco).clear().type('Pai');
-    cy.get(this.selectors.form.respTelefone).clear().type('11977776666');
-
-    cy.get(this.selectors.form.corpNome).clear().type('Corporação Musical');
-    cy.get(this.selectors.form.corpTelefone).clear().type('1144445555');
-    cy.get(this.selectors.form.corpSerie).clear().type('9º Ano');
-    cy.get(this.selectors.form.turma).clear().type('Turma A');
-    cy.get(this.selectors.form.matriculaNumero).clear().type(dados.matricula);
-    cy.get(this.selectors.form.dataMatricula).clear().type('2024-01-10');
-
-    cy.get(this.selectors.form.tipo).select('CORPO_MUSICAL');
-    cy.get(this.selectors.form.subtipo).should('be.visible').select('INSTRUMENTOS');
-
-    // Campos de instrumento
-    cy.get(this.selectors.form.instrumento).clear().type('Trompete');
-    cy.get(this.selectors.form.patrimonio).clear().type(dados.patrimonio);
-    cy.get(this.selectors.form.origemInstrumento).select('PROJETO');
-    cy.get(this.selectors.form.dataRecebimento).clear().type('2024-01-15');
-
-    // Tamanhos
-    cy.get(this.selectors.form.tamanhoUniforme).clear().type('42');
-    cy.get(this.selectors.form.tamanhoBota).clear().type('40');
-
-    cy.get(this.selectors.form.submit).click();
-  },
-
-  pesquisar(nome) {
-    cy.visit('/dashboard/integrantes');
-    cy.url().should('include', '/integrantes');
-
-    // Aguarda a página estabilizar
-    cy.wait(2000);
-
-    // Aguarda o carregamento inicial sumir (se houver)
-    cy.get('body').then(($body) => {
-      if ($body.find(':contains("Carregando...")').length > 0) {
-        cy.contains('Carregando...', { timeout: 15000 }).should('not.exist');
-      }
-    });
-
-    // Tenta encontrar o campo de nome de forma mais resiliente
-    cy.get('input', { timeout: 15000 }).then(($inputs) => {
-      const inputNome = $inputs.filter((i, el) => {
-        const placeholder = el.getAttribute('placeholder') || '';
-        return placeholder.toLowerCase().includes('nome');
-      });
-
-      if (inputNome.length > 0) {
-        cy.wrap(inputNome).first()
-          .should('be.visible')
-          .click()
-          .clear()
-          .type(nome, { delay: 50 });
-      } else {
-        // Fallback para o seletor original se o filtro falhar
-        cy.get(this.selectors.searchNome)
-          .should('be.visible')
-          .clear()
-          .type(nome);
-      }
-    });
-
-    cy.get(this.selectors.filterBtn).should('be.visible').click();
-
-    // Aguarda o filtro ser aplicado
-    cy.get('body').then(($body) => {
-      if ($body.find(':contains("Carregando...")').length > 0) {
-        cy.contains('Carregando...', { timeout: 15000 }).should('not.exist');
-      }
-    });
-
-    cy.contains(nome, { timeout: 15000 }).should('be.visible');
-  }
-};
-
-describe('Gestão de Integrantes - Fluxo Completo', () => {
-  const testData = {
-    nome: 'Cypress User ' + Math.floor(Math.random() * 10000),
-    cpf: Math.floor(Math.random() * 100000000000).toString().padStart(11, '0'),
-    matricula: 'MAT' + Math.floor(Math.random() * 100000),
-    patrimonio: 'PAT' + Math.floor(Math.random() * 100000),
-    nomeEditado: ''
-  };
+describe('Gestão de Integrantes - Fluxo Completo (Cypress Clean Code)', () => {
+  const integrante = generateIntegrante();
+  const editado = { ...integrante, nome: integrante.nome + ' (EDITADO)' };
 
   beforeEach(() => {
-    IntegrantesPage.login();
+    cy.login();
+    cy.visit('/dashboard/integrantes');
+    cy.waitForHydration();
   });
 
   it('1. Deve cadastrar um novo integrante', () => {
-    const stub = cy.stub();
-    cy.on('window:alert', stub);
-
     cy.visit('/dashboard/integrantes/novo');
-    cy.wait(3000); // Aguarda hidratação
-    IntegrantesPage.preencherFormulario(testData);
+    cy.waitForHydration();
 
-    cy.wrap(stub).should('be.calledWithMatch', /sucesso/i);
+    // Preencher campos básicos
+    cy.get('input[name="nome"]').type(integrante.nome);
+    cy.get('input[name="cpf"]').type(integrante.cpf);
+    cy.get('input[name="dataNascimento"]').type('2000-05-15');
+    cy.get('input[name="telefone"]').type('11988887777');
+
+    // Responsável
+    cy.get('input[name="responsavel.nome"]').type('Pai do Integrante');
+    cy.get('input[name="responsavel.cpf"]').type('11122233344');
+    cy.get('input[name="responsavel.parentesco"]').type('Pai');
+    cy.get('input[name="responsavel.telefone"]').type('11977776666');
+
+    // Corporação
+    cy.get('input[name="corporacao.nome"]').type('Corporação Cypress');
+    cy.get('input[name="corporacao.telefone"]').type('1144443333');
+    cy.get('input[name="turma"]').type('Turma Cypress');
+    cy.get('input[name="dataMatricula"]').type('2024-01-01');
+
+    // Atuação
+    cy.get('select[name="tipoIntegrante"]').select('CORPO_MUSICAL');
+    cy.get('select[name="subtipoIntegrante"]').select('INSTRUMENTOS');
+    cy.get('input[name="instrumento"]').type('Clarinete');
+    cy.get('input[name="patrimonio"]').type(integrante.patrimonio);
+    cy.get('select[name="instrumentoOrigem"]').select('PROJETO');
+
+    // Tamanhos
+    cy.get('input[name="tamanhoUniforme"]').type('38');
+    cy.get('input[name="tamanhoBota"]').type('36');
+
+    // Finalizar e interceptar resposta
+    cy.intercept('POST', '**/api/integrantes').as('createIntegrante');
+    cy.contains('button', 'Finalizar Cadastro').click();
+
+    cy.wait('@createIntegrante').its('response.statusCode').should('eq', 201);
     cy.url().should('include', '/dashboard/integrantes');
   });
 
-  it('2. Deve pesquisar o integrante cadastrado', () => {
-    IntegrantesPage.pesquisar(testData.nome);
+  it('2. Deve pesquisar o integrante cadastrado (Busca sob demanda)', () => {
+    // Inicialmente deve mostrar estado de espera
+    cy.contains('Pronto para buscar').should('be.visible');
+
+    // Pesquisar
+    cy.get('input[placeholder="Filtrar por nome..."]').type(integrante.nome);
+    cy.contains('button', 'Filtrar').click();
+
+    // Validar resultado na tabela
+    cy.get('table').contains(integrante.nome).should('be.visible');
+    cy.get('table').contains(integrante.patrimonio).should('be.visible');
   });
 
-  it('3. Deve editar o integrante', () => {
-    testData.nomeEditado = testData.nome + ' (Editado)';
+  it('3. Deve visualizar o integrante e navegar para edição', () => {
+    // Buscar primeiro
+    cy.get('input[placeholder="Filtrar por nome..."]').type(integrante.nome);
+    cy.contains('button', 'Filtrar').click();
 
-    IntegrantesPage.pesquisar(testData.nome);
-    cy.get(IntegrantesPage.selectors.editBtn).first().click();
+    // Clicar em visualizar
+    cy.get('a[title="Visualizar"]').first().click();
 
-    // Aguarda o carregamento dos dados no formulário
-    cy.contains('Carregando dados...', { timeout: 10000 }).should('not.exist');
+    // Validar que entramos na página de visualização
+    cy.url().should('include', '/visualizar/');
+    cy.contains('h1', 'Visualizar Integrante', { timeout: 10000 }).should('be.visible');
+    cy.get('input[name="nome"]').should('be.disabled').and('not.have.value', '');
 
-    // Prepara o stub para o alert
-    cy.window().then((win) => {
-      cy.stub(win, 'alert').as('alertStub');
-    });
+    // Clicar no botão Editar
+    cy.contains('a', 'Editar').click({ force: true });
 
-    cy.get(IntegrantesPage.selectors.form.nome).should('be.visible').clear().type(testData.nomeEditado);
-    cy.get(IntegrantesPage.selectors.form.submit).click();
-
-    // Se o alert não aparecer em 2 segundos, vamos procurar por erros de validação na tela
-    cy.wait(2000);
-    cy.get('body').then(($body) => {
-      const errorContainers = $body.find('.mb-4'); // Container comum de inputs
-      const errorsFound = [];
-
-      errorContainers.each((i, el) => {
-        const $el = cy.$$(el);
-        const errorText = $el.find('.text-red-500').text();
-        if (errorText) {
-          const label = $el.find('label').first().text();
-          errorsFound.push(`${label}: ${errorText}`);
-        }
-      });
-
-      if (errorsFound.length > 0) {
-        throw new Error('Erros de validação encontrados no formulário:\n' + errorsFound.join('\n'));
-      }
-    });
-
-    cy.get('@alertStub').should('be.calledWithMatch', /sucesso/i);
-    cy.url().should('include', '/dashboard/integrantes');
-
-    // Verifica se o nome editado aparece na lista
-    IntegrantesPage.pesquisar(testData.nomeEditado);
+    // Validar que fomos para a página de edição
+    cy.url().should('include', '/editar/');
+    cy.contains('h1', 'Editar Integrante').should('be.visible');
   });
 
-  it('4. Deve excluir o integrante', () => {
-    cy.window().then((win) => {
-      cy.stub(win, 'alert').as('deleteAlertStub');
-      cy.stub(win, 'confirm').returns(true);
-    });
+  it('4. Deve editar o integrante e devolver instrumento', () => {
+    cy.intercept('PATCH', '**/api/integrantes/**').as('updateIntegrante');
 
-    IntegrantesPage.pesquisar(testData.nomeEditado);
+    // Buscar primeiro
+    cy.get('input[placeholder="Filtrar por nome..."]').type(integrante.nome);
+    cy.contains('button', 'Filtrar').click();
 
-    cy.get(IntegrantesPage.selectors.deleteBtn).first().click();
+    // Clicar em editar
+    cy.get('a[title="Editar"]').first().click();
+    cy.waitForHydration();
 
-    cy.get('@deleteAlertStub').should('be.calledWithMatch', /sucesso/i);
-    cy.contains(testData.nomeEditado).should('not.exist');
+    // Mudar nome
+    cy.get('input[name="nome"]').should('be.visible').clear().type(editado.nome);
+
+    // Marcar devolução
+    cy.get('input[type="checkbox"]').should('exist').check({ force: true });
+
+    cy.contains('button', 'Salvar Alterações').should('not.be.disabled').click({ force: true });
+
+    // Aguardar navegação
+    cy.url({ timeout: 15000 }).should('include', '/dashboard/integrantes');
+
+    // Validar na lista que não diz mais "Não devolvido"
+    cy.get('input[placeholder="Filtrar por nome..."]').type(editado.nome);
+    cy.get('input[placeholder="Filtrar por patrimônio..."]').type(integrante.patrimonio);
+    cy.contains('button', 'Filtrar').click();
+
+    cy.get('table').contains(editado.nome).should('be.visible');
+    cy.get('table').contains('Não devolvido').should('not.exist');
+  });
+
+  it('5. Deve excluir o integrante', () => {
+    cy.get('input[placeholder="Filtrar por nome..."]').type(editado.nome);
+    cy.contains('button', 'Filtrar').click();
+
+    cy.intercept('DELETE', '**/api/integrantes/*').as('deleteIntegrante');
+
+    // Stub confirm alert
+    cy.on('window:confirm', () => true);
+    cy.on('window:alert', () => true);
+
+    cy.get('button[title="Excluir"]').first().click();
+
+    cy.wait('@deleteIntegrante').its('response.statusCode').should('eq', 204);
+    cy.contains('Nenhum integrante encontrado').should('be.visible');
   });
 });

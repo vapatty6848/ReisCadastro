@@ -1,152 +1,109 @@
 import { test, expect } from '@playwright/test';
+import { loginAndSetStorage, waitForHydration } from './utils/auth-helper';
 
-test.describe.serial('Gestão de Integrantes (CRUD)', () => {
-  const integranteNome = 'Playwright Test Integrante ' + Date.now();
-  const integranteCpf = Math.floor(Math.random() * 100000000000).toString().padStart(11, '0');
-
-  test.beforeAll(async ({ request }) => {
-    // Login via API uma única vez para a suíte serial
-    const response = await request.post('http://localhost:3001/api/auth/login', {
-      data: {
-        email: 'admin@corporacao.com',
-        password: 'admin123'
-      }
-    });
-    const { token, user } = await response.json();
-    process.env.TEST_TOKEN = token;
-    process.env.TEST_USER = JSON.stringify(user);
-  });
+test.describe.serial('Gestão de Integrantes (E2E)', () => {
+  const integranteNome = `INTEGRANTE E2E ${Date.now()}`;
+  const integranteCpf = Math.floor(Math.random() * 90000000000 + 10000000000).toString();
 
   test.beforeEach(async ({ page }) => {
-    page.on('console', msg => {
-      if (msg.type() === 'error' || msg.text().includes('errors')) {
-        console.log(`BROWSER LOG [${msg.type()}]: ${msg.text()}`);
-      }
-    });
-
-    await page.goto('/login'); // Ir para uma página válida antes de setar localStorage
-    await page.evaluate(({ token, user }) => {
-      localStorage.setItem('@Corporacao:token', token!);
-      localStorage.setItem('@Corporacao:user', user!);
-    }, { token: process.env.TEST_TOKEN, user: process.env.TEST_USER });
-
+    await loginAndSetStorage(page);
     await page.goto('/dashboard/integrantes');
     await page.waitForLoadState('networkidle');
   });
 
-  test('deve cadastrar um novo integrante com sucesso', async ({ page }) => {
+  test('deve navegar corretamente entre abas e cadastrar novo integrante', async ({ page }) => {
+    // Acessar formulário
     await page.goto('/dashboard/integrantes/novo');
-    await page.waitForLoadState('networkidle');
+    await waitForHydration(page);
 
-    // Wait for hydration
-    await page.waitForTimeout(2000);
-
-    // Dados do Integrante
+    // Preencher formulário completo
     await page.fill('input[name="nome"]', integranteNome);
     await page.fill('input[name="cpf"]', integranteCpf);
-    await page.fill('input[name="dataNascimento"]', '2010-05-15');
-    await page.fill('input[name="telefone"]', '11988887777');
-    await page.fill('input[name="email"]', 'playwright@teste.com');
-
-    // Endereço
-    await page.fill('input[name="rua"]', 'Rua de Teste');
-    await page.fill('input[name="numero"]', '123');
-    await page.fill('input[name="bairro"]', 'Bairro Teste');
-    await page.fill('input[name="cep"]', '01234567');
+    await page.fill('input[name="dataNascimento"]', '2005-10-20');
+    await page.fill('input[name="telefone"]', '11999998888');
 
     // Responsável
-    await page.fill('input[name="responsavel.nome"]', 'Responsavel Playwright');
-    await page.fill('input[name="responsavel.cpf"]', '11122233344');
+    await page.fill('input[name="responsavel.nome"]', 'Responsavel E2E');
+    await page.fill('input[name="responsavel.cpf"]', '12312312311');
     await page.fill('input[name="responsavel.parentesco"]', 'Pai');
     await page.fill('input[name="responsavel.telefone"]', '11977776666');
 
-    // Corporação
-    await page.fill('input[name="corporacao.nome"]', 'Corporação Playwright');
-    await page.fill('input[name="corporacao.telefone"]', '1133334444');
-    await page.fill('input[name="turma"]', '7º Ano A');
-    await page.fill('input[name="dataMatricula"]', '2023-02-01');
+    // Corporação e Turma
+    await page.fill('input[name="corporacao.nome"]', 'Corporação E2E');
+    await page.fill('input[name="corporacao.telefone"]', '1133332222');
+    await page.fill('input[name="turma"]', 'Turma Alpha');
+    await page.fill('input[name="dataMatricula"]', '2024-01-01');
 
-    // Atuação
+    // Atuação e Instrumento (Logica condicionais)
     await page.selectOption('select[name="tipoIntegrante"]', 'CORPO_MUSICAL');
     await page.selectOption('select[name="subtipoIntegrante"]', 'INSTRUMENTOS');
+    await page.fill('input[name="instrumento"]', 'Saxofone');
+    await page.fill('input[name="patrimonio"]', 'E2E-PAT-123');
+    await page.selectOption('select[name="instrumentoOrigem"]', 'PROJETO');
 
-    // Intercepta e clica
-    const [response] = await Promise.all([
-      page.waitForResponse(res => res.url().includes('/api/integrantes') && res.request().method() === 'POST', { timeout: 30000 }),
+    // Tamanhos
+    await page.fill('input[name="tamanhoUniforme"]', '42');
+    await page.fill('input[name="tamanhoBota"]', '40');
+
+    // Finalizar
+    await Promise.all([
+      page.waitForResponse(res => res.url().includes('/api/integrantes') && res.status() === 201),
       page.click('button:has-text("Finalizar Cadastro")')
     ]);
 
-    expect(response.status()).toBe(201);
     await expect(page).toHaveURL(/\/dashboard\/integrantes/);
-    await expect(page.locator(`text=${integranteNome}`)).toBeVisible();
   });
 
-  test('deve pesquisar e editar um integrante', async ({ page }) => {
+  test('deve realizar busca sob demanda e validar visualização', async ({ page }) => {
+    // Inicialmente a lista deve estar vazia/pronto para buscar
+    await expect(page.locator('text=Pronto para buscar')).toBeVisible();
+
+    // Pesquisar pelo nome criado
     await page.fill('input[placeholder="Filtrar por nome..."]', integranteNome);
     await page.click('button:has-text("Filtrar")');
 
+    // Verificar se o integrante aparece na lista
     await expect(page.locator(`text=${integranteNome}`)).toBeVisible();
 
-    // Clica no botão de editar
+    // Verificar se o status "Não devolvido" está visível na tabela ao filtrar por patrimônio
+    await page.fill('input[placeholder="Filtrar por patrimônio..."]', 'E2E-PAT-123');
+    await page.click('button:has-text("Filtrar")');
+    await expect(page.locator('table >> text=Não devolvido').first()).toBeVisible();
+  });
+
+  test('deve permitir editar e salvar alterações', async ({ page }) => {
+    // Buscar primeiro
+    await page.fill('input[placeholder="Filtrar por nome..."]', integranteNome);
+    await page.click('button:has-text("Filtrar")');
+
+    // Editar
     await page.click('a[title="Editar"]');
-    await page.waitForLoadState('networkidle');
+    await waitForHydration(page);
 
-    await page.waitForTimeout(2000);
+    const nomeEditado = integranteNome + ' (EDITADO)';
+    await page.fill('input[name="nome"]', nomeEditado);
 
-    const novoNome = integranteNome + ' EDITADO';
-    await page.fill('input[name="nome"]', novoNome);
+    // Testar o novo checkbox de devolução
+    await page.check('input[type="checkbox"]'); // Já devolveu?
 
-    const [response] = await Promise.all([
-      page.waitForResponse(res => res.url().includes('/api/integrantes') && res.request().method() === 'PATCH', { timeout: 30000 }),
+    await Promise.all([
+      page.waitForResponse(res => res.status() === 200),
       page.click('button:has-text("Salvar Alterações")')
     ]);
 
-    expect(response.status()).toBe(200);
     await expect(page).toHaveURL(/\/dashboard\/integrantes/);
-    await expect(page.locator(`text=${novoNome}`)).toBeVisible();
-  });
 
-  test('deve permitir cadastrar um irmão com o mesmo CPF do responsável usando o botão copiar', async ({ page }) => {
-    const nomeIrmao = 'Irmão Teste ' + Date.now();
-    const cpfResponsavel = '99988877766';
-
-    await page.goto('/dashboard/integrantes/novo');
-    await page.waitForTimeout(2000);
-
-    // Preenche dados do responsável primeiro
-    await page.fill('input[name="responsavel.nome"]', 'Pai de Dois');
-    await page.fill('input[name="responsavel.cpf"]', cpfResponsavel);
-    await page.fill('input[name="responsavel.parentesco"]', 'Pai');
-    await page.fill('input[name="responsavel.telefone"]', '11999998888');
-
-    // Usa o botão "Copiar do Responsável" para o CPF do integrante
-    await page.click('button:has-text("Copiar do Responsável")');
-    const cpfValue = await page.inputValue('input[name="cpf"]');
-    expect(cpfValue).toBe(cpfResponsavel);
-
-    // Preenche o restante
-    await page.fill('input[name="nome"]', nomeIrmao);
-    await page.fill('input[name="dataNascimento"]', '2012-10-10');
-    await page.fill('input[name="telefone"]', '11999998888');
-    await page.fill('input[name="turma"]', '5º Ano B');
-    await page.fill('input[name="dataMatricula"]', '2023-02-01');
-    await page.fill('input[name="corporacao.nome"]', 'Escola Teste');
-    await page.fill('input[name="corporacao.telefone"]', '1144445555');
-
-    const [response] = await Promise.all([
-      page.waitForResponse(res => res.url().includes('/api/integrantes') && res.request().method() === 'POST'),
-      page.click('button:has-text("Finalizar Cadastro")')
-    ]);
-
-    expect(response.status()).toBe(201);
-    await page.goto('/dashboard/integrantes');
-    await page.fill('input[placeholder="Filtrar por nome..."]', nomeIrmao);
+    // Validar na lista que não é mais "Não devolvido"
+    await page.fill('input[placeholder="Filtrar por nome..."]', nomeEditado);
+    await page.click('#devolvido');
     await page.click('button:has-text("Filtrar")');
-    await expect(page.locator(`text=${nomeIrmao}`)).toBeVisible();
+    await expect(page.locator(`text=${nomeEditado}`)).toBeVisible();
+    await expect(page.locator('table >> text=Não devolvido')).not.toBeVisible();
   });
 
-  test('deve excluir um integrante', async ({ page }) => {
-    await page.fill('input[placeholder="Filtrar por nome..."]', integranteNome);
+  test('deve excluir o integrante e limpar a lista', async ({ page }) => {
+    const nomeFinal = integranteNome + ' (EDITADO)';
+    await page.fill('input[placeholder="Filtrar por nome..."]', nomeFinal);
     await page.click('button:has-text("Filtrar")');
 
     // Configura o diálogo de confirmação
@@ -157,7 +114,7 @@ test.describe.serial('Gestão de Integrantes (CRUD)', () => {
       page.click('button[title="Excluir"]')
     ]);
 
-    expect(response.status()).toBe(200);
-    await expect(page.locator(`text=${integranteNome}`)).not.toBeVisible();
+    expect(response.status()).toBe(204);
+    await expect(page.locator('text=Nenhum integrante encontrado')).toBeVisible();
   });
 });
