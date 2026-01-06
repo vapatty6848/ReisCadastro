@@ -37,7 +37,12 @@ export const clearIntegrantes = async () => {
 
 export const clearUsers = async () => {
   await prisma.user.deleteMany({
-    where: { email: { contains: 'test' } }
+    where: {
+      OR: [
+        { email: { contains: 'test' } },
+        { email: TEST_USER.email }
+      ]
+    }
   });
 };
 

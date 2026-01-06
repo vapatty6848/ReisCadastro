@@ -177,10 +177,23 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
                           href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${foto}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="block p-2 text-xs text-blue-600 border border-blue-200 rounded bg-blue-50 hover:bg-blue-100"
+                          className="block p-2 pr-8 text-xs text-blue-600 border border-blue-200 rounded bg-blue-50 hover:bg-blue-100"
                         >
                           {foto.split('/').pop()}
                         </a>
+                        {!readOnly && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const novasFotos = fotosExistentes.filter((_, i) => i !== index);
+                              setValue('fotos', novasFotos);
+                            }}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-red-500 hover:text-red-700 transition-colors"
+                            title="Remover arquivo"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>

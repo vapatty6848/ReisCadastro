@@ -10,10 +10,12 @@ Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o
 
 ### Fluxo Principal:
 
-1. **Autenticação:** Login administrativo via JWT.
-2. **Gestão (CRUD):** Cadastro, listagem, edição e exclusão de integrantes.
-3. **Relacionamentos:** Criação atômica de Integrante + Responsável + Corporação.
-4. **Arquivos:** Upload de até 5 fotos por integrante (armazenamento local em `backend/uploads`).
+1. **Autenticação:** Login administrativo via JWT (Expira em 24h).
+2. **Gestão (CRUD):** Cadastro centralizado. O Backend sanitiza campos `null` para `""` para evitar erros de renderização no Frontend.
+3. **Relacionamentos:**
+   - `resolveResponsavel`: Verifica CPF já existente. Se existir, atualiza os dados do responsável e vincula ao novo integrante.
+   - `resolveCorporacao`: Vincula à corporação pelo Nome Único.
+4. **Arquivos:** Upload via `multer`. Na edição, fotos removidas da lista enviada via JSON são deletadas fisicamente do storage pelo Backend (`fs.unlinkSync`).
 
 ---
 

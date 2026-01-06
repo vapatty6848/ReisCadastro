@@ -23,14 +23,34 @@ Sistema full-stack para gestão de integrantes de corporação, incluindo dados 
 - **Jest** + **React Testing Library**
 - **Playwright** / **Cypress** para E2E
 
-## ✨ Novas Funcionalidades (Dashboard)
+## ✨ Funcionalidades Avançadas
 
-O Dashboard principal foi modernizado e agora conta com:
+- **Gestão de Arquivos**: Suporte para até 5 anexos (fotos/PDFs) por integrante, com limpeza automática de arquivos órfãos no servidor.
+- **Relacionamentos Inteligentes**: Vinculação automática de responsáveis e corporações já cadastrados, evitando redundância de dados.
+- **Busca sob Demanda**: Listagem otimizada que exige preenchimento de filtros para exibição, melhorando a performance e o foco.
+- **Relatórios**: Exportação para CSV e modo de impressão amigável para fichas individuais e listagens.
 
-- **Aba de Consulta:** Pesquisa avançada por nome, corporação, instrumento, patrimônio e status de devolução.
-- **Aba de Cadastro:** Formulário integrado para novos integrantes.
-- **Gestão Direta:** Botões de Visualizar, Editar e Excluir diretamente na listagem.
-- **Exportação:** Exportação de relatórios em CSV e impressão formatada.
+## 🧪 Testes
+
+O projeto possui uma suíte de testes ponta-a-ponta (E2E) para garantir o funcionamento do fluxo crítico.
+
+### Executar Testes do Cypress (Frontend)
+
+Com o sistema rodando (`npm run dev` ou container):
+
+```bash
+# Executar todos os testes em modo headless
+cd frontend && npm run cypress:run
+
+# Abrir a interface visual do Cypress
+cd frontend && npm run cypress:open
+```
+
+### Executar Testes Unitários (Backend)
+
+```bash
+cd backend && npm test
+```
 
 ## 🛠️ Como rodar o projeto
 

@@ -6,6 +6,7 @@ package-lock.json
 
 # Testing
 /coverage
+**/coverage/
 test-results/
 report-data/
 playwright-report/

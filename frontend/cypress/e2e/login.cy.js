@@ -1,27 +1,34 @@
-describe('Login Page', () => {
+describe('Login Page (Cypress Clean Code)', () => {
+  beforeEach(() => {
+    cy.visit('/login');
+    cy.waitForHydration();
+  });
+
   it('should load the login page', () => {
-    cy.visit('/login')
-    cy.contains('Entrar').should('be.visible')
-  })
+    cy.contains('Entrar').should('be.visible');
+  });
 
   it('should show error on invalid login', () => {
-    cy.intercept('POST', '**/api/auth/login').as('loginRequest')
+    cy.intercept('POST', '**/api/auth/login').as('loginRequest');
 
-    cy.visit('/login')
-    cy.get('form').should('be.visible')
+    cy.get('input[name="email"]').type('admin@teste.com');
+    cy.get('input[name="password"]').type('senhaerrada');
 
-    // Wait for hydration - Next.js can be slow in dev mode
-    cy.wait(3000)
+    cy.get('button[type="submit"]').click();
 
-    cy.get('input[name="email"]').type('admin@teste.com')
-    cy.get('input[name="password"]').type('senhaerrada')
+    cy.wait('@loginRequest').its('response.statusCode').should('eq', 401);
+    cy.contains('Credenciais inválidas').should('be.visible');
+  });
 
-    cy.get('button[type="submit"]').click()
+  it('should login successfully with valid credentials', () => {
+    cy.intercept('POST', '**/api/auth/login').as('loginRequest');
 
-    // If the URL contains query params, it means hydration failed and it did a standard GET submit
-    cy.url().should('not.include', '?email=')
+    cy.get('input[name="email"]').type('admin@corporacao.com');
+    cy.get('input[name="password"]').type('admin123');
 
-    cy.wait('@loginRequest').its('response.statusCode').should('eq', 401)
-    cy.contains('Credenciais inválidas').should('be.visible')
-  })
-})
+    cy.get('button[type="submit"]').click();
+
+    cy.wait('@loginRequest').its('response.statusCode').should('eq', 200);
+    cy.url().should('include', '/dashboard');
+  });
+});
