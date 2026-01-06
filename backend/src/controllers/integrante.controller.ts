@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '@prisma/client';
+import fs from 'fs';
+import path from 'path';
+import prisma from '../lib/prisma';
 import { integranteSchema, updateIntegranteSchema } from '../schemas/integrante.schema';
 import { resolveResponsavel, resolveCorporacao } from '../utils/resolvers';
-
-const prisma = new PrismaClient();
 
 export const createIntegrante = async (req: Request, res: Response) => {
   // Se houver arquivo, adicionamos o caminho ao body para validação (opcional) ou apenas processamos
@@ -17,10 +17,19 @@ export const createIntegrante = async (req: Request, res: Response) => {
   const { responsavel, corporacao, ...integranteData } = result.data;
 
   try {
-    // Verificar se CPF já existe
-    const existingCpf = await prisma.integrante.findUnique({ where: { cpf: integranteData.cpf } });
+    const resolvedResponsavel = await resolveResponsavel(responsavel);
+    const resolvedCorporacao = await resolveCorporacao(corporacao);
+
+    // Verificar se CPF já existe em outro integrante que NÃO tenha o mesmo responsável
+    const existingCpf = await prisma.integrante.findFirst({
+      where: {
+        cpf: integranteData.cpf,
+        responsavelId: { not: resolvedResponsavel.id }
+      }
+    });
+
     if (existingCpf) {
-      return res.status(400).json({ message: 'Já existe um integrante cadastrado com este CPF.' });
+      return res.status(400).json({ message: 'Este CPF já está sendo utilizado por um integrante de outra família/responsável.' });
     }
 
     // Verificar se Matrícula já existe (se fornecida)
@@ -30,9 +39,6 @@ export const createIntegrante = async (req: Request, res: Response) => {
         return res.status(400).json({ message: 'Já existe um integrante cadastrado com este número de matrícula.' });
       }
     }
-
-    const resolvedResponsavel = await resolveResponsavel(responsavel);
-    const resolvedCorporacao = await resolveCorporacao(corporacao);
 
     const fotos = req.files && Array.isArray(req.files)
       ? req.files.map((file: any) => `/uploads/${file.filename}`)
@@ -137,17 +143,30 @@ export const updateIntegrante = async (req: Request, res: Response) => {
 
   try {
     const { responsavel, corporacao, ...integranteData } = result.data;
+    const currentIntegrante = await prisma.integrante.findUnique({ where: { id } });
 
-    // Verificar se CPF já existe em outro integrante
-    if (integranteData.cpf) {
+    if (!currentIntegrante) {
+      return res.status(404).json({ message: 'Integrante não encontrado' });
+    }
+
+    let resolvedResponsavelId = currentIntegrante.responsavelId;
+    if (responsavel) {
+      const resolvedResponsavel = await resolveResponsavel(responsavel);
+      resolvedResponsavelId = resolvedResponsavel.id;
+    }
+
+    // Verificar se CPF já existe em outro integrante que NÃO tenha o mesmo responsável
+    const cpfToCheck = integranteData.cpf || currentIntegrante.cpf;
+    if (cpfToCheck) {
       const existingCpf = await prisma.integrante.findFirst({
         where: {
-          cpf: integranteData.cpf,
+          cpf: cpfToCheck,
+          responsavelId: { not: resolvedResponsavelId },
           NOT: { id }
         }
       });
       if (existingCpf) {
-        return res.status(400).json({ message: 'Já existe outro integrante cadastrado com este CPF.' });
+        return res.status(400).json({ message: 'Este CPF já está sendo utilizado por um integrante de outra família/responsável.' });
       }
     }
 
@@ -165,10 +184,8 @@ export const updateIntegrante = async (req: Request, res: Response) => {
     }
 
     const updateData: any = { ...integranteData };
-
     if (responsavel) {
-      const resolvedResponsavel = await resolveResponsavel(responsavel);
-      updateData.responsavelId = resolvedResponsavel.id;
+      updateData.responsavelId = resolvedResponsavelId;
     }
 
     if (corporacao) {
@@ -179,8 +196,7 @@ export const updateIntegrante = async (req: Request, res: Response) => {
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
       const novasFotos = req.files.map((file: any) => `/uploads/${file.filename}`);
       // Aqui você pode decidir se substitui ou adiciona. Vamos adicionar.
-      const currentIntegrante = await prisma.integrante.findUnique({ where: { id } });
-      updateData.fotos = [...(currentIntegrante?.fotos || []), ...novasFotos];
+      updateData.fotos = [...(currentIntegrante.fotos || []), ...novasFotos];
     }
 
     const integrante = await prisma.integrante.update({
@@ -201,6 +217,17 @@ export const updateIntegrante = async (req: Request, res: Response) => {
 export const deleteIntegrante = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
+    const integrante = await prisma.integrante.findUnique({ where: { id } });
+
+    if (integrante && integrante.fotos.length > 0) {
+      integrante.fotos.forEach(fotoPath => {
+        const fullPath = path.join(__dirname, '../../', fotoPath);
+        if (fs.existsSync(fullPath)) {
+          fs.unlinkSync(fullPath);
+        }
+      });
+    }
+
     await prisma.integrante.delete({ where: { id } });
     return res.status(204).send();
   } catch (error: any) {

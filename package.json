@@ -1,0 +1,21 @@
+{
+  "name": "reis-cadastro-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "docker:up": "docker compose -f infra/docker-compose.yml up -d",
+    "docker:down": "docker compose -f infra/docker-compose.yml down",
+    "docker:build": "docker compose -f infra/docker-compose.yml build",
+    "db:migrate": "docker exec corporacao_backend npx prisma migrate deploy",
+    "db:seed": "docker exec corporacao_backend npx prisma db seed",
+    "lint": "npm --prefix backend run lint || true && npm --prefix frontend run lint",
+    "test": "npm --prefix backend test -- --forceExit --detectOpenHandles || true && npm --prefix frontend test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

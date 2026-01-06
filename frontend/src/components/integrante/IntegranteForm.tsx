@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { integranteSchema, IntegranteData } from '@/schemas';
 import { Input } from '../form/Input';
 import { Select } from '../form/Select';
-import axios from 'axios';
+import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -35,9 +35,7 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
     if (id && token) {
       const fetchIntegrante = async () => {
         try {
-          const response = await axios.get(`http://localhost:3001/api/integrantes/${id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
+          const response = await api.get(`/api/integrantes/${id}`);
           const data = response.data;
 
           // Formatar datas para o input type="date" (YYYY-MM-DD)
@@ -79,9 +77,7 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
   const handleDelete = async () => {
     if (id && confirm('Tem certeza que deseja excluir este integrante?')) {
       try {
-        await axios.delete(`http://localhost:3001/api/integrantes/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        await api.delete(`/api/integrantes/${id}`);
         alert('Integrante excluído com sucesso!');
         router.push('/dashboard/integrantes');
       } catch (error) {
@@ -103,12 +99,11 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
 
       formData.append('data', JSON.stringify(data));
 
-      const url = id ? `http://localhost:3001/api/integrantes/${id}` : 'http://localhost:3001/api/integrantes';
+      const url = id ? `/api/integrantes/${id}` : '/api/integrantes';
       const method = id ? 'patch' : 'post';
 
-      await axios[method](url, formData, {
+      await api[method](url, formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });

@@ -23,6 +23,15 @@ Sistema full-stack para gestão de integrantes de corporação, incluindo dados 
 - **Jest** + **React Testing Library**
 - **Playwright** / **Cypress** para E2E
 
+## ✨ Novas Funcionalidades (Dashboard)
+
+O Dashboard principal foi modernizado e agora conta com:
+
+- **Aba de Consulta:** Pesquisa avançada por nome, corporação, instrumento, patrimônio e status de devolução.
+- **Aba de Cadastro:** Formulário integrado para novos integrantes.
+- **Gestão Direta:** Botões de Visualizar, Editar e Excluir diretamente na listagem.
+- **Exportação:** Exportação de relatórios em CSV e impressão formatada.
+
 ## 🛠️ Como rodar o projeto
 
 ### Pré-requisitos
@@ -30,38 +39,43 @@ Sistema full-stack para gestão de integrantes de corporação, incluindo dados 
 - Docker e Docker Compose
 - Node.js 22+
 
-### Setup Rápido
+### Setup Rápido (Docker - Recomendado)
 
-1. Execute o script de setup:
+Este comando sobe o banco de dados, o backend e o frontend simultaneamente:
+
+```bash
+npm run docker:up
+```
+
+Após os containers subirem, você precisa aplicar as migrações e o seed (apenas na primeira vez):
+
+```bash
+npm run db:migrate
+npm run db:seed
+```
+
+O sistema estará disponível em:
+
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:3001`
+- Banco de Dados: Porta `5435` (Host)
+
+### Desenvolvimento Local (Sem Docker para App)
+
+1. **Instale todas as dependências (Raiz, Frontend e Backend):**
+
    ```bash
-   ./setup.sh
+   npm run install:all
    ```
 
-### Manualmente
-
-1. **Infraestrutura:**
+2. **Suba apenas o Banco de Dados:**
 
    ```bash
-   cd infra
-   docker-compose up -d
+   docker compose -f infra/docker-compose.yml up -d db
    ```
 
-   _Nota: O banco de dados PostgreSQL roda na porta **5434**._
-
-2. **Backend:**
-
+3. **Rode o Backend e Frontend em paralelo:**
    ```bash
-   cd backend
-   npm install
-   npx prisma migrate dev
-   npx prisma db seed
-   npm run dev
-   ```
-
-3. **Frontend:**
-   ```bash
-   cd frontend
-   npm install
    npm run dev
    ```
 
@@ -161,6 +175,3 @@ O projeto possui um workflow de Integração Contínua (`.github/workflows/ci.ym
 ## 📝 Licença
 
 Este projeto está sob a licença MIT.
-
-
-

@@ -1,32 +1,41 @@
 #!/bin/bash
 
-echo "🚀 Iniciando setup do projeto Cadastro Integrantes Corporação..."
+# Cores para output
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# Backend
-echo "📦 Configurando Backend..."
-cd backend
-npm install
-# npx prisma generate # Requer banco rodando ou skip-generate
+echo -e "${BLUE}🚀 Iniciando setup automatizado do projeto Cadastro Integrantes Corporação...${NC}"
 
-# Frontend
-echo "📦 Configurando Frontend..."
-cd ../frontend
-npm install
+# Verificar Docker
+if ! [ -x "$(command -v docker)" ]; then
+  echo '❌ Erro: Docker não está instalado.' >&2
+  exit 1
+fi
 
-# Infra
-echo "🐳 Subindo infraestrutura (Docker)..."
-cd ../infra
-docker-compose up -d
+# Instalação de dependências
+echo -e "${BLUE}📦 Instalando dependências em todos os módulos...${NC}"
+npm run install:all
 
-echo "⏳ Aguardando banco de dados ficar pronto..."
-sleep 5
+# Infraestrutura
+echo -e "${BLUE}🐳 Subindo containers Docker (Banco, Backend, Frontend)...${NC}"
+npm run docker:build
+npm run docker:up
 
-# Backend Migrations
-echo "🔄 Executando migrações do banco de dados..."
-cd ../backend
-npx prisma migrate dev --name init
-npx prisma db seed
+echo -e "${BLUE}⏳ Aguardando serviços ficarem prontos...${NC}"
+sleep 15
 
-echo "✅ Setup concluído!
-Para rodar o backend: cd backend && npm run dev
-Para rodar o frontend: cd frontend && npm run dev"
+# Banco de Dados
+echo -e "${BLUE}🔄 Aplicando migrações do Prisma...${NC}"
+npm run db:migrate
+
+echo -e "${BLUE}🌱 Populando banco de dados (Seed)...${NC}"
+npm run db:seed
+
+echo -e "${GREEN}✅ Setup concluído com sucesso!${NC}"
+echo "--------------------------------------------------"
+echo -e "Frontend: ${GREEN}http://localhost:3000${NC}"
+echo -e "Backend:  ${GREEN}http://localhost:3001${NC}"
+echo -e "Swagger:  ${GREEN}http://localhost:3001/api-docs${NC}"
+echo "--------------------------------------------------"
+echo "Credenciais padrão: admin@corporacao.com / admin123"

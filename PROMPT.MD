@@ -25,24 +25,27 @@ Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o
 - **Framework:** Express.js
 - **Linguagem:** TypeScript
 - **ORM:** Prisma
-- **Banco de Dados:** PostgreSQL (Porta: **5434** para evitar conflitos)
+- **Banco de Dados:** PostgreSQL (Porta: **5435** no host para evitar conflitos)
 - **Documentação:** Swagger (JSDoc)
 - **Segurança:** JWT + Bcrypt
+- **Docker:** Imagem `node:22-slim` com OpenSSL instalado.
 
 ### Frontend:
 
 - **Framework:** Next.js 14+ (App Router)
 - **Estilização:** Tailwind CSS + Lucide React (Ícones)
 - **Formulários:** React Hook Form + Zod (Validação)
-- **HTTP Client:** Axios
-- **Gerenciamento de Estado:** Context API (AuthContext)
+- **HTTP Client:** Axios (Centralizado em `src/lib/api.ts`)
+- **Docker:** Build `standalone` para alta performance.
 
 ### QA & DevOps:
 
 - **E2E Testing:** Cypress (Visual) & Playwright (Headless)
 - **Unit Testing:** Jest
 - **Containerização:** Docker + Docker Compose
-- **CI/CD:** GitHub Actions (Jobs: Lint, Test, Backend, Frontend)
+- **CI/CD:** GitHub Actions
+  - `quality.yml`: Executa Lint e Testes Unitários em todo o monorepo.
+  - `docker-build.yml`: Valida o build das imagens Docker do Frontend e Backend.
 
 ---
 
@@ -77,7 +80,7 @@ Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o
 **Backend (`backend/.env`):**
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5434/corporacao_db?schema=public"
+DATABASE_URL="postgresql://user:password@localhost:5435/corporacao_db?schema=public"
 JWT_SECRET="sua_chave_secreta_aqui"
 PORT=3001
 ```
@@ -85,26 +88,34 @@ PORT=3001
 **Frontend (`frontend/.env.local`):**
 
 ```env
-NEXT_PUBLIC_API_URL="http://localhost:3001/api"
+NEXT_PUBLIC_API_URL="http://localhost:3001"
 ```
 
-### 2. Comandos de Inicialização
+### 2. Comandos de Inicialização (Docker - Recomendado)
 
 ```bash
-# No Root: Subir Banco de Dados
-docker-compose up -d
+# 1. Instalar dependências em todos os módulos
+npm run install:all
 
-# No Backend:
-npm install
-npx prisma migrate dev
-npm run dev
+# 2. Subir a stack completa (DB, Backend, Frontend)
+npm run docker:up
 
-# No Frontend:
-npm install
+# 3. Aplicar migrações e popular banco (Seed)
+npm run db:migrate
+npm run db:seed
+```
+
+### 3. Desenvolvimento Local (Sem Docker para Apps)
+
+```bash
+# 1. Subir apenas o banco
+docker compose -f infra/docker-compose.yml up -d db
+
+# 2. Rodar backend e frontend simultaneamente
 npm run dev
 ```
 
-### 3. Credenciais Padrão
+### 4. Credenciais Padrão
 
 - **Usuário:** `admin@corporacao.com`
 - **Senha:** `admin123`
