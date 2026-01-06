@@ -26,8 +26,8 @@ test.describe.serial('Gestão de Integrantes (CRUD)', () => {
 
     await page.goto('/login'); // Ir para uma página válida antes de setar localStorage
     await page.evaluate(({ token, user }) => {
-      localStorage.setItem('@Corporacao:token', token);
-      localStorage.setItem('@Corporacao:user', user);
+      localStorage.setItem('@Corporacao:token', token!);
+      localStorage.setItem('@Corporacao:user', user!);
     }, { token: process.env.TEST_TOKEN, user: process.env.TEST_USER });
 
     await page.goto('/dashboard/integrantes');
