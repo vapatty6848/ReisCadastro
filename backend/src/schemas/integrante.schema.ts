@@ -15,7 +15,7 @@ export const integranteSchema = z.object({
   bairro: z.string().optional().nullable(),
   cep: z.string().optional().nullable(),
   dataMatricula: z.string().transform((str) => new Date(str)),
-  matriculaNumero: z.string().optional().nullable(),
+  matriculaNumero: z.string().transform(v => v === '' ? null : v).optional().nullable(),
   turma: z.string().min(1, 'Turma é obrigatória'),
   tipoIntegrante: TipoIntegrante,
   subtipoIntegrante: SubtipoIntegrante.optional().nullable(),
