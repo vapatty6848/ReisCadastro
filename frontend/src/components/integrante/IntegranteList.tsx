@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { Search, Edit, Trash2, Eye, Printer, FileDown } from 'lucide-react';
@@ -24,7 +24,7 @@ export function IntegranteList() {
     naoDevolvido: false
   });
 
-  const fetchIntegrantes = async () => {
+  const fetchIntegrantes = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -47,11 +47,11 @@ export function IntegranteList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, token]); // Incluído filters e token
 
   useEffect(() => {
     if (token) fetchIntegrantes();
-  }, [token]);
+  }, [token, fetchIntegrantes]);
 
   const handleDelete = async (id: string, nome: string) => {
     if (confirm(`Tem certeza que deseja excluir o integrante ${nome}?`)) {

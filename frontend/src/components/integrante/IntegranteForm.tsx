@@ -314,8 +314,8 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
                     { value: 'EMPRESA', label: 'Empresa' }
                   ]}
                 />
-                <Input label="Data Recebimento" type="date" register={register('instrumentoRecebimento')} error={errors.instrumentoRecebimento?.message} />
-                <Input label="Data Devolução" type="date" register={register('instrumentoDevolucao')} error={errors.instrumentoDevolucao?.message} />
+                <Input label="Data Recebimento" type="date" register={register('instrumentoRecebimento')} error={errors.instrumentoRecebimento?.message as string} />
+                <Input label="Data Devolução" type="date" register={register('instrumentoDevolucao')} error={errors.instrumentoDevolucao?.message as string} />
               </>
             )}
 

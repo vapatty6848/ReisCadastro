@@ -29,9 +29,9 @@ export const integranteSchema = z.object({
   instrumento: z.string().nullish().or(z.literal('')),
   patrimonio: z.string().nullish().or(z.literal('')),
   instrumentoOrigem: OrigemInstrumento.nullish(),
-  instrumentoRecebimento: z.any(),
-  instrumentoDevolucao: z.any(),
-  observacoes: z.any(),
+  instrumentoRecebimento: z.string().nullish().or(z.literal('')),
+  instrumentoDevolucao: z.string().nullish().or(z.literal('')),
+  observacoes: z.string().nullish().or(z.literal('')),
   responsavel: responsavelSchema.nullish(),
   corporacao: corporacaoSchema.nullish(),
 });
