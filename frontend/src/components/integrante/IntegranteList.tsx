@@ -72,7 +72,7 @@ export function IntegranteList() {
   const handleExportCSV = () => {
     if (integrantes.length === 0) return;
 
-    const isInstrumentSearch = filters.patrimonio || filters.instrumento || filters.naoDevolvido;
+    const isInstrumentSearch = filters.patrimonio || filters.instrumento || filters.naoDevolvido || filters.subtipoIntegrante === 'INSTRUMENTOS';
 
     let headers = ['Nome', 'Corporação', 'Tipo', 'Patrimônio', 'Tamanho Bota', 'Tamanho Roupa'];
     if (isInstrumentSearch) {
@@ -185,6 +185,21 @@ export function IntegranteList() {
           </select>
         </div>
         <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Subtipo</label>
+          <select
+            value={filters.subtipoIntegrante}
+            onChange={(e) => setFilters({ ...filters, subtipoIntegrante: e.target.value })}
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+          >
+            <option value="">Todos</option>
+            <option value="INSTRUMENTOS">Instrumentos</option>
+            <option value="COMANDANTE_MOR">Comandante Mor</option>
+            <option value="PAVILHAO_NACIONAL">Pavilhão Nacional</option>
+            <option value="CORPO_COREOGRAFICO">Corpo Coreográfico</option>
+            <option value="BALIZAS">Balizas</option>
+          </select>
+        </div>
+        <div>
           <label className="block mb-1 text-sm font-medium text-gray-700">Corporação</label>
           <input
             type="text"
@@ -212,6 +227,26 @@ export function IntegranteList() {
             onChange={(e) => setFilters({ ...filters, instrumento: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="Filtrar por instrumento..."
+          />
+        </div>
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Tam. Uniforme</label>
+          <input
+            type="text"
+            value={filters.tamanhoUniforme}
+            onChange={(e) => setFilters({ ...filters, tamanhoUniforme: e.target.value })}
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+            placeholder="Tam. Uniforme..."
+          />
+        </div>
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Tam. Bota</label>
+          <input
+            type="text"
+            value={filters.tamanhoBota}
+            onChange={(e) => setFilters({ ...filters, tamanhoBota: e.target.value })}
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+            placeholder="Tam. Bota..."
           />
         </div>
         <div className="flex items-center gap-2 pb-3">
