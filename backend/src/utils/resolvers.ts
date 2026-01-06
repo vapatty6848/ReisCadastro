@@ -4,11 +4,11 @@ export const resolveResponsavel = async (data: {
   nome: string;
   cpf: string;
   telefone: string;
-  email?: string;
-  rua?: string;
-  numero?: string;
-  bairro?: string;
-  cep?: string;
+  email?: string | null;
+  rua?: string | null;
+  numero?: string | null;
+  bairro?: string | null;
+  cep?: string | null;
   parentesco: string;
 }) => {
   const existing = await prisma.responsavel.findUnique({ where: { cpf: data.cpf } });
@@ -25,17 +25,17 @@ export const resolveResponsavel = async (data: {
 
 export const resolveCorporacao = async (data: {
   nome: string;
-  rua?: string;
-  numero?: string;
-  bairro?: string;
-  cep?: string;
+  rua?: string | null;
+  numero?: string | null;
+  bairro?: string | null;
+  cep?: string | null;
   telefone: string;
-  serie?: string;
-  email?: string;
-  cidade?: string;
-  estado?: string;
-  contatoNome?: string;
-  contatoTelefone?: string;
+  serie?: string | null;
+  email?: string | null;
+  cidade?: string | null;
+  estado?: string | null;
+  contatoNome?: string | null;
+  contatoTelefone?: string | null;
 }) => {
   const existing = await prisma.corporacao.findUnique({ where: { nome: data.nome } });
   if (existing) {
