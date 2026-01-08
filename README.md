@@ -78,7 +78,7 @@ O sistema estará disponível em:
 
 - Frontend: `http://localhost:3000`
 - Backend API: `http://localhost:3001`
-- Banco de Dados: Porta `5435` (Host)
+- Banco de Dados: Porta `5434` (Host)
 
 ### Desenvolvimento Local (Sem Docker para App)
 

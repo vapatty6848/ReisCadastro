@@ -122,6 +122,7 @@ describe('Integrante Endpoints', () => {
         .set('Authorization', `Bearer ${token}`)
         .send(generateIntegranteData({
           nome: 'TEST_NOT_RETURNED',
+          instrumento: 'Trompete',
           instrumentoRecebimento: '2023-01-01',
           instrumentoDevolucao: null
         }));
@@ -132,18 +133,49 @@ describe('Integrante Endpoints', () => {
         .set('Authorization', `Bearer ${token}`)
         .send(generateIntegranteData({
           nome: 'TEST_ALREADY_RETURNED',
+          instrumento: 'Trompete',
           instrumentoRecebimento: '2023-01-01',
           instrumentoDevolucao: '2023-12-01'
         }));
 
       const res = await request(app)
-        .get('/api/integrantes?naoDevolvido=true')
+        .get('/api/integrantes?statusDevolucao=NAO_DEVOLVIDO')
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toEqual(200);
       const names = res.body.map((i: any) => i.nome);
       expect(names).toContain('TEST_NOT_RETURNED');
       expect(names).not.toContain('TEST_ALREADY_RETURNED');
+    });
+
+    it('should filter returned instruments up to a specific date', async () => {
+      await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(generateIntegranteData({
+          nome: 'TEST_DEV_A',
+          instrumento: 'Sax',
+          instrumentoDevolucao: '2025-01-01'
+        }));
+
+      await request(app)
+        .post('/api/integrantes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(generateIntegranteData({
+          nome: 'TEST_DEV_B',
+          instrumento: 'Sax',
+          instrumentoDevolucao: '2026-01-10'
+        }));
+
+      // Search up to 2025-12-31 -> should only return TEST_DEV_A
+      const res = await request(app)
+        .get('/api/integrantes?statusDevolucao=DEVOLVIDO&dataDevolucao=2025-12-31')
+        .set('Authorization', `Bearer ${token}`);
+
+      expect(res.statusCode).toEqual(200);
+      const names = res.body.map((i: any) => i.nome);
+      expect(names).toContain('TEST_DEV_A');
+      expect(names).not.toContain('TEST_DEV_B');
     });
   });
 

@@ -27,7 +27,7 @@ Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o
 - **Framework:** Express.js
 - **Linguagem:** TypeScript
 - **ORM:** Prisma
-- **Banco de Dados:** PostgreSQL (Porta: **5435** no host para evitar conflitos)
+- **Banco de Dados:** PostgreSQL (Porta: **5434** no host para evitar conflitos)
 - **Documentação:** Swagger (JSDoc)
 - **Segurança:** JWT + Bcrypt
 - **Docker:** Imagem `node:22-slim` com OpenSSL instalado.
@@ -82,7 +82,7 @@ Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o
 **Backend (`backend/.env`):**
 
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5435/corporacao_db?schema=public"
+DATABASE_URL="postgresql://user:password@localhost:5434/corporacao_db?schema=public"
 JWT_SECRET="sua_chave_secreta_aqui"
 PORT=3001
 ```

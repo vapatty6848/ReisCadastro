@@ -114,9 +114,9 @@
  *         schema: { type: string }
  *         description: Filtro por nome do instrumento.
  *       - in: query
- *         name: naoDevolvido
- *         schema: { type: boolean }
- *         description: Se true, retorna apenas instrumentos não devolvidos.
+ *         name: statusDevolucao
+ *         schema: { type: string, enum: [DEVOLVIDO, NAO_DEVOLVIDO] }
+ *         description: Filtro por status de devolução do instrumento.
  *       - in: query
  *         name: instrumentoOrigem
  *         schema: { type: string, enum: [PROJETO, EMPRESA] }
