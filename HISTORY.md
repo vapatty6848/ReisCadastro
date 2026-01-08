@@ -22,6 +22,7 @@ Este documento registra os marcos, evoluções e decisões técnicas tomadas dur
 - **Upload de Fotos**: Integração com Multer para suportar até 5 anexos por integrante.
 - **Gestão de Storage**: Implementação de exclusão física de arquivos (`fs.unlinkSync`) ao remover fotos na edição ou deletar integrantes.
 - **Visualização e Edição**: Refinamento das páginas com suporte a modo somente-leitura e atalhos rápidos.
+- **Pesquisa Avançada**: Implementação de lógica de filtro "Até a data" para devoluções, permitindo rastrear o histórico de instrumentos devolvidos de forma temporal.
 - **Impressão e Exportação**: Criação de layout específico para impressão via CSS (`print:hidden`) e exportação de relatórios em CSV.
 
 ## 🧪 Fase 4: Garantia de Qualidade (QA)

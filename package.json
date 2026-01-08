@@ -9,6 +9,7 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "docker:up": "docker compose -f infra/docker-compose.yml up -d",
     "docker:down": "docker compose -f infra/docker-compose.yml down",
+    "stop": "npm run docker:down && (pkill -f 'node|next-server' || echo 'Processos locais já encerrados')",
     "docker:build": "docker compose -f infra/docker-compose.yml build",
     "db:migrate": "docker exec corporacao_backend npx prisma migrate deploy",
     "db:seed": "docker exec corporacao_backend npx prisma db seed",

@@ -9,7 +9,8 @@ import Link from 'next/link';
 export function IntegranteList() {
   const { token } = useAuth();
   const [integrantes, setIntegrantes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const [filters, setFilters] = useState({
     nome: '',
     cpf: '',
@@ -21,7 +22,8 @@ export function IntegranteList() {
     tamanhoUniforme: '',
     patrimonio: '',
     instrumento: '',
-    naoDevolvido: false
+    statusDevolucao: '',
+    dataDevolucao: ''
   });
 
   const fetchIntegrantes = useCallback(async () => {
@@ -38,10 +40,12 @@ export function IntegranteList() {
       if (filters.tamanhoUniforme) params.append('tamanhoUniforme', filters.tamanhoUniforme);
       if (filters.patrimonio) params.append('patrimonio', filters.patrimonio);
       if (filters.instrumento) params.append('instrumento', filters.instrumento);
-      if (filters.naoDevolvido) params.append('naoDevolvido', 'true');
+      if (filters.statusDevolucao) params.append('statusDevolucao', filters.statusDevolucao);
+      if (filters.dataDevolucao) params.append('dataDevolucao', filters.dataDevolucao);
 
       const response = await api.get(`/api/integrantes?${params.toString()}`);
       setIntegrantes(response.data);
+      setHasSearched(true);
     } catch (error) {
       console.error('Erro ao buscar integrantes:', error);
     } finally {
@@ -50,8 +54,8 @@ export function IntegranteList() {
   }, [filters, token]); // Incluído filters e token
 
   useEffect(() => {
-    if (token) fetchIntegrantes();
-  }, [token, fetchIntegrantes]);
+    // Não busca automaticamente ao montar o componente
+  }, []);
 
   const handleDelete = async (id: string, nome: string) => {
     if (confirm(`Tem certeza que deseja excluir o integrante ${nome}?`)) {
@@ -72,7 +76,7 @@ export function IntegranteList() {
   const handleExportCSV = () => {
     if (integrantes.length === 0) return;
 
-    const isInstrumentSearch = filters.patrimonio || filters.instrumento || filters.naoDevolvido || filters.subtipoIntegrante === 'INSTRUMENTOS';
+    const isInstrumentSearch = filters.patrimonio || filters.instrumento || filters.statusDevolucao || filters.subtipoIntegrante === 'INSTRUMENTOS';
 
     let headers = ['Nome', 'Corporação', 'Tipo', 'Patrimônio', 'Tamanho Bota', 'Tamanho Roupa'];
     if (isInstrumentSearch) {
@@ -249,16 +253,31 @@ export function IntegranteList() {
             placeholder="Tam. Bota..."
           />
         </div>
-        <div className="flex items-center gap-2 pb-3">
-          <input
-            type="checkbox"
-            id="naoDevolvido"
-            checked={filters.naoDevolvido}
-            onChange={(e) => setFilters({ ...filters, naoDevolvido: e.target.checked })}
-            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-          />
-          <label htmlFor="naoDevolvido" className="text-sm font-medium text-gray-700">Não Devolvidos</label>
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Devolução</label>
+          <select
+            name="statusDevolucao"
+            value={filters.statusDevolucao}
+            onChange={(e) => setFilters({ ...filters, statusDevolucao: e.target.value, dataDevolucao: e.target.value !== 'DEVOLVIDO' ? '' : filters.dataDevolucao })}
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+          >
+            <option value="">Todos</option>
+            <option value="DEVOLVIDO">Devolvidos</option>
+            <option value="NAO_DEVOLVIDO">Não Devolvidos</option>
+          </select>
         </div>
+
+        {filters.statusDevolucao === 'DEVOLVIDO' && (
+          <div>
+            <label className="block mb-1 text-sm font-medium text-gray-700">Até a data</label>
+            <input
+              type="date"
+              value={filters.dataDevolucao}
+              onChange={(e) => setFilters({ ...filters, dataDevolucao: e.target.value })}
+              className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+            />
+          </div>
+        )}
 
         <div className="flex justify-end gap-2 md:col-span-3 lg:col-span-5">
           <button
@@ -274,17 +293,19 @@ export function IntegranteList() {
                 tamanhoUniforme: '',
                 patrimonio: '',
                 instrumento: '',
-                naoDevolvido: false
+                statusDevolucao: '',
+                dataDevolucao: ''
               });
-              setTimeout(fetchIntegrantes, 0);
+              setHasSearched(false);
+              setIntegrantes([]);
             }}
-            className="px-6 py-2 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300"
+            className="px-6 py-2 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300 whitespace-nowrap"
           >
             Limpar
           </button>
           <button
             onClick={fetchIntegrantes}
-            className="flex items-center justify-center gap-2 px-8 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+            className="flex items-center justify-center gap-2 px-8 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 whitespace-nowrap"
           >
             <Search size={20} /> Filtrar
           </button>
@@ -297,12 +318,12 @@ export function IntegranteList() {
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50 print:bg-white">
               <th className="p-4 font-semibold text-gray-700">Nome do Integrante</th>
-              {filters.naoDevolvido ? (
+              {filters.statusDevolucao === 'NAO_DEVOLVIDO' ? (
                 <>
                   <th className="p-4 font-semibold text-gray-700">Patrimônio</th>
                   <th className="p-4 font-semibold text-gray-700">Data de Entrega</th>
                 </>
-              ) : (filters.patrimonio || filters.instrumento) ? (
+              ) : (filters.patrimonio || filters.instrumento || filters.statusDevolucao === 'DEVOLVIDO') ? (
                 <>
                   <th className="p-4 font-semibold text-gray-700">Instrumento</th>
                   <th className="p-4 font-semibold text-gray-700">Patrimônio</th>
@@ -321,7 +342,17 @@ export function IntegranteList() {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
+            {!hasSearched ? (
+              <tr>
+                <td colSpan={7} className="p-12 text-center text-gray-500">
+                  <div className="flex flex-col items-center gap-2">
+                    <Search size={40} className="text-gray-300" />
+                    <p className="text-lg font-medium">Pronto para buscar</p>
+                    <p className="text-sm">Preencha os filtros acima para listar os integrantes.</p>
+                  </div>
+                </td>
+              </tr>
+            ) : loading ? (
               <tr><td colSpan={7} className="p-8 text-center text-gray-500">Carregando...</td></tr>
             ) : integrantes.length === 0 ? (
               <tr><td colSpan={7} className="p-8 text-center text-gray-500">Nenhum integrante encontrado.</td></tr>
@@ -330,12 +361,12 @@ export function IntegranteList() {
                 <tr key={integrante.id} className="transition-colors border-b border-gray-50 hover:bg-gray-50 print:hover:bg-white">
                   <td className="p-4 font-medium text-gray-800">{integrante.nome}</td>
 
-                  {filters.naoDevolvido ? (
+                  {filters.statusDevolucao === 'NAO_DEVOLVIDO' ? (
                     <>
                       <td className="p-4 text-gray-600">{integrante.patrimonio || '-'}</td>
                       <td className="p-4 text-gray-600">{formatDate(integrante.instrumentoRecebimento) || '-'}</td>
                     </>
-                  ) : (filters.patrimonio || filters.instrumento) ? (
+                  ) : (filters.patrimonio || filters.instrumento || filters.statusDevolucao === 'DEVOLVIDO') ? (
                     <>
                       <td className="p-4 text-gray-600">{integrante.instrumento || '-'}</td>
                       <td className="p-4 text-gray-600">{integrante.patrimonio || '-'}</td>

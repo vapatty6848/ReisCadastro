@@ -95,7 +95,10 @@ test.describe.serial('Gestão de Integrantes (E2E)', () => {
 
     // Validar na lista que não é mais "Não devolvido"
     await page.fill('input[placeholder="Filtrar por nome..."]', nomeEditado);
-    await page.click('#devolvido');
+
+    // Testar o novo filtro de Devolução usando o atributo name
+    await page.selectOption('select[name="statusDevolucao"]', 'DEVOLVIDO');
+
     await page.click('button:has-text("Filtrar")');
     await expect(page.locator(`text=${nomeEditado}`)).toBeVisible();
     await expect(page.locator('table >> text=Não devolvido')).not.toBeVisible();

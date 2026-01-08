@@ -110,8 +110,9 @@ describe('Gestão de Integrantes - Fluxo Completo (Cypress Clean Code)', () => {
     // Validar na lista que não diz mais "Não devolvido"
     cy.get('input[placeholder="Filtrar por nome..."]').type(editado.nome);
     cy.get('input[placeholder="Filtrar por patrimônio..."]').type(integrante.patrimonio);
-    cy.contains('button', 'Filtrar').click();
 
+    // Testar filtro de Devolução usando o novo atributo name
+    cy.get('select[name="statusDevolucao"]').select('DEVOLVIDO');
     cy.get('table').contains(editado.nome).should('be.visible');
     cy.get('table').contains('Não devolvido').should('not.exist');
   });

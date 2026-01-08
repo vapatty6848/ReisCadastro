@@ -21,6 +21,7 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
   const router = useRouter();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(!!id);
+  const [showDevolucaoDate, setShowDevolucaoDate] = useState(false);
 
   const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<IntegranteData>({
     resolver: zodResolver(integranteSchema),
@@ -28,6 +29,16 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
       tipoIntegrante: 'CORPO_MUSICAL',
     }
   });
+
+  const dataDevolucaoValue = watch('instrumentoDevolucao');
+
+  useEffect(() => {
+    if (dataDevolucaoValue) {
+      setShowDevolucaoDate(true);
+    } else {
+      setShowDevolucaoDate(false);
+    }
+  }, [dataDevolucaoValue]);
 
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
@@ -328,7 +339,32 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
                   ]}
                 />
                 <Input label="Data Recebimento" type="date" register={register('instrumentoRecebimento')} error={errors.instrumentoRecebimento?.message as string} />
-                <Input label="Data Devolução" type="date" register={register('instrumentoDevolucao')} error={errors.instrumentoDevolucao?.message as string} />
+
+                {!readOnly && (
+                  <div className="flex items-center gap-2 col-span-full">
+                    <input
+                      type="checkbox"
+                      id="chkDevolvido"
+                      checked={showDevolucaoDate}
+                      onChange={(e) => {
+                        const isChecked = e.target.checked;
+                        setShowDevolucaoDate(isChecked);
+                        if (!isChecked) {
+                          setValue('instrumentoDevolucao', null);
+                        } else {
+                          // Se marcou mas não tem data, coloca a de hoje como sugestão
+                          setValue('instrumentoDevolucao', new Date().toISOString().split('T')[0]);
+                        }
+                      }}
+                      className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="chkDevolvido" className="text-sm font-medium text-gray-700">Marcar como Devolvido</label>
+                  </div>
+                )}
+
+                {(showDevolucaoDate || (readOnly && watch('instrumentoDevolucao'))) && (
+                  <Input label="Data Devolução" type="date" register={register('instrumentoDevolucao')} error={errors.instrumentoDevolucao?.message as string} />
+                )}
               </>
             )}
 

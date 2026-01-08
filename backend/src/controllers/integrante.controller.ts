@@ -76,7 +76,8 @@ export const listIntegrantes = async (req: Request, res: Response) => {
     tamanhoBota,
     patrimonio,
     instrumento,
-    naoDevolvido
+    statusDevolucao,
+    dataDevolucao
   } = req.query;
 
   const where: any = {};
@@ -123,9 +124,21 @@ export const listIntegrantes = async (req: Request, res: Response) => {
     where.instrumento = { contains: String(instrumento), mode: 'insensitive' };
   }
 
-  if (naoDevolvido === 'true') {
-    where.instrumentoRecebimento = { not: null };
+  if (statusDevolucao === 'DEVOLVIDO') {
+    if (dataDevolucao) {
+      where.instrumentoDevolucao = {
+        not: null,
+        lte: new Date(String(dataDevolucao))
+      };
+    } else {
+      where.instrumentoDevolucao = { not: null };
+    }
+  } else if (statusDevolucao === 'NAO_DEVOLVIDO') {
     where.instrumentoDevolucao = null;
+    where.OR = [
+      { instrumento: { not: null } },
+      { patrimonio: { not: null } }
+    ];
   }
 
   try {
