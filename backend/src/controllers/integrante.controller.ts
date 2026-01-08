@@ -124,8 +124,13 @@ export const listIntegrantes = async (req: Request, res: Response) => {
   }
 
   if (naoDevolvido === 'true') {
-    where.instrumentoRecebimento = { not: null };
+    // Alinhado com a regra: default não devolvidos.
+    // Se marcou a opção, filtramos quem tem instrumento mas não devolveu.
     where.instrumentoDevolucao = null;
+    where.OR = [
+      { instrumento: { not: null } },
+      { patrimonio: { not: null } }
+    ];
   }
 
   try {

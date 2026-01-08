@@ -21,7 +21,8 @@ export function IntegranteList() {
     tamanhoUniforme: '',
     patrimonio: '',
     instrumento: '',
-    naoDevolvido: false
+    naoDevolvido: false,
+    dataDevolucao: ''
   });
 
   const fetchIntegrantes = useCallback(async () => {
@@ -38,6 +39,7 @@ export function IntegranteList() {
       if (filters.tamanhoUniforme) params.append('tamanhoUniforme', filters.tamanhoUniforme);
       if (filters.patrimonio) params.append('patrimonio', filters.patrimonio);
       if (filters.instrumento) params.append('instrumento', filters.instrumento);
+      if (filters.dataDevolucao) params.append('dataDevolucao', filters.dataDevolucao);
       if (filters.naoDevolvido) params.append('naoDevolvido', 'true');
 
       const response = await api.get(`/api/integrantes?${params.toString()}`);
@@ -249,6 +251,15 @@ export function IntegranteList() {
             placeholder="Tam. Bota..."
           />
         </div>
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Data Devolução</label>
+          <input
+            type="date"
+            value={filters.dataDevolucao}
+            onChange={(e) => setFilters({ ...filters, dataDevolucao: e.target.value })}
+            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
         <div className="flex items-center gap-2 pb-3">
           <input
             type="checkbox"
@@ -257,7 +268,10 @@ export function IntegranteList() {
             onChange={(e) => setFilters({ ...filters, naoDevolvido: e.target.checked })}
             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
           />
-          <label htmlFor="naoDevolvido" className="text-sm font-medium text-gray-700">Não Devolvidos</label>
+          <div className="flex flex-col">
+            <label htmlFor="naoDevolvido" className="text-sm font-medium text-gray-700">Apenas Não Devolvidos</label>
+            <span className="text-[10px] text-gray-500 line-clamp-1">(Com instrumento atribuído)</span>
+          </div>
         </div>
 
         <div className="flex justify-end gap-2 md:col-span-3 lg:col-span-5">
@@ -274,17 +288,18 @@ export function IntegranteList() {
                 tamanhoUniforme: '',
                 patrimonio: '',
                 instrumento: '',
-                naoDevolvido: false
+                naoDevolvido: false,
+                dataDevolucao: ''
               });
               setTimeout(fetchIntegrantes, 0);
             }}
-            className="px-6 py-2 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300"
+            className="px-6 py-2 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300 whitespace-nowrap"
           >
             Limpar
           </button>
           <button
             onClick={fetchIntegrantes}
-            className="flex items-center justify-center gap-2 px-8 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+            className="flex items-center justify-center gap-2 px-8 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 whitespace-nowrap"
           >
             <Search size={20} /> Filtrar
           </button>
