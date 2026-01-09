@@ -31,6 +31,14 @@ Este documento registra os marcos, evoluções e decisões técnicas tomadas dur
 - **Testes Unitários (Jest)**: Cobertura de esquemas de validação (Zod), middlewares e componentes de UI.
 - **Test Coverage**: Configuração de relatórios de cobertura em ambos os módulos (Backend: ~73% de cobertura lógica).
 
+## 📊 Fase 5: Inteligência de Dados e Refinamento de UX (Jan/2026)
+
+- **Camada de Serviço (Backend)**: Refatoração completa para o padrão Service/Controller, isolando lógica de negócio de rotas HTTP e centralizando o tratamento de erros (`AppError`).
+- **Dashboard de Estatísticas**: Implementação de gráficos (Recharts) comparativos entre integrantes ativos e distribuição por corporação.
+- **Relatório por Corporação**: Criação de view dedicada para listagem agrupada por unidade, com filtros dinâmicos de unidade e status de devolução.
+- **Otimização de Impressão**: Ajuste fino de CSS (`@media print`) para documentos densos, reduzindo fontes, removendo cores de fundo e controlando margens para evitar saltos de página.
+- **Acessibilidade e Build**: Ajustes para conformidade com regras de acessibilidade (ARIA labels) e correção de tipagens TypeScript para garantir builds de produção estáveis (CI/CD).
+
 ---
 
 ## ✅ Status Atual do Projeto

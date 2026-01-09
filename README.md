@@ -25,10 +25,13 @@ Sistema full-stack para gestão de integrantes de corporação, incluindo dados 
 
 ## ✨ Funcionalidades Avançadas
 
+- **Dashboard de Estatísticas**: Visualização rápida do total de integrantes, distribuição por tipo e métricas por corporação.
+- **Relatórios Dinâmicos**: Filtros em tempo real por Corporação, Tipo (Musical/Frente) e Status de Devolução.
+- **Impressão Reativa**: Layouts otimizados para impressão de fichas individuais e listagens agrupadas, com controle de quebra de página e tipografia econômica.
 - **Gestão de Arquivos**: Suporte para até 5 anexos (fotos/PDFs) por integrante, com limpeza automática de arquivos órfãos no servidor.
 - **Relacionamentos Inteligentes**: Vinculação automática de responsáveis e corporações já cadastrados, evitando redundância de dados.
-- **Busca sob Demanda**: Listagem otimizada que exige preenchimento de filtros para exibição, melhorando a performance e o foco.
-- **Relatórios**: Exportação para CSV e modo de impressão amigável para fichas individuais e listagens.
+- **Busca Eficiente**: Listagem com carregamento automático e busca debounced (com atraso) para preservar performance.
+- **Exportação**: Suporte para CSV e modo de impressão amigável.
 
 ## 🧪 Testes
 

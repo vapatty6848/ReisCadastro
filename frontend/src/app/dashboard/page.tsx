@@ -2,15 +2,17 @@
 
 import { IntegranteForm } from '@/components/integrante/IntegranteForm';
 import { IntegranteList } from '@/components/integrante/IntegranteList';
+import { GroupedIntegranteList } from '@/components/integrante/GroupedIntegranteList';
+import { DashboardStats } from '@/components/dashboard/DashboardStats';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { UserPlus, Users, LogOut } from 'lucide-react';
+import { UserPlus, Users, LogOut, LayoutDashboard, FileText } from 'lucide-react';
 
 export default function DashboardPage() {
   const { isAuthenticated, logout, user } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'lista' | 'cadastro'>('cadastro');
+  const [activeTab, setActiveTab] = useState<'lista' | 'cadastro' | 'resumo' | 'relatorio'>('cadastro');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -55,6 +57,16 @@ export default function DashboardPage() {
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <nav className="flex -mb-px space-x-8">
             <button
+              onClick={() => setActiveTab('cadastro')}
+              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'cadastro'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <UserPlus size={18} />
+              Novo Cadastro
+            </button>
+            <button
               onClick={() => setActiveTab('lista')}
               className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'lista'
                 ? 'border-blue-600 text-blue-600'
@@ -65,14 +77,24 @@ export default function DashboardPage() {
               Consultar Integrantes
             </button>
             <button
-              onClick={() => setActiveTab('cadastro')}
-              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'cadastro'
+              onClick={() => setActiveTab('relatorio')}
+              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'relatorio'
                 ? 'border-blue-600 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
             >
-              <UserPlus size={18} />
-              Novo Cadastro
+              <FileText size={18} />
+              Relatório por Corporação
+            </button>
+            <button
+              onClick={() => setActiveTab('resumo')}
+              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'resumo'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <LayoutDashboard size={18} />
+              Visão Geral
             </button>
           </nav>
         </div>
@@ -81,9 +103,13 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="flex-1 w-full px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <div className="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl md:p-8">
-          {activeTab === 'lista' ? (
-            <IntegranteList />
-          ) : (
+          {activeTab === 'resumo' && <DashboardStats />}
+
+          {activeTab === 'lista' && <IntegranteList />}
+
+          {activeTab === 'relatorio' && <GroupedIntegranteList />}
+
+          {activeTab === 'cadastro' && (
             <div>
               <div className="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
                 <div>
@@ -101,7 +127,7 @@ export default function DashboardPage() {
                   </button>
                 </div>
               </div>
-              <IntegranteForm />
+              <IntegranteForm onSuccess={() => setActiveTab('lista')} />
             </div>
           )}
         </div>

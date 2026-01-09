@@ -28,7 +28,7 @@ describe('Login Page (Cypress Clean Code)', () => {
 
     cy.get('button[type="submit"]').click();
 
-    cy.wait('@loginRequest').its('response.statusCode').should('eq', 200);
-    cy.url().should('include', '/dashboard');
+    cy.wait('@loginRequest', { timeout: 15000 }).its('response.statusCode').should('eq', 200);
+    cy.url({ timeout: 15000 }).should('include', '/dashboard');
   });
 });

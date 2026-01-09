@@ -23,6 +23,7 @@ Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o
 
 ### Backend:
 
+- **Arquitetura:** Camada de Serviço (Logic) + Controller (HTTP).
 - **Runtime:** Node.js 22 (LTS)
 - **Framework:** Express.js
 - **Linguagem:** TypeScript
@@ -35,7 +36,9 @@ Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o
 ### Frontend:
 
 - **Framework:** Next.js 14+ (App Router)
+- **Visualização de Dados:** Recharts (Estatísticas do Dashboard)
 - **Estilização:** Tailwind CSS + Lucide React (Ícones)
+- **Impressão:** CSS Media Queries dedicadas para listagens e fichas.
 - **Formulários:** React Hook Form + Zod (Validação)
 - **HTTP Client:** Axios (Centralizado em `src/lib/api.ts`)
 - **Docker:** Build `standalone` para alta performance.
@@ -152,11 +155,14 @@ O workflow está dividido em 4 estágios para facilitar o debug:
 - **Upload de Fotos:** O backend usa `multer`. As fotos são salvas em `backend/uploads/` e servidas como estáticos.
 - **CPF:** Validação rigorosa de 11 dígitos (apenas números) em ambos os lados.
 - **Hidratação Next.js:** Em testes E2E, sempre use `cy.wait(1000)` ou verifique a visibilidade do formulário antes de interagir para evitar erros de hidratação do React.
-- **Portas:** Backend (3001), Frontend (3000), Postgres (5434).
+- **Otimização de Listagem:** Utiliza debounce (atraso programado) na busca e carregamento automático ao montar o componente para melhor UX.
+- **Relatórios:** Possui aba específica para relatórios agrupados por corporação com filtros dinâmicos de unidade e status de material devolvido.
+- **Impressão:** CSS dedicado via `@media print` que remove fundos, ajusta tamanhos de fonte (10px para tabelas) e gerencia margens (0.5cm) para economia de papel e clareza.
+- **Camada de Serviço:** O Backend utiliza `IntegranteService` para isolar consultas Prisma complexas (filtros dinâmicos, ordenação) da lógica de roteamento.
 
   - Backend: `src/schemas/` com schemas Zod separados por domínio
   - Frontend: `schemas/` com validações de formulário
-  - Criar `utilits.ts` para validações compartilhadas (CPF, telefone, etc)
+  - Criar `utils/resolvers.ts` para lógica de vinculação automática (CPF, etc)
 
 6. **Estrutura de Pastas:**
 

@@ -106,10 +106,14 @@ describe('Gestão de Integrantes - Fluxo Completo (Cypress Clean Code)', () => {
 
     // Aguardar navegação
     cy.url({ timeout: 15000 }).should('include', '/dashboard/integrantes');
+    cy.waitForHydration();
 
     // Validar na lista que não diz mais "Não devolvido"
-    cy.get('input[placeholder="Filtrar por nome..."]').type(editado.nome);
-    cy.get('input[placeholder="Filtrar por patrimônio..."]').type(integrante.patrimonio);
+    cy.get('input[placeholder="Filtrar por nome..."]', { timeout: 10000 })
+      .should('be.visible')
+      .clear()
+      .type(editado.nome);
+    cy.get('input[placeholder="Filtrar por patrimônio..."]').clear().type(integrante.patrimonio);
 
     // Testar filtro de Devolução usando o novo atributo name
     cy.get('select[name="statusDevolucao"]').select('DEVOLVIDO');
