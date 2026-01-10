@@ -31,6 +31,23 @@ Este documento registra os marcos, evoluções e decisões técnicas tomadas dur
 - **Testes Unitários (Jest)**: Cobertura de esquemas de validação (Zod), middlewares e componentes de UI.
 - **Test Coverage**: Configuração de relatórios de cobertura em ambos os módulos (Backend: ~73% de cobertura lógica).
 
+## 📊 Fase 5: Inteligência de Dados e Refinamento de UX (Jan/2026)
+
+- **Camada de Serviço (Backend)**: Refatoração completa para o padrão Service/Controller, isolando lógica de negócio de rotas HTTP e centralizando o tratamento de erros (`AppError`).
+- **Dashboard de Estatísticas**: Implementação de gráficos (Recharts) comparativos entre integrantes ativos e distribuição por corporação.
+- **Relatório por Corporação**: Criação de view dedicada para listagem agrupada por unidade, com filtros dinâmicos de unidade e status de devolução.
+- **Otimização de Impressão**: Ajuste fino de CSS (`@media print`) para documentos densos, reduzindo fontes, removendo cores de fundo e controlando margens para evitar saltos de página.
+- **Acessibilidade e Build**: Ajustes para conformidade com regras de acessibilidade (ARIA labels) e correção de tipagens TypeScript para garantir builds de produção estáveis (CI/CD).
+
+---
+
+## 🔧 Fase 6: Estabilização e Correções Críticas (Jan/2026)
+
+- **Correção de Query Prisma**: Ajustada a lógica de filtros de instrumentos no Backend para evitar erros de validação no Prisma 5+ ao lidar com campos nulos e strings vazias.
+- **Sincronização de API**: Atualização dos testes unitários do integrantre para refletir o novo formato de resposta paginada (`{ data, meta }`).
+- **Isolamento de Testes**: Configuração do Jest no Frontend para ignorar a pasta de testes E2E (Playwright), evitando conflitos de ambiente e erros de `TransformStream`.
+- **Estabilidade de Banco de Dados**: Alteração dos scripts de teste para execução sequencial (`--runInBand`), garantindo integridade dos dados durante a suíte de testes automatizados.
+
 ---
 
 ## ✅ Status Atual do Projeto

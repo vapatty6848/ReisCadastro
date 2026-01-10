@@ -10,7 +10,8 @@ export function IntegranteList() {
   const { token } = useAuth();
   const [integrantes, setIntegrantes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(true);
+  const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
   const [filters, setFilters] = useState({
     nome: '',
     cpf: '',
@@ -26,7 +27,7 @@ export function IntegranteList() {
     dataDevolucao: ''
   });
 
-  const fetchIntegrantes = useCallback(async () => {
+  const fetchIntegrantes = useCallback(async (pageToFetch = 1) => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -43,19 +44,27 @@ export function IntegranteList() {
       if (filters.statusDevolucao) params.append('statusDevolucao', filters.statusDevolucao);
       if (filters.dataDevolucao) params.append('dataDevolucao', filters.dataDevolucao);
 
+      params.append('page', String(pageToFetch));
+      params.append('limit', '20');
+
       const response = await api.get(`/api/integrantes?${params.toString()}`);
-      setIntegrantes(response.data);
+      setIntegrantes(response.data.data);
+      setMeta(response.data.meta);
       setHasSearched(true);
     } catch (error) {
       console.error('Erro ao buscar integrantes:', error);
     } finally {
       setLoading(false);
     }
-  }, [filters, token]); // Incluído filters e token
+  }, [filters]);
 
   useEffect(() => {
-    // Não busca automaticamente ao montar o componente
-  }, []);
+    const delayDebounceFn = setTimeout(() => {
+      fetchIntegrantes(1);
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [filters, fetchIntegrantes]); // Removi o comentário vazio e adicionei o debounce
 
   const handleDelete = async (id: string, nome: string) => {
     if (confirm(`Tem certeza que deseja excluir o integrante ${nome}?`)) {
@@ -71,6 +80,12 @@ export function IntegranteList() {
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const getColCount = () => {
+    if (filters.statusDevolucao === 'NAO_DEVOLVIDO') return 4;
+    if (filters.patrimonio || filters.instrumento || filters.statusDevolucao === 'DEVOLVIDO') return 6;
+    return 6;
   };
 
   const handleExportCSV = () => {
@@ -182,6 +197,7 @@ export function IntegranteList() {
             value={filters.tipoIntegrante}
             onChange={(e) => setFilters({ ...filters, tipoIntegrante: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+            aria-label="Tipo de integrante"
           >
             <option value="">Todos</option>
             <option value="CORPO_MUSICAL">Corpo Musical</option>
@@ -194,6 +210,7 @@ export function IntegranteList() {
             value={filters.subtipoIntegrante}
             onChange={(e) => setFilters({ ...filters, subtipoIntegrante: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+            aria-label="Subtipo de integrante"
           >
             <option value="">Todos</option>
             <option value="INSTRUMENTOS">Instrumentos</option>
@@ -260,6 +277,7 @@ export function IntegranteList() {
             value={filters.statusDevolucao}
             onChange={(e) => setFilters({ ...filters, statusDevolucao: e.target.value, dataDevolucao: e.target.value !== 'DEVOLVIDO' ? '' : filters.dataDevolucao })}
             className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+            aria-label="Status de devolução"
           >
             <option value="">Todos</option>
             <option value="DEVOLVIDO">Devolvidos</option>
@@ -296,15 +314,13 @@ export function IntegranteList() {
                 statusDevolucao: '',
                 dataDevolucao: ''
               });
-              setHasSearched(false);
-              setIntegrantes([]);
             }}
             className="px-6 py-2 text-gray-700 transition-colors bg-gray-200 rounded-lg hover:bg-gray-300 whitespace-nowrap"
           >
             Limpar
           </button>
           <button
-            onClick={fetchIntegrantes}
+            onClick={() => fetchIntegrantes(1)}
             className="flex items-center justify-center gap-2 px-8 py-2 text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700 whitespace-nowrap"
           >
             <Search size={20} /> Filtrar
@@ -313,10 +329,10 @@ export function IntegranteList() {
       </div>
 
       {/* Tabela */}
-      <div className="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-xl print:border-none print:shadow-none">
-        <table className="w-full text-left border-collapse">
+      <div className="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-xl print:shadow-none print:border-none">
+        <table className="w-full text-left border-collapse print:text-sm">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50 print:bg-white">
+            <tr className="border-b border-gray-100 bg-gray-50 print:bg-white print:border-b-2 print:border-gray-800">
               <th className="p-4 font-semibold text-gray-700">Nome do Integrante</th>
               {filters.statusDevolucao === 'NAO_DEVOLVIDO' ? (
                 <>
@@ -342,20 +358,19 @@ export function IntegranteList() {
             </tr>
           </thead>
           <tbody>
-            {!hasSearched ? (
-              <tr>
-                <td colSpan={7} className="p-12 text-center text-gray-500">
-                  <div className="flex flex-col items-center gap-2">
-                    <Search size={40} className="text-gray-300" />
-                    <p className="text-lg font-medium">Pronto para buscar</p>
-                    <p className="text-sm">Preencha os filtros acima para listar os integrantes.</p>
-                  </div>
-                </td>
-              </tr>
-            ) : loading ? (
-              <tr><td colSpan={7} className="p-8 text-center text-gray-500">Carregando...</td></tr>
+            {loading && integrantes.length === 0 ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="animate-pulse">
+                  <td className="p-4"><div className="w-48 h-4 bg-gray-200 rounded"></div></td>
+                  <td className="p-4"><div className="w-32 h-4 bg-gray-200 rounded"></div></td>
+                  <td className="p-4"><div className="w-24 h-4 bg-gray-200 rounded"></div></td>
+                  <td className="p-4"><div className="w-20 h-4 bg-gray-200 rounded"></div></td>
+                  <td className="p-4"><div className="w-24 h-4 bg-gray-200 rounded"></div></td>
+                  <td className="p-4"><div className="flex justify-center gap-2"><div className="w-8 h-8 bg-gray-200 rounded"></div><div className="w-8 h-8 bg-gray-200 rounded"></div></div></td>
+                </tr>
+              ))
             ) : integrantes.length === 0 ? (
-              <tr><td colSpan={7} className="p-8 text-center text-gray-500">Nenhum integrante encontrado.</td></tr>
+              <tr><td colSpan={getColCount()} className="p-8 text-center text-gray-500">Nenhum integrante encontrado.</td></tr>
             ) : (
               integrantes.map((integrante: any) => (
                 <tr key={integrante.id} className="transition-colors border-b border-gray-50 hover:bg-gray-50 print:hover:bg-white">
@@ -421,6 +436,109 @@ export function IntegranteList() {
           </tbody>
         </table>
       </div>
+      {/* Paginação */}
+      {hasSearched && meta.totalPages > 1 && (
+        <div className="flex items-center justify-between p-4 bg-white border border-gray-100 shadow-sm rounded-xl print:hidden">
+          <div className="text-sm text-gray-500">
+            Mostrando <span className="font-semibold text-gray-700">{integrantes.length}</span> de <span className="font-semibold text-gray-700">{meta.total}</span> integrantes
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => fetchIntegrantes(meta.page - 1)}
+              disabled={meta.page === 1 || loading}
+              className="px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Anterior
+            </button>
+            <div className="flex items-center px-4 text-sm font-medium text-gray-700">
+              Página {meta.page} de {meta.totalPages}
+            </div>
+            <button
+              onClick={() => fetchIntegrantes(meta.page + 1)}
+              disabled={meta.page === meta.totalPages || loading}
+              className="px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-white border border-gray-200 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Próxima
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style jsx global>{`
+        @media print {
+          @page {
+            margin: 0.5cm !important;
+            size: auto;
+          }
+
+          html, body {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+          }
+
+          /* Esconder elementos desnecessários */
+          .print\:hidden,
+          .no-print,
+          nav,
+          button,
+          aside,
+          header {
+            display: none !important;
+            height: 0 !important;
+            overflow: hidden !important;
+          }
+
+          /* Garantir que a tabela ocupe a largura toda e tenha bordas visíveis */
+          table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            font-size: 10px !important; /* Diminuído para caber mais */
+          }
+
+          th {
+            background-color: #f3f4f6 !important;
+            -webkit-print-color-adjust: exact;
+            color: black !important;
+            font-weight: bold !important;
+            border: 1px solid #000 !important;
+          }
+
+          td {
+            border: 1px solid #ccc !important;
+            padding: 4px 6px !important; /* Mais compacto */
+            color: black !important;
+          }
+
+          td span {
+            font-size: 10px !important;
+            background: none !important;
+            color: black !important;
+            padding: 0 !important;
+            border: none !important;
+          }
+
+          /* Títulos e Containers */
+          h1, h2, h3 {
+            color: black !important;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+          }
+
+          /* Remover sombras e bordas arredondadas que ficam feias no papel */
+          .shadow-sm, .rounded-xl, .bg-white {
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
+          .overflow-hidden {
+            overflow: visible !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

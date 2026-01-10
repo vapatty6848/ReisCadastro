@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { integranteSchema, IntegranteData } from '@/schemas';
 import { Input } from '../form/Input';
 import { Select } from '../form/Select';
-import api from '@/lib/api';
+import api, { getApiUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -14,16 +14,18 @@ import { Printer, Trash2 } from 'lucide-react';
 interface IntegranteFormProps {
   id?: string;
   readOnly?: boolean;
+  onSuccess?: () => void;
 }
 
-export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
+export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps) => {
   const { token } = useAuth();
   const router = useRouter();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(!!id);
   const [showDevolucaoDate, setShowDevolucaoDate] = useState(false);
+  const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
-  const { register, handleSubmit, watch, setValue, reset, formState: { errors } } = useForm<IntegranteData>({
+  const { register, handleSubmit, watch, setValue, reset, formState: { errors, isSubmitting } } = useForm<IntegranteData>({
     resolver: zodResolver(integranteSchema),
     defaultValues: {
       tipoIntegrante: 'CORPO_MUSICAL',
@@ -109,7 +111,7 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
   };
 
   const onSubmit = async (data: IntegranteData) => {
-    console.log('Submitting data:', data);
+    setStatus(null);
     try {
       const formData = new FormData();
       selectedFiles.forEach((file) => {
@@ -127,11 +129,21 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
         }
       });
 
-      alert(id ? 'Integrante atualizado com sucesso!' : 'Integrante cadastrado com sucesso!');
-      router.push('/dashboard/integrantes');
+      setStatus({ type: 'success', message: id ? 'Integrante atualizado com sucesso!' : 'Integrante cadastrado com sucesso!' });
+
+      setTimeout(() => {
+        if (onSuccess) {
+          onSuccess();
+        } else {
+          router.push('/dashboard/integrantes');
+        }
+      }, 2000);
     } catch (err: any) {
       console.error(err.response?.data);
-      alert('Erro ao salvar integrante: ' + (err.response?.data?.message || 'Erro desconhecido'));
+      setStatus({
+        type: 'error',
+        message: 'Erro ao salvar integrante: ' + (err.response?.data?.message || 'Erro desconhecido')
+      });
     }
   };
 
@@ -143,7 +155,13 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
         {readOnly ? 'Visualizar Integrante' : id ? 'Editar Integrante' : 'Ficha de Cadastro de Integrante'}
       </h2>
 
-      <fieldset disabled={readOnly} className="space-y-8">
+      {status && (
+        <div className={`p-4 rounded-lg border ${status.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+          {status.message}
+        </div>
+      )}
+
+      <fieldset disabled={readOnly || isSubmitting} className="space-y-8">
         {/* Seção 1: Dados Pessoais do Integrante */}
         <section>
           <h3 className="flex items-center gap-2 mb-4 text-xl font-semibold text-blue-700">
@@ -185,7 +203,7 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
                     {fotosExistentes.map((foto, index) => (
                       <div key={index} className="relative group">
                         <a
-                          href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${foto}`}
+                          href={`${getApiUrl()}${foto}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="block p-2 pr-8 text-xs text-blue-600 border border-blue-200 rounded bg-blue-50 hover:bg-blue-100"
@@ -213,13 +231,15 @@ export const IntegranteForm = ({ id, readOnly }: IntegranteFormProps) => {
 
               {!readOnly && (
                 <div className="mb-4">
-                  <label className="block mb-1 font-medium text-gray-700">Adicionar Fotos / Documentos (Máx. 5)</label>
+                  <label htmlFor="file-upload" className="block mb-1 font-medium text-gray-700">Adicionar Fotos / Documentos (Máx. 5)</label>
                   <input
+                    id="file-upload"
                     type="file"
                     multiple
                     onChange={handleFileChange}
                     className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
                     accept="image/*,.pdf"
+                    title="Selecione arquivos para upload"
                   />
                   <div className="mt-2 space-y-1">
                     {selectedFiles.map((file, index) => (
