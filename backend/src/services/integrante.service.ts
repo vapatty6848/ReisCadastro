@@ -85,8 +85,8 @@ export class IntegranteService {
         ...(where.AND || []),
         {
           OR: [
-            { instrumento: { not: { in: [null, ''] } } },
-            { patrimonio: { not: { in: [null, ''] } } }
+            { AND: [{ instrumento: { not: '' } }, { NOT: { instrumento: null } }] },
+            { AND: [{ patrimonio: { not: '' } }, { NOT: { patrimonio: null } }] }
           ]
         }
       ];

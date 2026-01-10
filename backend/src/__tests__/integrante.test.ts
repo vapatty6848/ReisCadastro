@@ -111,8 +111,8 @@ describe('Integrante Endpoints', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body.length).toBeGreaterThan(0);
-      expect(res.body[0].nome).toBe('TEST_SEARCH_TARGET');
+      expect(res.body.data.length).toBeGreaterThan(0);
+      expect(res.body.data[0].nome).toBe('TEST_SEARCH_TARGET');
     });
 
     it('should filter by "não devolvido" status', async () => {
@@ -143,7 +143,7 @@ describe('Integrante Endpoints', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toEqual(200);
-      const names = res.body.map((i: any) => i.nome);
+      const names = res.body.data.map((i: any) => i.nome);
       expect(names).toContain('TEST_NOT_RETURNED');
       expect(names).not.toContain('TEST_ALREADY_RETURNED');
     });
@@ -173,7 +173,7 @@ describe('Integrante Endpoints', () => {
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toEqual(200);
-      const names = res.body.map((i: any) => i.nome);
+      const names = res.body.data.map((i: any) => i.nome);
       expect(names).toContain('TEST_DEV_A');
       expect(names).not.toContain('TEST_DEV_B');
     });
