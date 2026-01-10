@@ -52,7 +52,14 @@ cd frontend && npm run cypress:open
 ### Executar Testes Unitários (Backend)
 
 ```bash
+# Os testes do backend exigem o banco de dados rodando
 cd backend && npm test
+```
+
+### Executar Testes Unitários (Frontend)
+
+```bash
+cd frontend && npm test
 ```
 
 ## 🛠️ Como rodar o projeto

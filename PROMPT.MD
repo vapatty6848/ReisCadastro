@@ -45,12 +45,25 @@ Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o
 
 ### QA & DevOps:
 
-- **E2E Testing:** Cypress (Visual) & Playwright (Headless)
-- **Unit Testing:** Jest
-- **Containerização:** Docker + Docker Compose
-- **CI/CD:** GitHub Actions
+- **E2E Testing:** Cypress (Visual) & Playwright (Headless). Note: Jest is configured to ignore `src/tests/e2e` to avoid environment conflicts.
+- **Unit Testing:** Jest. Backend tests MUST run with `--runInBand` to avoid database race conditions.
+- **Containerização:** Docker + Docker Compose.
+- **CI/CD:** GitHub Actions.
   - `quality.yml`: Executa Lint e Testes Unitários em todo o monorepo.
   - `docker-build.yml`: Valida o build das imagens Docker do Frontend e Backend.
+
+---
+
+## 💡 Notas de Manutenção (Knowledge Base)
+
+- **Filtros de Nulos:** Ao realizar filtros no Prisma para campos que podem ser nulos ou vazios (como `instrumento` ou `patrimonio`), utilize a sintaxe:
+  ```typescript
+  {
+    AND: [{ campo: { not: "" } }, { NOT: { campo: null } }];
+  }
+  ```
+  Isso evita erros de validação do Prisma em versões recentes.
+- **Paginação:** A API sempre retorna `{ data: [...], meta: {...} }`. Certifique-se de que os testes e o frontend acessem `response.data.data`.
 
 ---
 

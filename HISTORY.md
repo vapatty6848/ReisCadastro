@@ -41,6 +41,15 @@ Este documento registra os marcos, evoluções e decisões técnicas tomadas dur
 
 ---
 
+## 🔧 Fase 6: Estabilização e Correções Críticas (Jan/2026)
+
+- **Correção de Query Prisma**: Ajustada a lógica de filtros de instrumentos no Backend para evitar erros de validação no Prisma 5+ ao lidar com campos nulos e strings vazias.
+- **Sincronização de API**: Atualização dos testes unitários do integrantre para refletir o novo formato de resposta paginada (`{ data, meta }`).
+- **Isolamento de Testes**: Configuração do Jest no Frontend para ignorar a pasta de testes E2E (Playwright), evitando conflitos de ambiente e erros de `TransformStream`.
+- **Estabilidade de Banco de Dados**: Alteração dos scripts de teste para execução sequencial (`--runInBand`), garantindo integridade dos dados durante a suíte de testes automatizados.
+
+---
+
 ## ✅ Status Atual do Projeto
 
 - **Backend**: Estável, documentado via Swagger e com 100% de cobertura em validações.
