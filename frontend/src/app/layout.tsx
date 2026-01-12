@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { AuthProvider } from '@/contexts/AuthContext'
+import { ConnectionStatus } from '@/components/ConnectionStatus'
 
 export const metadata: Metadata = {
   title: 'Cadastro Integrantes Corporação',
@@ -17,6 +18,7 @@ export default function RootLayout({
       <body className="antialiased font-sans">
         <AuthProvider>
           {children}
+          <ConnectionStatus />
         </AuthProvider>
       </body>
     </html>
