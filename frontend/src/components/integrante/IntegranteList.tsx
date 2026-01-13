@@ -93,7 +93,7 @@ export function IntegranteList() {
 
     const isInstrumentSearch = filters.patrimonio || filters.instrumento || filters.statusDevolucao || filters.subtipoIntegrante === 'INSTRUMENTOS';
 
-    let headers = ['Nome', 'Corporação', 'Tipo', 'Patrimônio', 'Tamanho Bota', 'Tamanho Roupa'];
+    let headers = ['Nome', 'Corporação', 'Tipo', 'Patrimônio', 'Bota', 'Uniforme'];
     if (isInstrumentSearch) {
       headers = ['Nome', 'Patrimônio', 'Instrumento', 'Recebimento', 'Devolução'];
     }
@@ -251,23 +251,23 @@ export function IntegranteList() {
           />
         </div>
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">Tam. Uniforme</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Uniforme</label>
           <input
             type="text"
             value={filters.tamanhoUniforme}
             onChange={(e) => setFilters({ ...filters, tamanhoUniforme: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
-            placeholder="Tam. Uniforme..."
+            placeholder="Uniforme..."
           />
         </div>
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">Tam. Bota</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Bota</label>
           <input
             type="text"
             value={filters.tamanhoBota}
             onChange={(e) => setFilters({ ...filters, tamanhoBota: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
-            placeholder="Tam. Bota..."
+            placeholder="Bota..."
           />
         </div>
         <div>
