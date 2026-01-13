@@ -11,8 +11,9 @@ O sistema deve gerenciar o ciclo de vida completo de integrantes de uma organiza
 ### Pilares Fundamentais:
 1.  **Autenticação**: Acesso restrito via JWT.
 2.  **Ficha Cadastral Robusta**: Dados do integrante, fotos múltiplas, vinculação automática de Responsável (via CPF) e Corporação (via Nome).
-3.  **Gestão de Recursos**: Controle de patrimônio, instrumentos e uniformes (tamanhos de bota e roupa).
-4.  **Relatórios Otimizados para Impressão**:
+3.  **Captura de Imagem**: Suporte a upload de arquivos e captura em tempo real via webcam/câmera integrada diretamente no formulário de cadastro.
+4.  **Gestão de Recursos**: Controle de patrimônio, instrumentos e uniformes (tamanhos de bota e roupa).
+5.  **Relatórios Otimizados para Impressão**:
     *   **Versão Checklist**: Listagem simplificada (Nome, Telefone, CPF e campo de Check) para conferência física.
     *   **Versão Agrupada**: Relatórios separados por categoria (ex: Corporação) com quebras de página automáticas (`break-before-page`).
 5.  **Branding**: Toda a interface deve refletir a identidade da **Corporação AReis**.

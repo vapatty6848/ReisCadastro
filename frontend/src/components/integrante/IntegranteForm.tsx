@@ -9,7 +9,8 @@ import api, { getApiUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Printer, Trash2 } from 'lucide-react';
+import { Printer, Trash2, Camera } from 'lucide-react';
+import { CameraCapture } from '../form/CameraCapture';
 
 interface IntegranteFormProps {
   id?: string;
@@ -21,6 +22,7 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
   const { token } = useAuth();
   const router = useRouter();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [loading, setLoading] = useState(!!id);
   const [showDevolucaoDate, setShowDevolucaoDate] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
@@ -231,16 +233,38 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
 
               {!readOnly && (
                 <div className="mb-4">
-                  <label htmlFor="file-upload" className="block mb-1 font-medium text-gray-700">Adicionar Fotos / Documentos (Máx. 5)</label>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    multiple
-                    onChange={handleFileChange}
-                    className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
-                    accept="image/*,.pdf"
-                    title="Selecione arquivos para upload"
-                  />
+                  <label className="block mb-1 font-medium text-gray-700">Fotos / Documentos (Máx. 5)</label>
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <div className="relative flex-1">
+                      <input
+                        id="file-upload"
+                        type="file"
+                        multiple
+                        onChange={handleFileChange}
+                        className="w-full p-2 text-sm border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                        accept="image/*,.pdf"
+                        title="Selecione arquivos para upload"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setIsCameraOpen(true)}
+                      className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
+                    >
+                      <Camera size={18} /> Tirar Foto
+                    </button>
+                  </div>
+
+                  {isCameraOpen && (
+                    <CameraCapture
+                      onCapture={(file) => {
+                        const updatedFiles = [...selectedFiles, file].slice(0, 5);
+                        setSelectedFiles(updatedFiles);
+                      }}
+                      onClose={() => setIsCameraOpen(false)}
+                    />
+                  )}
+
                   <div className="mt-2 space-y-1">
                     {selectedFiles.map((file, index) => (
                       <div key={index} className="flex items-center justify-between p-2 text-sm bg-gray-100 rounded">
