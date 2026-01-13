@@ -29,7 +29,7 @@ echo -e "${BLUE}⏳ Aguardando serviços ficarem prontos...${NC}"
 max_attempts=30
 attempt=1
 while [ $attempt -le $max_attempts ]; do
-  if [ "$(docker inspect -f '{{.State.Running}}' corporacao_frontend 2>/dev/null)" == "true" ]; then
+  if [ "$(docker inspect -f '{{.State.Running}}' reis_frontend_v2 2>/dev/null)" == "true" ]; then
     echo -e "${GREEN}✅ Serviços iniciados!${NC}"
     break
   fi

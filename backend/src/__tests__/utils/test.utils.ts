@@ -56,6 +56,9 @@ export const generateIntegranteData = (overrides = {}) => {
     tipoIntegrante: 'CORPO_MUSICAL',
     subtipoIntegrante: 'INSTRUMENTOS',
     telefone: '11999999999',
+    email: 'test@example.com',
+    tamanhoUniforme: '40',
+    tamanhoBota: '40',
     responsavel: {
       nome: 'TEST_RESPONSAVEL',
       cpf: '98765432100',
