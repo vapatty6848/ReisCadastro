@@ -388,8 +388,8 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
               </>
             )}
 
-            <Input label="Tamanho Uniforme (0-999)" register={register('tamanhoUniforme')} error={errors.tamanhoUniforme?.message} maxLength={3} />
-            <Input label="Tamanho Bota (0-999)" register={register('tamanhoBota')} error={errors.tamanhoBota?.message} maxLength={3} />
+            <Input label="Uniforme" register={register('tamanhoUniforme')} error={errors.tamanhoUniforme?.message} maxLength={3} />
+            <Input label="Bota" register={register('tamanhoBota')} error={errors.tamanhoBota?.message} maxLength={3} />
           </div>
           <div className="mt-4">
             <label className="block mb-1 font-medium text-gray-700">Observações</label>

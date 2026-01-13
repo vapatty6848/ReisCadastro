@@ -1,103 +1,85 @@
-# 🎯 Master Blueprint: Sistema de Gestão de Integrantes (Corporação)
+# 🎯 Master Blueprint: Sistema de Gestão de Integrantes (Corporação AReis)
 
-Este documento serve como a especificação técnica definitiva e guia de execução para o projeto **ReisCadastro**. Ele contém todos os detalhes necessários para reconstruir ou expandir a aplicação sem erros.
-
----
-
-## 🚀 Visão Geral do Sistema
-
-Sistema Full-Stack para gestão de integrantes de uma corporação, permitindo o cadastro completo de integrantes, seus responsáveis e informações da corporação, incluindo upload de fotos e controle de instrumentos/uniformes.
-
-### Fluxo Principal:
-
-1. **Autenticação:** Login administrativo via JWT (Expira em 24h).
-2. **Gestão (CRUD):** Cadastro centralizado. O Backend sanitiza campos `null` para `""` para evitar erros de renderização no Frontend.
-3. **Relacionamentos:**
-   - `resolveResponsavel`: Verifica CPF já existente. Se existir, atualiza os dados do responsável e vincula ao novo integrante.
-   - `resolveCorporacao`: Vincula à corporação pelo Nome Único.
-4. **Arquivos:** Upload via `multer`. Na edição, fotos removidas da lista enviada via JSON são deletadas fisicamente do storage pelo Backend (`fs.unlinkSync`).
+Este documento é a especificação técnica definitiva para o projeto **ReisCadastro**. Ele foi desenhado para ser usado como um **Prompt de Replicação**: ao fornecer este arquivo a uma IA, ela deve ser capaz de reconstruir ou adaptar este sistema para outros contextos (ex: Escolas, Clubes, ONGs) mantendo o mesmo padrão de excelência.
 
 ---
 
-## 🛠️ Stack Tecnológica
+## 🚀 Visão Geral e Requisitos de Negócio
 
-### Backend:
+O sistema deve gerenciar o ciclo de vida completo de integrantes de uma organização.
 
-- **Arquitetura:** Camada de Serviço (Logic) + Controller (HTTP).
-- **Runtime:** Node.js 22 (LTS)
-- **Framework:** Express.js
-- **Linguagem:** TypeScript
-- **ORM:** Prisma
-- **Banco de Dados:** PostgreSQL (Porta: **5434** no host para evitar conflitos)
-- **Documentação:** Swagger (JSDoc)
-- **Segurança:** JWT + Bcrypt
-- **Docker:** Imagem `node:22-slim` com OpenSSL instalado.
-
-### Frontend:
-
-- **Framework:** Next.js 14+ (App Router)
-- **Visualização de Dados:** Recharts (Estatísticas do Dashboard)
-- **Estilização:** Tailwind CSS + Lucide React (Ícones)
-- **Impressão:** CSS Media Queries dedicadas para listagens e fichas.
-- **Formulários:** React Hook Form + Zod (Validação)
-- **HTTP Client:** Axios (Centralizado em `src/lib/api.ts`)
-- **Docker:** Build `standalone` para alta performance.
-
-### QA & DevOps:
-
-- **E2E Testing:** Cypress (Visual) & Playwright (Headless). Note: Jest is configured to ignore `src/tests/e2e` to avoid environment conflicts.
-- **Unit Testing:** Jest. Backend tests MUST run with `--runInBand` to avoid database race conditions.
-- **Containerização:** Docker + Docker Compose.
-- **CI/CD:** GitHub Actions.
-  - `quality.yml`: Executa Lint e Testes Unitários em todo o monorepo.
-  - `docker-build.yml`: Valida o build das imagens Docker do Frontend e Backend.
+### Pilares Fundamentais:
+1.  **Autenticação**: Acesso restrito via JWT.
+2.  **Ficha Cadastral Robusta**: Dados do integrante, fotos múltiplas, vinculação automática de Responsável (via CPF) e Corporação (via Nome).
+3.  **Gestão de Recursos**: Controle de patrimônio, instrumentos e uniformes (tamanhos de bota e roupa).
+4.  **Relatórios Otimizados para Impressão**:
+    *   **Versão Checklist**: Listagem simplificada (Nome, Telefone, CPF e campo de Check) para conferência física.
+    *   **Versão Agrupada**: Relatórios separados por categoria (ex: Corporação) com quebras de página automáticas (`break-before-page`).
+5.  **Branding**: Toda a interface deve refletir a identidade da **Corporação AReis**.
 
 ---
 
-## 💡 Notas de Manutenção (Knowledge Base)
+## 🛠️ Stack Tecnológica e Padrões
 
-- **Filtros de Nulos:** Ao realizar filtros no Prisma para campos que podem ser nulos ou vazios (como `instrumento` ou `patrimonio`), utilize a sintaxe:
-  ```typescript
-  {
-    AND: [{ campo: { not: "" } }, { NOT: { campo: null } }];
-  }
-  ```
-  Isso evita erros de validação do Prisma em versões recentes.
-- **Paginação:** A API sempre retorna `{ data: [...], meta: {...} }`. Certifique-se de que os testes e o frontend acessem `response.data.data`.
+### 🟢 Backend (Node.js 22 LTS + Express + Prisma)
+*   **Arquitetura**: Controller-Service-Lib. Os controllers lidam com HTTP, Services com a lógica de negócio, e Lib com instâncias de ferramentas (Prisma).
+*   **Banco de Dados**: PostgreSQL rodando em Docker (Porta padrão interna 5432, mapeada para **5434** no host).
+*   **Upload de Fotos**: Uso de `multer` com salvamento em disco. **Requisito Crítico**: Na atualização, fotos removidas do JSON devem ser deletadas fisicamente (`fs.unlinkSync`).
+*   **Sanitização**: Converter `null` para `""` (string vazia) no retorno da API para evitar erros de renderização no React.
 
----
+### 🔵 Frontend (Next.js 14 App Router + Tailwind + Lucide)
+*   **Layout**: Sidebar/Dashboard responsivo com abas (Cadastro, Consulta, Relatório, Resumo).
+*   **Componentização**: 
+    *   `IntegranteForm`: Formulário dinâmico que lida com Create e Update.
+    *   `IntegranteList`: Tabela com filtros avançados e suporte a impressão via CSS `@media print`.
+*   **CSS de Impressão (Crítico)**:
+    *   Ocultar elementos de UI (`nav`, `buttons`) usando classes `print:hidden`.
+    *   Ajustar fontes e bordas para economia de tinta e legibilidade.
+    *   Adicionar rodapé fixo na impressão: `© [Ano] - Corporação AReis`.
 
-## 📊 Modelo de Dados (Prisma)
-
-### Entidades Principais:
-
-- **User:** Admin (email, password).
-- **Integrante:** Dados pessoais, fotos (array de strings), enums `TipoIntegrante` (CORPO_MUSICAL, LINHA_FRENTE).
-- **Responsável:** Dados de contato e endereço, vinculado ao Integrante.
-- **Corporacao:** Dados da instituição, vinculada ao Integrante.
-
----
-
-## 🔌 API Endpoints (Swagger em `/api-docs`)
-
-| Método | Rota                    | Descrição                        | Protegida? |
-| :----- | :---------------------- | :------------------------------- | :--------- |
-| POST   | `/api/auth/login`       | Autenticação e geração de Token  | Não        |
-| GET    | `/api/integrantes`      | Listagem com filtros (nome, CPF) | Sim        |
-| POST   | `/api/integrantes`      | Cadastro (Multipart/Form-Data)   | Sim        |
-| GET    | `/api/integrantes/{id}` | Detalhes de um integrante        | Sim        |
-| PATCH  | `/api/integrantes/{id}` | Atualização parcial              | Sim        |
-| DELETE | `/api/integrantes/{id}` | Exclusão                         | Sim        |
+### 🐳 Infraestrutura (Docker First)
+*   **Orquestração**: `docker-compose.yml` unificando DB, Backend e Frontend.
+*   **Volumes**: Persistência de dados do Postgres e da pasta de uploads de fotos.
+*   **Setup Automatizado**: Script `setup.sh` que instala dependências, sobe containers, roda migrations e faz o seed inicial.
 
 ---
 
-## ⚙️ Configuração e Execução (Sem Erros)
+## 📊 Regras de Dados (Prisma Schema)
 
-### 1. Variáveis de Ambiente (.env)
+```prisma
+model Integrante {
+  id              String         @id @default(uuid())
+  nome            String
+  cpf             String         @index
+  fotos           String[]       // Array de caminhos das imagens
+  tipoIntegrante  TipoIntegrante // Enum (CORPO_MUSICAL, LINHA_FRENTE)
+  tamanhoUniforme String?
+  tamanhoBota     String?
+  // Relacionamentos automáticos
+  responsavel     Responsavel    @relation(fields: [responsavelId], references: [id])
+  corporacao      Corporacao     @relation(fields: [corporacaoId], references: [id])
+}
+```
 
-**Backend (`backend/.env`):**
+---
 
-```env
+## 🎯 Instruções de Estilo e UX
+
+1.  **Cores**: Azul Marinho Profundo (`#1e3a8a`), Branco e Cinza Claro para um aspecto profissional/institucional.
+2.  **Feedback**: Loaders de esqueleto (Skeleton screens) durante as buscas.
+3.  **Segurança**: Middleware de erro centralizado que não expõe detalhes do banco de dados ao usuário final.
+
+---
+
+## 📂 Diretrizes para Expansão
+
+Para replicar este projeto para "Cadastro de Alunos de Escola":
+1.  Trocar "Corporação" por "Turma" ou "Série".
+2.  Adaptar o `GroupedIntegranteList` para agrupar por "Série".
+3.  Manter a lógica de "Responsável" vinculado por CPF para evitar duplicidade de pais no banco.
+
+---
+*Este documento é a alma do projeto ReisCadastro. Use-o com sabedoria.*
 DATABASE_URL="postgresql://user:password@localhost:5434/corporacao_db?schema=public"
 JWT_SECRET="sua_chave_secreta_aqui"
 PORT=3001

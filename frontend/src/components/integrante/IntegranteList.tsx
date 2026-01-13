@@ -93,7 +93,7 @@ export function IntegranteList() {
 
     const isInstrumentSearch = filters.patrimonio || filters.instrumento || filters.statusDevolucao || filters.subtipoIntegrante === 'INSTRUMENTOS';
 
-    let headers = ['Nome', 'Corporação', 'Tipo', 'Patrimônio', 'Tamanho Bota', 'Tamanho Roupa'];
+    let headers = ['Nome', 'Corporação', 'Tipo', 'Patrimônio', 'Bota', 'Uniforme'];
     if (isInstrumentSearch) {
       headers = ['Nome', 'Patrimônio', 'Instrumento', 'Recebimento', 'Devolução'];
     }
@@ -251,23 +251,23 @@ export function IntegranteList() {
           />
         </div>
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">Tam. Uniforme</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Uniforme</label>
           <input
             type="text"
             value={filters.tamanhoUniforme}
             onChange={(e) => setFilters({ ...filters, tamanhoUniforme: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
-            placeholder="Tam. Uniforme..."
+            placeholder="Uniforme..."
           />
         </div>
         <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">Tam. Bota</label>
+          <label className="block mb-1 text-sm font-medium text-gray-700">Bota</label>
           <input
             type="text"
             value={filters.tamanhoBota}
             onChange={(e) => setFilters({ ...filters, tamanhoBota: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
-            placeholder="Tam. Bota..."
+            placeholder="Bota..."
           />
         </div>
         <div>
@@ -334,24 +334,27 @@ export function IntegranteList() {
           <thead>
             <tr className="border-b border-gray-100 bg-gray-50 print:bg-white print:border-b-2 print:border-gray-800">
               <th className="p-4 font-semibold text-gray-700">Nome do Integrante</th>
+              <th className="p-4 font-semibold text-gray-700 hidden print:table-cell">CPF</th>
+              <th className="p-4 font-semibold text-gray-700 hidden print:table-cell">Telefone</th>
+              <th className="p-4 font-semibold text-gray-700 hidden print:table-cell">Check</th>
               {filters.statusDevolucao === 'NAO_DEVOLVIDO' ? (
                 <>
-                  <th className="p-4 font-semibold text-gray-700">Patrimônio</th>
-                  <th className="p-4 font-semibold text-gray-700">Data de Entrega</th>
+                  <th className="p-4 font-semibold text-gray-700 print:hidden">Patrimônio</th>
+                  <th className="p-4 font-semibold text-gray-700 print:hidden">Data de Entrega</th>
                 </>
               ) : (filters.patrimonio || filters.instrumento || filters.statusDevolucao === 'DEVOLVIDO') ? (
                 <>
-                  <th className="p-4 font-semibold text-gray-700">Instrumento</th>
-                  <th className="p-4 font-semibold text-gray-700">Patrimônio</th>
-                  <th className="p-4 font-semibold text-gray-700">Recebimento</th>
-                  <th className="p-4 font-semibold text-gray-700">Devolução</th>
+                  <th className="p-4 font-semibold text-gray-700 print:hidden">Instrumento</th>
+                  <th className="p-4 font-semibold text-gray-700 print:hidden">Patrimônio</th>
+                  <th className="p-4 font-semibold text-gray-700 print:hidden">Recebimento</th>
+                  <th className="p-4 font-semibold text-gray-700 print:hidden">Devolução</th>
                 </>
               ) : (
                 <>
-                  <th className="p-4 font-semibold text-gray-700">Corporação</th>
-                  <th className="p-4 font-semibold text-gray-700">Turma</th>
-                  <th className="p-4 font-semibold text-gray-700">Tipo</th>
-                  <th className="p-4 font-semibold text-gray-700">Patrimônio</th>
+                  <th className="p-4 font-semibold text-gray-700 print:hidden">Corporação</th>
+                  <th className="p-4 font-semibold text-gray-700 print:hidden">Turma</th>
+                  <th className="p-4 font-semibold text-gray-700 print:hidden">Tipo</th>
+                  <th className="p-4 font-semibold text-gray-700 print:hidden">Patrimônio</th>
                 </>
               )}
               <th className="p-4 font-semibold text-center text-gray-700 print:hidden">Ações</th>
@@ -375,18 +378,23 @@ export function IntegranteList() {
               integrantes.map((integrante: any) => (
                 <tr key={integrante.id} className="transition-colors border-b border-gray-50 hover:bg-gray-50 print:hover:bg-white">
                   <td className="p-4 font-medium text-gray-800">{integrante.nome}</td>
+                  <td className="p-4 text-gray-600 hidden print:table-cell text-xs">{integrante.cpf}</td>
+                  <td className="p-4 text-gray-600 hidden print:table-cell text-xs">{integrante.telefone}</td>
+                  <td className="p-4 text-gray-600 hidden print:table-cell">
+                    <div className="w-4 h-4 border border-black mx-auto"></div>
+                  </td>
 
                   {filters.statusDevolucao === 'NAO_DEVOLVIDO' ? (
                     <>
-                      <td className="p-4 text-gray-600">{integrante.patrimonio || '-'}</td>
-                      <td className="p-4 text-gray-600">{formatDate(integrante.instrumentoRecebimento) || '-'}</td>
+                      <td className="p-4 text-gray-600 print:hidden">{integrante.patrimonio || '-'}</td>
+                      <td className="p-4 text-gray-600 print:hidden">{formatDate(integrante.instrumentoRecebimento) || '-'}</td>
                     </>
                   ) : (filters.patrimonio || filters.instrumento || filters.statusDevolucao === 'DEVOLVIDO') ? (
                     <>
-                      <td className="p-4 text-gray-600">{integrante.instrumento || '-'}</td>
-                      <td className="p-4 text-gray-600">{integrante.patrimonio || '-'}</td>
-                      <td className="p-4 text-gray-600">{formatDate(integrante.instrumentoRecebimento) || '-'}</td>
-                      <td className="p-4 text-gray-600">
+                      <td className="p-4 text-gray-600 print:hidden">{integrante.instrumento || '-'}</td>
+                      <td className="p-4 text-gray-600 print:hidden">{integrante.patrimonio || '-'}</td>
+                      <td className="p-4 text-gray-600 print:hidden">{formatDate(integrante.instrumentoRecebimento) || '-'}</td>
+                      <td className="p-4 text-gray-600 print:hidden">
                         {integrante.instrumentoDevolucao
                           ? formatDate(integrante.instrumentoDevolucao)
                           : <span className="font-medium text-red-500">Não devolvido</span>}
@@ -394,14 +402,14 @@ export function IntegranteList() {
                     </>
                   ) : (
                     <>
-                      <td className="p-4 text-gray-600">{integrante.corporacao?.nome}</td>
-                      <td className="p-4 text-gray-600">{integrante.turma}</td>
-                      <td className="p-4 text-sm text-gray-600">
+                      <td className="p-4 text-gray-600 print:hidden">{integrante.corporacao?.nome}</td>
+                      <td className="p-4 text-gray-600 print:hidden">{integrante.turma}</td>
+                      <td className="p-4 text-sm text-gray-600 print:hidden">
                         <span className={`px-2 py-1 rounded-full text-xs ${integrante.tipoIntegrante === 'CORPO_MUSICAL' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'} print:p-0 print:text-black`}>
                           {integrante.tipoIntegrante.replace('_', ' ')}
                         </span>
                       </td>
-                      <td className="p-4 text-gray-600">{integrante.patrimonio || '-'}</td>
+                      <td className="p-4 text-gray-600 print:hidden">{integrante.patrimonio || '-'}</td>
                     </>
                   )}
 

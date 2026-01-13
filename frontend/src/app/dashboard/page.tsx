@@ -32,7 +32,7 @@ export default function DashboardPage() {
               <div className="bg-white p-1.5 rounded-lg">
                 <Users className="text-blue-900" size={24} />
               </div>
-              <h1 className="text-xl font-bold tracking-tight">Corporação Admin</h1>
+              <h1 className="text-xl font-bold tracking-tight">Corporação AReis</h1>
             </div>
 
             <div className="flex items-center gap-6">
@@ -134,9 +134,9 @@ export default function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="py-4 bg-white border-t border-gray-200">
-        <div className="px-4 mx-auto text-xs text-center text-gray-500 max-w-7xl">
-          &copy; {new Date().getFullYear()} Corporação Admin - Sistema de Gestão de Integrantes
+      <footer className="py-4 bg-white border-t border-gray-200 print:bg-transparent print:border-t-2 print:border-gray-800">
+        <div className="px-4 mx-auto text-xs text-center text-gray-500 print:text-black max-w-7xl font-bold">
+          © {new Date().getFullYear()} - Corporação AReis
         </div>
       </footer>
     </div>
