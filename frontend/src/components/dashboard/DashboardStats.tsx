@@ -32,9 +32,9 @@ export function DashboardStats() {
     <div className="space-y-8">
       {/* Cards de Resumo */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <div className="p-6 bg-blue-50 border border-blue-100 rounded-2xl">
+        <div className="p-6 border border-blue-100 bg-blue-50 rounded-2xl">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-blue-600 rounded-xl text-white">
+            <div className="p-3 text-white bg-blue-600 rounded-xl">
               <Users size={24} />
             </div>
             <div>
@@ -44,9 +44,9 @@ export function DashboardStats() {
           </div>
         </div>
 
-        <div className="p-6 bg-purple-50 border border-purple-100 rounded-2xl">
+        <div className="p-6 border border-purple-100 bg-purple-50 rounded-2xl">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-purple-600 rounded-xl text-white">
+            <div className="p-3 text-white bg-purple-600 rounded-xl">
               <Home size={24} />
             </div>
             <div>
@@ -56,9 +56,9 @@ export function DashboardStats() {
           </div>
         </div>
 
-        <div className="p-6 bg-green-50 border border-green-100 rounded-2xl">
+        <div className="p-6 border border-green-100 bg-green-50 rounded-2xl">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-green-600 rounded-xl text-white">
+            <div className="p-3 text-white bg-green-600 rounded-xl">
               <Music size={24} />
             </div>
             <div>
@@ -70,9 +70,9 @@ export function DashboardStats() {
           </div>
         </div>
 
-        <div className="p-6 bg-orange-50 border border-orange-100 rounded-2xl">
+        <div className="p-6 border border-orange-100 bg-orange-50 rounded-2xl">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-orange-600 rounded-xl text-white">
+            <div className="p-3 text-white bg-orange-600 rounded-xl">
               <Flag size={24} />
             </div>
             <div>
@@ -87,7 +87,7 @@ export function DashboardStats() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         {/* Gráfico de Barras: Por Corporação */}
-        <div className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm">
+        <div className="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
           <h3 className="mb-6 text-lg font-bold text-gray-800">Integrantes por Corporação</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -103,7 +103,7 @@ export function DashboardStats() {
         </div>
 
         {/* Gráfico de Pizza: Por Tipo */}
-        <div className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm">
+        <div className="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
           <h3 className="mb-6 text-lg font-bold text-gray-800">Distribuição por Categoria</h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">

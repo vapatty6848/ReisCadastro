@@ -7,6 +7,12 @@ import { Users, Building2, User } from 'lucide-react';
 interface Integrante {
   id: string;
   nome: string;
+  cpf: string;
+  telefone: string;
+  rua: string;
+  numero: string;
+  bairro: string;
+  cep: string;
   tipoIntegrante: string;
   subtipoIntegrante: string;
   corporacao: {
@@ -129,7 +135,7 @@ export function GroupedIntegranteList() {
         </div>
       ) : (
         corpNames.map((corp) => (
-          <div key={corp} className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden break-inside-avoid">
+          <div key={corp} className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden break-inside-avoid print:break-before-page print:border-2 print:border-black print:mb-8">
             <div className="bg-blue-900 text-white px-6 py-3 flex items-center justify-between">
               <h3 className="text-lg font-bold flex items-center gap-2 uppercase tracking-wide">
                 <Building2 size={20} />
@@ -141,29 +147,47 @@ export function GroupedIntegranteList() {
             </div>
 
             <div className="p-0">
-              <table className="w-full">
+              <table className="w-full text-left">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-2/3">Nome do Integrante</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-1/3">Tipo de Integrante</th>
+                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nome</th>
+                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">CPF</th>
+                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Telefone</th>
+                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider print:hidden">Endereço</th>
+                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider print:hidden">Tipo</th>
+                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden print:table-cell">Check</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
                   {groupedData[corp].sort((a, b) => a.nome.localeCompare(b.nome)).map((integrante) => (
                     <tr key={integrante.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 flex items-center gap-3">
-                        <div className="bg-blue-50 p-1.5 rounded-full text-blue-600">
-                          <User size={14} />
-                        </div>
-                        <span className="font-medium text-gray-800">{integrante.nome}</span>
-                      </td>
                       <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="bg-blue-50 p-1.5 rounded-full text-blue-600 print:hidden">
+                            <User size={14} />
+                          </div>
+                          <span className="font-medium text-gray-800">{integrante.nome}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {integrante.cpf}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {integrante.telefone}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-600 print:hidden">
+                        {`${integrante.rua || ''}, ${integrante.numero || ''} - ${integrante.bairro || ''}`}
+                      </td>
+                      <td className="px-6 py-4 print:hidden">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${integrante.tipoIntegrante === 'CORPO_MUSICAL'
                           ? 'bg-purple-100 text-purple-800'
                           : 'bg-green-100 text-green-800'
                           }`}>
                           {integrante.tipoIntegrante.replace('_', ' ')}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 hidden print:table-cell text-center">
+                        <div className="w-4 h-4 border border-black mx-auto"></div>
                       </td>
                     </tr>
                   ))}

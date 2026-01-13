@@ -4,8 +4,8 @@ import { AuthProvider } from '@/contexts/AuthContext'
 import { ConnectionStatus } from '@/components/ConnectionStatus'
 
 export const metadata: Metadata = {
-  title: 'Cadastro Integrantes Corporação',
-  description: 'Sistema de cadastro de integrantes de corporação',
+  title: 'Gestão Corporação AReis',
+  description: 'Sistema de gestão de integrantes - Corporação AReis',
 };
 
 export default function RootLayout({
@@ -15,7 +15,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className="antialiased font-sans">
+      <body className="font-sans antialiased">
         <AuthProvider>
           {children}
           <ConnectionStatus />
