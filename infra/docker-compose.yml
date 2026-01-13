@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   db:
     image: postgres:15-alpine
-    container_name: corporacao_db
+    container_name: reis_db_v2
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER:-user}
@@ -11,14 +9,19 @@ services:
       POSTGRES_DB: ${DB_NAME:-corporacao_db}
     ports:
       - "5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-user} -d $${POSTGRES_DB:-corporacao_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - reis_postgres_data_v2:/var/lib/postgresql/data
 
   backend:
     build:
       context: ../backend
       dockerfile: Dockerfile
-    container_name: corporacao_backend
+    container_name: reis_backend_v2
     restart: always
     environment:
       DATABASE_URL: postgresql://${DB_USER:-user}:${DB_PASSWORD:-password}@db:5432/${DB_NAME:-corporacao_db}?schema=public
@@ -27,13 +30,14 @@ services:
     ports:
       - "3001:3001"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   frontend:
     build:
       context: ../frontend
       dockerfile: Dockerfile
-    container_name: corporacao_frontend
+    container_name: reis_frontend_v2
     restart: always
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:3001
@@ -43,4 +47,4 @@ services:
       - backend
 
 volumes:
-  postgres_data:
+  reis_postgres_data_v2:

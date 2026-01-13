@@ -1,3 +1,11 @@
+# Para os containers que ficaram presos
+docker compose -f infra/docker-compose.yml down
+
+# Remove o container conflitante (se não precisar dele)
+docker rm -f temp_db
+
+# Roda o novo setup automatizado
+ setup.sh
 node_modules
 .next
 out
@@ -6,3 +14,4 @@ build
 *.log
 docker-compose*
 Dockerfile
+scripyCleanning.sh

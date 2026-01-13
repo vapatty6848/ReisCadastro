@@ -8,24 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum TipoIntegrante {
-  CORPO_MUSICAL
-  LINHA_FRENTE
-}
-
-enum SubtipoIntegrante {
-  INSTRUMENTOS
-  COMANDANTE_MOR
-  PAVILHAO_NACIONAL
-  CORPO_COREOGRAFICO
-  BALIZAS
-}
-
-enum OrigemInstrumento {
-  PROJETO
-  EMPRESA
-}
-
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
@@ -46,9 +28,9 @@ model Responsavel {
   bairro      String?
   cep         String?
   parentesco  String
-  integrantes Integrante[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  integrantes Integrante[]
 
   @@index([id])
 }
@@ -67,9 +49,9 @@ model Corporacao {
   estado          String?
   contatoNome     String?
   contatoTelefone String?
-  integrantes     Integrante[]
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+  integrantes     Integrante[]
 }
 
 model Integrante {
@@ -98,13 +80,31 @@ model Integrante {
   patrimonio             String?
   observacoes            String?
   responsavelId          String
-  responsavel            Responsavel        @relation(fields: [responsavelId], references: [id])
   corporacaoId           String
-  corporacao             Corporacao         @relation(fields: [corporacaoId], references: [id])
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
+  corporacao             Corporacao         @relation(fields: [corporacaoId], references: [id])
+  responsavel            Responsavel        @relation(fields: [responsavelId], references: [id])
 
   @@index([cpf])
   @@index([matriculaNumero])
   @@index([corporacaoId, turma])
+}
+
+enum TipoIntegrante {
+  CORPO_MUSICAL
+  LINHA_FRENTE
+}
+
+enum SubtipoIntegrante {
+  INSTRUMENTOS
+  COMANDANTE_MOR
+  PAVILHAO_NACIONAL
+  CORPO_COREOGRAFICO
+  BALIZAS
+}
+
+enum OrigemInstrumento {
+  PROJETO
+  EMPRESA
 }

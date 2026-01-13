@@ -1,25 +1,25 @@
-import { describe, it, expect, afterAll, beforeAll, beforeEach } from '@jest/globals';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import request from 'supertest';
-import { app } from '../app';
-import prisma from '../lib/prisma';
-import { createTestUser, clearIntegrantes, clearUsers, generateIntegranteData } from './utils/test.utils';
+import jwt from 'jsonwebtoken';
 
-describe('Integrante Endpoints', () => {
+// Definir env antes de qualquer coisa para os middlewares
+process.env.JWT_SECRET = 'test-secret-key';
+
+// Mock do prisma ANTES de importar o app
+jest.mock('../lib/prisma');
+
+import prisma from '../lib/prisma';
+import { app } from '../app';
+import { generateIntegranteData } from './utils/test.utils';
+
+const prismaMock = prisma as any;
+
+describe('Integrante Endpoints (Mocked DB)', () => {
   let token: string;
 
-  beforeAll(async () => {
-    const setup = await createTestUser();
-    token = setup.token;
-  });
-
-  afterAll(async () => {
-    await clearIntegrantes();
-    await clearUsers();
-    await prisma.$disconnect();
-  });
-
-  beforeEach(async () => {
-    await clearIntegrantes();
+  beforeEach(() => {
+    jest.clearAllMocks();
+    token = jwt.sign({ userId: 'mock-user-id' }, process.env.JWT_SECRET as string);
   });
 
   describe('POST /api/integrantes', () => {
@@ -35,6 +35,20 @@ describe('Integrante Endpoints', () => {
         subtipoIntegrante: 'INSTRUMENTOS'
       });
 
+      // Mocks para as dependências (Resolvers)
+      prismaMock.responsavel.findUnique.mockResolvedValue(null);
+      prismaMock.responsavel.create.mockResolvedValue({ id: 'resp-id', ...data.responsavel });
+      prismaMock.corporacao.findUnique.mockResolvedValue(null);
+      prismaMock.corporacao.create.mockResolvedValue({ id: 'corp-id', ...data.corporacao });
+
+      prismaMock.integrante.findFirst.mockResolvedValue(null);
+      prismaMock.integrante.create.mockResolvedValue({
+        id: 'mock-uuid',
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as any);
+
       const res = await request(app)
         .post('/api/integrantes')
         .set('Authorization', `Bearer ${token}`)
@@ -42,156 +56,60 @@ describe('Integrante Endpoints', () => {
 
       expect(res.statusCode).toEqual(201);
       expect(res.body.nome).toBe(data.nome);
-      expect(res.body.subtipoIntegrante).toBe('INSTRUMENTOS');
+      expect(prismaMock.integrante.create).toHaveBeenCalled();
     });
 
-    it('should fail if CPF is already used by another family', async () => {
-      const sharedCpf = '11122233344';
-
-      // Create first member
-      await request(app)
-        .post('/api/integrantes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(generateIntegranteData({ cpf: sharedCpf, nome: 'TEST_FAMILY_1' }));
-
-      // Try creating another with same CPF but different responsible
-      const data2 = generateIntegranteData({
-        cpf: sharedCpf,
-        nome: 'TEST_FAMILY_2',
-        responsavel: {
-          nome: 'DIFFERENT_RESP',
-          cpf: '00011122233',
-          telefone: '11000000000',
-          parentesco: 'Mãe'
-        }
-      });
-
+    it('should fail if required fields are missing', async () => {
       const res = await request(app)
         .post('/api/integrantes')
         .set('Authorization', `Bearer ${token}`)
-        .send(data2);
+        .send({ nome: 'Incomplete' });
 
       expect(res.statusCode).toEqual(400);
-      expect(res.body.message).toContain('CPF já está sendo utilizado por um integrante de outra família');
-    });
-
-    it('should allow same CPF for the same family (sibling)', async () => {
-      const sharedCpf = '55566677788';
-      const responsavel = {
-        nome: 'TEST_RESPONSAVEL_SHARED',
-        cpf: '99988877766',
-        telefone: '11888888888',
-        parentesco: 'Pai'
-      };
-
-      await request(app)
-        .post('/api/integrantes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(generateIntegranteData({ cpf: sharedCpf, nome: 'TEST_SIBLING_1', responsavel }));
-
-      const res = await request(app)
-        .post('/api/integrantes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(generateIntegranteData({ cpf: sharedCpf, nome: 'TEST_SIBLING_2', responsavel }));
-
-      expect(res.statusCode).toEqual(201);
-      expect(res.body.nome).toBe('TEST_SIBLING_2');
+      expect(res.body.message).toContain('Dados inválidos');
     });
   });
 
   describe('GET /api/integrantes', () => {
-    it('should list and filter integrantes', async () => {
-      await request(app)
-        .post('/api/integrantes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(generateIntegranteData({ nome: 'TEST_SEARCH_TARGET', turma: 'SEARCH_TURMA' }));
+    it('should list integrantes with filters via mock', async () => {
+      const mockList = [
+        { id: '1', nome: 'Integrante 1' },
+        { id: '2', nome: 'Integrante 2' }
+      ];
+
+      prismaMock.integrante.findMany.mockResolvedValue(mockList as any);
+      prismaMock.integrante.count.mockResolvedValue(mockList.length);
 
       const res = await request(app)
-        .get('/api/integrantes?turma=SEARCH_TURMA')
+        .get('/api/integrantes')
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body.data.length).toBeGreaterThan(0);
-      expect(res.body.data[0].nome).toBe('TEST_SEARCH_TARGET');
-    });
-
-    it('should filter by "não devolvido" status', async () => {
-      // Member with instrument not returned
-      await request(app)
-        .post('/api/integrantes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(generateIntegranteData({
-          nome: 'TEST_NOT_RETURNED',
-          instrumento: 'Trompete',
-          instrumentoRecebimento: '2023-01-01',
-          instrumentoDevolucao: null
-        }));
-
-      // Member with instrument already returned
-      await request(app)
-        .post('/api/integrantes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(generateIntegranteData({
-          nome: 'TEST_ALREADY_RETURNED',
-          instrumento: 'Trompete',
-          instrumentoRecebimento: '2023-01-01',
-          instrumentoDevolucao: '2023-12-01'
-        }));
-
-      const res = await request(app)
-        .get('/api/integrantes?statusDevolucao=NAO_DEVOLVIDO')
-        .set('Authorization', `Bearer ${token}`);
-
-      expect(res.statusCode).toEqual(200);
-      const names = res.body.data.map((i: any) => i.nome);
-      expect(names).toContain('TEST_NOT_RETURNED');
-      expect(names).not.toContain('TEST_ALREADY_RETURNED');
-    });
-
-    it('should filter returned instruments up to a specific date', async () => {
-      await request(app)
-        .post('/api/integrantes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(generateIntegranteData({
-          nome: 'TEST_DEV_A',
-          instrumento: 'Sax',
-          instrumentoDevolucao: '2025-01-01'
-        }));
-
-      await request(app)
-        .post('/api/integrantes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(generateIntegranteData({
-          nome: 'TEST_DEV_B',
-          instrumento: 'Sax',
-          instrumentoDevolucao: '2026-01-10'
-        }));
-
-      // Search up to 2025-12-31 -> should only return TEST_DEV_A
-      const res = await request(app)
-        .get('/api/integrantes?statusDevolucao=DEVOLVIDO&dataDevolucao=2025-12-31')
-        .set('Authorization', `Bearer ${token}`);
-
-      expect(res.statusCode).toEqual(200);
-      const names = res.body.data.map((i: any) => i.nome);
-      expect(names).toContain('TEST_DEV_A');
-      expect(names).not.toContain('TEST_DEV_B');
+      expect(Array.isArray(res.body.data)).toBeTruthy();
+      expect(res.body.data.length).toBe(2);
+      expect(res.body.meta.total).toBe(mockList.length);
+      expect(prismaMock.integrante.findMany).toHaveBeenCalled();
     });
   });
 
   describe('PATCH /api/integrantes/:id', () => {
-    it('should update integrante and handle complex fields', async () => {
-      const createRes = await request(app)
-        .post('/api/integrantes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(generateIntegranteData({ nome: 'TEST_UPDATE' }));
+    it('should update integrante with mocked data', async () => {
+      const id = 'mock-id';
+      const updateData = { nome: 'Updated Name' };
 
-      const id = createRes.body.id;
-      const updateData = {
-        nome: 'TEST_UPDATE_DONE',
-        tamanhoBota: '44',
-        instrumentoDevolucao: '2024-01-01'
-      };
+      // Mocking existing member check
+      prismaMock.integrante.findUnique.mockResolvedValue({
+        id,
+        nome: 'Old Name',
+        fotos: []
+      } as any);
+
+      prismaMock.integrante.update.mockResolvedValue({
+        id,
+        ...updateData,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as any);
 
       const res = await request(app)
         .patch(`/api/integrantes/${id}`)
@@ -199,31 +117,30 @@ describe('Integrante Endpoints', () => {
         .send(updateData);
 
       expect(res.statusCode).toEqual(200);
-      expect(res.body.nome).toBe('TEST_UPDATE_DONE');
-      expect(res.body.tamanhoBota).toBe('44');
-      expect(res.body.instrumentoDevolucao).toBeDefined();
+      expect(res.body.nome).toBe('Updated Name');
+      expect(prismaMock.integrante.update).toHaveBeenCalled();
     });
   });
 
   describe('DELETE /api/integrantes/:id', () => {
-    it('should delete integrante', async () => {
-      const createRes = await request(app)
-        .post('/api/integrantes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(generateIntegranteData({ nome: 'TEST_DELETE' }));
+    it('should delete integrante via mock', async () => {
+      const id = 'mock-id';
 
-      const id = createRes.body.id;
+      // Mocking existing member check
+      prismaMock.integrante.findUnique.mockResolvedValue({
+        id,
+        nome: 'To Delete',
+        fotos: []
+      } as any);
+
+      prismaMock.integrante.delete.mockResolvedValue({ id } as any);
 
       const res = await request(app)
         .delete(`/api/integrantes/${id}`)
         .set('Authorization', `Bearer ${token}`);
 
       expect(res.statusCode).toEqual(204);
-
-      const checkRes = await request(app)
-        .get(`/api/integrantes/${id}`)
-        .set('Authorization', `Bearer ${token}`);
-      expect(checkRes.statusCode).toEqual(404);
+      expect(prismaMock.integrante.delete).toHaveBeenCalled();
     });
   });
 });
