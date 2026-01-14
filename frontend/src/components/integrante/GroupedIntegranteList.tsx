@@ -70,6 +70,15 @@ export function GroupedIntegranteList() {
 
   return (
     <div className="space-y-8 print:space-y-4">
+      {/* Título visível apenas na impressão */}
+      <div className="hidden print:block mb-4 border-b border-gray-800 pb-2">
+        <h1 className="text-3xl font-bold text-center text-gray-900">Relatório de Integrantes por Corporação</h1>
+        <div className="flex justify-between items-center mt-2 text-sm text-gray-700">
+          <p>Corporação AReis</p>
+          <p>Data: {new Date().toLocaleDateString('pt-BR')}</p>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-6 no-print">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -77,7 +86,12 @@ export function GroupedIntegranteList() {
             Relatório por Corporação
           </h2>
           <button
-            onClick={() => window.print()}
+            onClick={() => {
+              const originalTitle = document.title;
+              document.title = 'Relatório por Corporação';
+              window.print();
+              document.title = originalTitle;
+            }}
             className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 transition-colors border border-gray-200"
           >
             Imprimir Relatório
@@ -135,7 +149,7 @@ export function GroupedIntegranteList() {
         </div>
       ) : (
         corpNames.map((corp) => (
-          <div key={corp} className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden break-inside-avoid print:break-before-page print:border-2 print:border-black print:mb-8">
+          <div key={corp} className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden break-inside-avoid print:break-before-page print:border print:border-black print:mb-8">
             <div className="bg-blue-900 text-white px-6 py-3 flex items-center justify-between">
               <h3 className="text-lg font-bold flex items-center gap-2 uppercase tracking-wide">
                 <Building2 size={20} />
@@ -150,12 +164,12 @@ export function GroupedIntegranteList() {
               <table className="w-full text-left">
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
-                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nome</th>
-                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">CPF</th>
-                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Telefone</th>
-                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider print:hidden">Endereço</th>
-                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider print:hidden">Tipo</th>
-                    <th className="px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden print:table-cell">Check</th>
+                    <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:text-[14px] print:font-normal">Nome</th>
+                    <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:text-[14px] print:font-normal">CPF</th>
+                    <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:text-[14px] print:font-normal">Telefone</th>
+                    <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:hidden">Endereço</th>
+                    <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:hidden">Tipo</th>
+                    <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden print:table-cell print:text-[14px] print:font-normal">Check</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -166,13 +180,13 @@ export function GroupedIntegranteList() {
                           <div className="bg-blue-50 p-1.5 rounded-full text-blue-600 print:hidden">
                             <User size={14} />
                           </div>
-                          <span className="font-medium text-gray-800">{integrante.nome}</span>
+                          <span className="font-medium text-gray-800 print:text-[14px] print:font-normal">{integrante.nome}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="px-6 py-4 text-sm text-gray-600 print:text-[14px]">
                         {integrante.cpf}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-600">
+                      <td className="px-6 py-4 text-sm text-gray-600 print:text-[14px]">
                         {integrante.telefone}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 print:hidden">

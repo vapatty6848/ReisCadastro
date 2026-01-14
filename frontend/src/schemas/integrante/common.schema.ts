@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const numericSizeSchema = z.string()
-  .regex(/^\d{1,3}$/, 'Máximo 3 números')
+  .max(10, 'Máximo 10 caracteres')
   .optional()
   .or(z.literal(''));
 

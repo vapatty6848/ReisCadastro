@@ -7,7 +7,6 @@ export const corporacaoSchema = z.object({
   bairro: z.string().optional().nullable(),
   cep: z.string().optional().nullable(),
   telefone: z.string().min(10, 'Telefone da corporação é obrigatório'),
-  serie: z.string().optional().nullable(),
   email: z.string().email().optional().nullable().or(z.literal('')),
   cidade: z.string().optional().nullable(),
   estado: z.string().optional().nullable(),

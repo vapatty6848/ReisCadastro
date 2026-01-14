@@ -20,7 +20,7 @@ app.use(cors({
 app.use(express.json());
 
 // Servir arquivos estáticos (uploads)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Swagger
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));

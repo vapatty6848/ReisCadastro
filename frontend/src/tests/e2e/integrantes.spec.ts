@@ -1,9 +1,45 @@
 import { test, expect } from '@playwright/test';
 import { loginAndSetStorage, waitForHydration } from './utils/auth-helper';
 
+/**
+ * Factory para gerar dados de integrante para testes E2E.
+ * Segue princípios de Clean Code ao centralizar a criação de dados aleatórios.
+ */
+const createTestData = () => {
+  const timestamp = Date.now();
+  return {
+    nome: `INTEGRANTE E2E ${timestamp}`,
+    cpf: Math.floor(Math.random() * 90000000000 + 10000000000).toString(),
+    dataNascimento: '2005-10-20',
+    telefone: '11999998888',
+    responsavel: {
+      nome: 'Responsavel E2E',
+      cpf: '12312312311',
+      parentesco: 'Pai',
+      telefone: '11977776666'
+    },
+    corporacao: {
+      nome: 'Corporação E2E',
+      telefone: '1133332222',
+      dataMatricula: '2024-01-01'
+    },
+    atuacao: {
+      tipo: 'CORPO_MUSICAL',
+      subtipo: 'INSTRUMENTOS',
+      instrumento: 'Saxofone',
+      patrimonio: `E2E-PAT-${timestamp}`,
+      origem: 'PROJETO'
+    },
+    tamanhos: {
+      uniforme: '42',
+      bota: '40'
+    }
+  };
+};
+
 test.describe.serial('Gestão de Integrantes (E2E)', () => {
-  const integranteNome = `INTEGRANTE E2E ${Date.now()}`;
-  const integranteCpf = Math.floor(Math.random() * 90000000000 + 10000000000).toString();
+  const data = createTestData();
+  const nomeEditado = `${data.nome} (EDITADO)`;
 
   test.beforeEach(async ({ page }) => {
     await loginAndSetStorage(page);
@@ -12,38 +48,36 @@ test.describe.serial('Gestão de Integrantes (E2E)', () => {
   });
 
   test('deve navegar corretamente entre abas e cadastrar novo integrante', async ({ page }) => {
-    // Acessar formulário
     await page.goto('/dashboard/integrantes/novo');
     await waitForHydration(page);
 
-    // Preencher formulário completo
-    await page.fill('input[name="nome"]', integranteNome);
-    await page.fill('input[name="cpf"]', integranteCpf);
-    await page.fill('input[name="dataNascimento"]', '2005-10-20');
-    await page.fill('input[name="telefone"]', '11999998888');
+    // Identificação
+    await page.fill('input[name="nome"]', data.nome);
+    await page.fill('input[name="cpf"]', data.cpf);
+    await page.fill('input[name="dataNascimento"]', data.dataNascimento);
+    await page.fill('input[name="telefone"]', data.telefone);
 
     // Responsável
-    await page.fill('input[name="responsavel.nome"]', 'Responsavel E2E');
-    await page.fill('input[name="responsavel.cpf"]', '12312312311');
-    await page.fill('input[name="responsavel.parentesco"]', 'Pai');
-    await page.fill('input[name="responsavel.telefone"]', '11977776666');
+    await page.fill('input[name="responsavel.nome"]', data.responsavel.nome);
+    await page.fill('input[name="responsavel.cpf"]', data.responsavel.cpf);
+    // parentesco deixado em branco para testar se é opcional
+    await page.fill('input[name="responsavel.telefone"]', data.responsavel.telefone);
 
-    // Corporação e Turma
-    await page.fill('input[name="corporacao.nome"]', 'Corporação E2E');
-    await page.fill('input[name="corporacao.telefone"]', '1133332222');
-    await page.fill('input[name="turma"]', 'Turma Alpha');
-    await page.fill('input[name="dataMatricula"]', '2024-01-01');
+    // Corporação
+    await page.fill('input[name="corporacao.nome"]', data.corporacao.nome);
+    await page.fill('input[name="corporacao.telefone"]', data.corporacao.telefone);
+    await page.fill('input[name="dataMatricula"]', data.corporacao.dataMatricula);
 
-    // Atuação e Instrumento (Logica condicionais)
-    await page.selectOption('select[name="tipoIntegrante"]', 'CORPO_MUSICAL');
-    await page.selectOption('select[name="subtipoIntegrante"]', 'INSTRUMENTOS');
-    await page.fill('input[name="instrumento"]', 'Saxofone');
-    await page.fill('input[name="patrimonio"]', 'E2E-PAT-123');
-    await page.selectOption('select[name="instrumentoOrigem"]', 'PROJETO');
+    // Atuação e Instrumento
+    await page.selectOption('select[name="tipoIntegrante"]', data.atuacao.tipo);
+    await page.selectOption('select[name="subtipoIntegrante"]', data.atuacao.subtipo);
+    await page.fill('input[name="instrumento"]', data.atuacao.instrumento);
+    await page.fill('input[name="patrimonio"]', data.atuacao.patrimonio);
+    await page.selectOption('select[name="instrumentoOrigem"]', data.atuacao.origem);
 
     // Tamanhos
-    await page.fill('input[name="tamanhoUniforme"]', '42');
-    await page.fill('input[name="tamanhoBota"]', '40');
+    await page.fill('input[name="tamanhoUniforme"]', data.tamanhos.uniforme);
+    await page.fill('input[name="tamanhoBota"]', data.tamanhos.bota);
 
     // Finalizar
     await Promise.all([
@@ -55,36 +89,26 @@ test.describe.serial('Gestão de Integrantes (E2E)', () => {
   });
 
   test('deve realizar busca sob demanda e validar visualização', async ({ page }) => {
-    // Inicialmente a lista deve estar vazia/pronto para buscar
-    await expect(page.locator('text=Pronto para buscar')).toBeVisible();
+    await page.fill('input[placeholder="Filtrar por nome..."]', data.nome);
+    // O fetch é automático via debounce no componente
 
-    // Pesquisar pelo nome criado
-    await page.fill('input[placeholder="Filtrar por nome..."]', integranteNome);
-    await page.click('button:has-text("Filtrar")');
+    await expect(page.locator(`text=${data.nome}`)).toBeVisible();
 
-    // Verificar se o integrante aparece na lista
-    await expect(page.locator(`text=${integranteNome}`)).toBeVisible();
-
-    // Verificar se o status "Não devolvido" está visível na tabela ao filtrar por patrimônio
-    await page.fill('input[placeholder="Filtrar por patrimônio..."]', 'E2E-PAT-123');
+    // Validar status de devolução
+    await page.fill('input[placeholder="Filtrar por patrimônio..."]', data.atuacao.patrimonio);
     await page.click('button:has-text("Filtrar")');
     await expect(page.locator('table >> text=Não devolvido').first()).toBeVisible();
   });
 
   test('deve permitir editar e salvar alterações', async ({ page }) => {
-    // Buscar primeiro
-    await page.fill('input[placeholder="Filtrar por nome..."]', integranteNome);
+    await page.fill('input[placeholder="Filtrar por nome..."]', data.nome);
     await page.click('button:has-text("Filtrar")');
 
-    // Editar
     await page.click('a[title="Editar"]');
     await waitForHydration(page);
 
-    const nomeEditado = integranteNome + ' (EDITADO)';
     await page.fill('input[name="nome"]', nomeEditado);
-
-    // Testar o novo checkbox de devolução
-    await page.check('input[type="checkbox"]'); // Já devolveu?
+    await page.check('input[type="checkbox"]'); // Marcar como devolvido
 
     await Promise.all([
       page.waitForResponse(res => res.status() === 200),
@@ -93,23 +117,19 @@ test.describe.serial('Gestão de Integrantes (E2E)', () => {
 
     await expect(page).toHaveURL(/\/dashboard\/integrantes/);
 
-    // Validar na lista que não é mais "Não devolvido"
+    // Validar atualização na lista
     await page.fill('input[placeholder="Filtrar por nome..."]', nomeEditado);
-
-    // Testar o novo filtro de Devolução usando o atributo name
     await page.selectOption('select[name="statusDevolucao"]', 'DEVOLVIDO');
-
     await page.click('button:has-text("Filtrar")');
+
     await expect(page.locator(`text=${nomeEditado}`)).toBeVisible();
     await expect(page.locator('table >> text=Não devolvido')).not.toBeVisible();
   });
 
   test('deve excluir o integrante e limpar a lista', async ({ page }) => {
-    const nomeFinal = integranteNome + ' (EDITADO)';
-    await page.fill('input[placeholder="Filtrar por nome..."]', nomeFinal);
+    await page.fill('input[placeholder="Filtrar por nome..."]', nomeEditado);
     await page.click('button:has-text("Filtrar")');
 
-    // Configura o diálogo de confirmação
     page.on('dialog', dialog => dialog.accept());
 
     const [response] = await Promise.all([

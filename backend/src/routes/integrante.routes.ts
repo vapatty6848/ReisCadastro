@@ -20,10 +20,15 @@ const router = Router();
 
 router.use(authMiddleware);
 
-router.post('/', upload.array('fotos', 5), createIntegrante);
+const uploadFields = upload.fields([
+  { name: 'fotos', maxCount: 5 },
+  { name: 'fotoPerfil', maxCount: 1 }
+]);
+
+router.post('/', uploadFields, createIntegrante);
 router.get('/', listIntegrantes);
 router.get('/:id', getIntegrante);
-router.patch('/:id', upload.array('fotos', 5), updateIntegrante);
+router.patch('/:id', uploadFields, updateIntegrante);
 router.delete('/:id', deleteIntegrante);
 
 export default router;

@@ -9,6 +9,7 @@ export const integranteSchema = z.object({
   cpf: z.string().length(11, 'CPF deve ter 11 dígitos'),
   telefone: z.string().min(10, 'Telefone inválido'),
   email: z.string().email('Email inválido').optional().nullable().or(z.literal('')),
+  fotoPerfil: z.string().optional().nullable(), // Será preenchido pelo backend após o upload
   fotos: z.array(z.string()).optional(), // Será preenchido pelo backend após o upload
   rua: z.string().optional().nullable(),
   numero: z.string().optional().nullable(),
@@ -16,13 +17,12 @@ export const integranteSchema = z.object({
   cep: z.string().optional().nullable(),
   dataMatricula: z.string().transform((str) => new Date(str)),
   matriculaNumero: z.string().transform(v => v === '' ? null : v).optional().nullable(),
-  turma: z.string().min(1, 'Turma é obrigatória'),
   tipoIntegrante: TipoIntegrante,
   subtipoIntegrante: SubtipoIntegrante.optional().nullable(),
   tamanhoUniforme: numericSizeSchema.nullable(),
   tamanhoBota: numericSizeSchema.nullable(),
-  instrumento: z.string().optional().nullable(),
-  instrumentoOrigem: OrigemInstrumento.optional().nullable(),
+  instrumento: z.string().optional().nullable().or(z.literal('')),
+  instrumentoOrigem: z.preprocess((v) => v === '' ? null : v, OrigemInstrumento.optional().nullable()),
   instrumentoRecebimento: z.string().transform((str) => str ? new Date(str) : null).optional().nullable(),
   instrumentoDevolucao: z.string().transform((str) => str ? new Date(str) : null).optional().nullable(),
   patrimonio: z.string().optional().nullable(),

@@ -9,7 +9,7 @@ export const resolveResponsavel = async (data: {
   numero?: string | null;
   bairro?: string | null;
   cep?: string | null;
-  parentesco: string;
+  parentesco?: string | null;
 }) => {
   const existing = await prisma.responsavel.findUnique({ where: { cpf: data.cpf } });
   if (existing) {
@@ -30,7 +30,6 @@ export const resolveCorporacao = async (data: {
   bairro?: string | null;
   cep?: string | null;
   telefone: string;
-  serie?: string | null;
   email?: string | null;
   cidade?: string | null;
   estado?: string | null;

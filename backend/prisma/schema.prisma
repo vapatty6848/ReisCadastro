@@ -23,13 +23,13 @@ model Responsavel {
   cpf         String       @unique
   telefone    String
   email       String?
-  rua         String?
-  numero      String?
-  bairro      String?
-  cep         String?
-  parentesco  String
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  bairro      String?
+  cep         String?
+  numero      String?
+  parentesco  String?
+  rua         String?
   integrantes Integrante[]
 
   @@index([id])
@@ -43,7 +43,6 @@ model Corporacao {
   bairro          String?
   cep             String?
   telefone        String
-  serie           String?
   email           String?
   cidade          String?
   estado          String?
@@ -68,7 +67,6 @@ model Integrante {
   cep                    String?
   dataMatricula          DateTime
   matriculaNumero        String?            @unique
-  turma                  String
   tipoIntegrante         TipoIntegrante
   subtipoIntegrante      SubtipoIntegrante?
   tamanhoUniforme        String?
@@ -77,18 +75,19 @@ model Integrante {
   instrumentoOrigem      OrigemInstrumento?
   instrumentoRecebimento DateTime?
   instrumentoDevolucao   DateTime?
-  patrimonio             String?
   observacoes            String?
   responsavelId          String
   corporacaoId           String
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
+  patrimonio             String?
+  fotoPerfil             String?
   corporacao             Corporacao         @relation(fields: [corporacaoId], references: [id])
   responsavel            Responsavel        @relation(fields: [responsavelId], references: [id])
 
   @@index([cpf])
   @@index([matriculaNumero])
-  @@index([corporacaoId, turma])
+  @@index([corporacaoId])
 }
 
 enum TipoIntegrante {

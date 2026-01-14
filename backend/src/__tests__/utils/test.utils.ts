@@ -52,7 +52,6 @@ export const generateIntegranteData = (overrides = {}) => {
     cpf: Math.floor(Math.random() * 90000000000 + 10000000000).toString(),
     dataNascimento: '1990-01-01',
     dataMatricula: '2023-01-01',
-    turma: 'Turma A',
     tipoIntegrante: 'CORPO_MUSICAL',
     subtipoIntegrante: 'INSTRUMENTOS',
     telefone: '11999999999',
