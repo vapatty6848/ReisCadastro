@@ -25,7 +25,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="text-white bg-blue-900 shadow-lg">
+      <header className="text-white bg-blue-900 shadow-lg print:hidden">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
@@ -53,7 +53,7 @@ export default function DashboardPage() {
       </header>
 
       {/* Navigation Tabs */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200">
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 print:hidden">
         <div className="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <nav className="flex -mb-px space-x-8">
             <button
@@ -101,8 +101,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 w-full px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <div className="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl md:p-8">
+      <main className="flex-1 w-full px-4 py-8 mx-auto max-w-7xl sm:px-6 lg:px-8 print:p-0 print:m-0 print:max-w-none">
+        <div className="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl md:p-8 print:p-0 print:border-none print:shadow-none">
           {activeTab === 'resumo' && <DashboardStats />}
 
           {activeTab === 'lista' && <IntegranteList />}
@@ -110,7 +110,7 @@ export default function DashboardPage() {
           {activeTab === 'relatorio' && <GroupedIntegranteList />}
 
           {activeTab === 'cadastro' && (
-            <div>
+            <div className="print:hidden">
               <div className="flex flex-col items-start justify-between gap-4 mb-8 md:flex-row md:items-center">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-800">Novo Cadastro</h2>

@@ -22,8 +22,21 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
   const { token } = useAuth();
   const router = useRouter();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [profilePhoto, setProfilePhoto] = useState<File | null>(null);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [loading, setLoading] = useState(!!id);
+
+  useEffect(() => {
+    if (!profilePhoto) {
+      setProfilePreview(null);
+      return;
+    }
+    const objectUrl = URL.createObjectURL(profilePhoto);
+    setProfilePreview(objectUrl);
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [profilePhoto]);
+
   const [showDevolucaoDate, setShowDevolucaoDate] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
@@ -52,6 +65,7 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
 
   const subtipoSelecionado = watch('subtipoIntegrante');
   const fotosExistentes = watch('fotos') as string[] | undefined;
+  const fotoPerfilExistente = watch('fotoPerfil') as string | undefined;
 
   useEffect(() => {
     if (id && token) {
@@ -113,6 +127,7 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
   };
 
   const onSubmit = async (data: IntegranteData) => {
+    console.log('Submetendo formulário...', { id, data, profilePhoto: profilePhoto?.name });
     setStatus(null);
     try {
       const formData = new FormData();
@@ -120,18 +135,40 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
         formData.append('fotos', file);
       });
 
+      if (profilePhoto) {
+        console.log('Anexando foto de perfil ao FormData:', profilePhoto.name);
+        formData.append('fotoPerfil', profilePhoto);
+      }
+
+      // Se a foto de perfil foi removida e não tem uma nova, sinaliza para o backend
+      if (!profilePhoto && watch('fotoPerfil') === "") {
+        data.fotoPerfil = "";
+      }
+
       formData.append('data', JSON.stringify(data));
 
       const url = id ? `/api/integrantes/${id}` : '/api/integrantes';
-      const method = id ? 'patch' : 'post';
 
-      await api[method](url, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+      console.log(`Enviando requisição ${id ? 'PATCH' : 'POST'} para ${url}`);
+
+      const response = await api({
+        method: id ? 'PATCH' : 'POST',
+        url,
+        data: formData
       });
 
-      setStatus({ type: 'success', message: id ? 'Integrante atualizado com sucesso!' : 'Integrante cadastrado com sucesso!' });
+      console.log('Resposta do servidor:', response.data);
+
+      setStatus({
+        type: 'success',
+        message: id ? 'Integrante atualizado com sucesso!' : 'Integrante cadastrado com sucesso!'
+      });
+
+      // Forçar atualização do estado local para refletir a nova imagem se estivermos editando
+      if (id && response.data.fotoPerfil) {
+        setValue('fotoPerfil', response.data.fotoPerfil);
+        setProfilePhoto(null);
+      }
 
       setTimeout(() => {
         if (onSuccess) {
@@ -139,12 +176,20 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
         } else {
           router.push('/dashboard/integrantes');
         }
-      }, 2000);
+      }, 1500);
     } catch (err: any) {
-      console.error(err.response?.data);
+      console.error('Erro na submissão (Catch):', err);
+      console.error('Mensagem de erro:', err.message);
+      if (err.response) {
+        console.error('Status do Erro:', err.response.status);
+        console.error('Dados de Resposta do Erro:', err.response.data);
+      }
+
+      const errorMessage = err.response?.data?.message || err.message || 'Erro desconhecido ao salvar';
+
       setStatus({
         type: 'error',
-        message: 'Erro ao salvar integrante: ' + (err.response?.data?.message || 'Erro desconhecido')
+        message: 'Erro ao salvar integrante: ' + errorMessage
       });
     }
   };
@@ -152,7 +197,52 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
   if (loading) return <div className="p-10 text-center">Carregando dados...</div>;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-5xl p-8 mx-auto space-y-8 bg-white shadow-lg rounded-xl">
+    <form
+      onSubmit={handleSubmit(onSubmit, (errors) => {
+        console.log('Erros de validação detectados:', errors);
+
+        // Função auxiliar para extrair todos os campos com erro, incluindo os aninhados
+        const getErrorMessages = (obj: any, prefix = ''): string[] => {
+          let messages: string[] = [];
+          for (const key in obj) {
+            const fieldName = prefix ? `${prefix}.${key}` : key;
+            if (obj[key].message) {
+              messages.push(fieldName);
+            } else {
+              messages = messages.concat(getErrorMessages(obj[key], fieldName));
+            }
+          }
+          return messages;
+        };
+
+        const fieldNames: Record<string, string> = {
+          nome: 'Nome',
+          cpf: 'CPF',
+          dataNascimento: 'Data de Nascimento',
+          dataMatricula: 'Data de Matrícula',
+          'responsavel.nome': 'Nome do Responsável',
+          'responsavel.cpf': 'CPF do Responsável',
+          'responsavel.parentesco': 'Parentesco',
+          'responsavel.telefone': 'Telefone do Responsável',
+          'corporacao.nome': 'Nome da Corporação',
+          'corporacao.telefone': 'Telefone da Corporação',
+          tipoIntegrante: 'Tipo de Integrante',
+          tamanhoUniforme: 'Uniforme',
+          tamanhoBota: 'Bota'
+        };
+
+        const errorKeys = getErrorMessages(errors);
+        const errorList = errorKeys.map(key => fieldNames[key] || key).join(', ');
+
+        setStatus({
+          type: 'error',
+          message: `Não foi possível salvar. Verifique os campos: ${errorList}.`
+        });
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })}
+      className="max-w-5xl p-8 mx-auto space-y-8 bg-white shadow-lg rounded-xl"
+    >
       <h2 className="pb-2 text-3xl font-bold text-gray-800 border-b-2 border-blue-500">
         {readOnly ? 'Visualizar Integrante' : id ? 'Editar Integrante' : 'Ficha de Cadastro de Integrante'}
       </h2>
@@ -169,114 +259,165 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
           <h3 className="flex items-center gap-2 mb-4 text-xl font-semibold text-blue-700">
             <span className="p-1 bg-blue-100 rounded">01</span> Dados do Integrante
           </h3>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="md:col-span-2">
-              <Input label="Nome Completo" register={register('nome')} error={errors.nome?.message} />
-            </div>
-            <div className="relative">
-              <Input label="CPF" register={register('cpf')} error={errors.cpf?.message} />
-              {!readOnly && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    const respCpf = watch('responsavel.cpf');
-                    if (respCpf) {
-                      setValue('cpf', respCpf);
-                    } else {
-                      alert('Preencha o CPF do responsável primeiro.');
-                    }
-                  }}
-                  className="absolute right-0 top-0 text-[10px] text-blue-600 hover:underline"
-                >
-                  Copiar do Responsável
-                </button>
-              )}
-            </div>
-            <Input label="Data de Nascimento" type="date" register={register('dataNascimento')} error={errors.dataNascimento?.message} />
-            <Input label="Telefone" register={register('telefone')} error={errors.telefone?.message} />
-            <Input label="Email" type="email" register={register('email')} error={errors.email?.message} />
-            <Input label="Data de Matrícula" type="date" register={register('dataMatricula')} error={errors.dataMatricula?.message} />
 
-            <div className="md:col-span-3">
-              {fotosExistentes && fotosExistentes.length > 0 && (
-                <div className="mb-4">
-                  <label className="block mb-2 font-medium text-gray-700">Arquivos Atuais</label>
-                  <div className="flex flex-wrap gap-2">
-                    {fotosExistentes.map((foto, index) => (
-                      <div key={index} className="relative group">
-                        <a
-                          href={`${getApiUrl()}${foto}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="block p-2 pr-8 text-xs text-blue-600 border border-blue-200 rounded bg-blue-50 hover:bg-blue-100"
-                        >
-                          {foto.split('/').pop()}
-                        </a>
-                        {!readOnly && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const novasFotos = fotosExistentes.filter((_, i) => i !== index);
-                              setValue('fotos', novasFotos);
-                            }}
-                            className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-red-500 hover:text-red-700 transition-colors"
-                            title="Remover arquivo"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        )}
-                      </div>
-                    ))}
+          <div className="flex flex-col gap-6 md:flex-row">
+            {/* Quadro de Foto de Perfil */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative w-40 h-48 overflow-hidden border-2 border-gray-300 border-dashed rounded-lg bg-gray-50 flex items-center justify-center group">
+                {profilePreview ? (
+                  <img src={profilePreview} alt="Preview" className="object-cover w-full h-full" />
+                ) : fotoPerfilExistente ? (
+                  <img src={`${getApiUrl()}${fotoPerfilExistente}`} alt="Foto Perfil" className="object-cover w-full h-full" />
+                ) : (
+                  <div className="text-center p-2 text-gray-400">
+                    <Camera size={40} className="mx-auto mb-2 opacity-50" />
+                    <span className="text-xs font-medium">Foto do Integrante</span>
                   </div>
-                </div>
-              )}
+                )}
+
+                {!readOnly && (profilePhoto || fotoPerfilExistente) && (
+                  <button type="button"
+                    onClick={() => {
+                      if (profilePhoto) setProfilePhoto(null);
+                      else setValue('fotoPerfil', "");
+                    }}
+                    className="absolute top-1 right-1 p-1.5 text-white bg-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-md hover:bg-red-700"
+                    title="Remover Foto"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
 
               {!readOnly && (
-                <div className="mb-4">
-                  <label className="block mb-1 font-medium text-gray-700">Fotos / Documentos (Máx. 5)</label>
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <div className="relative flex-1">
-                      <input
-                        id="file-upload"
-                        type="file"
-                        multiple
-                        onChange={handleFileChange}
-                        className="w-full p-2 text-sm border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                        accept="image/*,.pdf"
-                        title="Selecione arquivos para upload"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsCameraOpen(true)}
-                      className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-white transition-colors bg-blue-600 rounded-lg hover:bg-blue-700"
-                    >
-                      <Camera size={18} /> Tirar Foto
-                    </button>
-                  </div>
+                <div className="flex flex-col w-full gap-2">
+                  <button type="button"
+                    onClick={() => {
+                      setIsCameraOpen(true);
+                    }}
+                    className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700 shadow-sm"
+                  >
+                    <Camera size={14} /> TIRAR FOTO
+                  </button>
 
-                  {isCameraOpen && (
-                    <CameraCapture
-                      onCapture={(file) => {
-                        const updatedFiles = [...selectedFiles, file].slice(0, 5);
-                        setSelectedFiles(updatedFiles);
+                  <label className="flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-blue-700 transition-all bg-blue-50 border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-100">
+                    Escolher Arquivo
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          setProfilePhoto(e.target.files[0]);
+                        }
                       }}
-                      onClose={() => setIsCameraOpen(false)}
                     />
-                  )}
-
-                  <div className="mt-2 space-y-1">
-                    {selectedFiles.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 text-sm bg-gray-100 rounded">
-                        <span className="truncate max-w-[200px]">{file.name}</span>
-                        <button type="button" onClick={() => removeFile(index)} className="px-2 font-bold text-red-500 hover:text-red-700">✕</button>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="mt-1 text-xs text-gray-500">{selectedFiles.length} de 5 arquivo(s) selecionado(s)</p>
+                  </label>
                 </div>
               )}
             </div>
+
+            <div className="flex-1 space-y-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <Input label="Nome Completo" register={register('nome')} error={errors.nome?.message} />
+                </div>
+                <div className="relative">
+                  <Input label="CPF" register={register('cpf')} error={errors.cpf?.message} />
+                  {!readOnly && (
+                    <button type="button"
+                      onClick={() => {
+                        const respCpf = watch('responsavel.cpf');
+                        if (respCpf) {
+                          setValue('cpf', respCpf);
+                        } else {
+                          alert('Preencha o CPF do responsável primeiro.');
+                        }
+                      }}
+                      className="absolute right-0 top-0 text-[10px] text-blue-600 hover:underline"
+                    >
+                      Copiar do Responsável
+                    </button>
+                  )}
+                </div>
+                <Input label="Data de Nascimento" type="date" register={register('dataNascimento')} error={errors.dataNascimento?.message} />
+                <Input label="Telefone" register={register('telefone')} error={errors.telefone?.message} />
+                <Input label="Email" type="email" register={register('email')} error={errors.email?.message} />
+                <Input label="Data de Matrícula" type="date" register={register('dataMatricula')} error={errors.dataMatricula?.message} />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            {fotosExistentes && fotosExistentes.length > 0 && (
+              <div className="mb-4">
+                <label className="block mb-2 font-medium text-gray-700">Arquivos Atuais</label>
+                <div className="flex flex-wrap gap-2">
+                  {fotosExistentes.map((foto, index) => (
+                    <div key={index} className="relative group">
+                      <a
+                        href={`${getApiUrl()}${foto}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block p-2 pr-8 text-xs text-blue-600 border border-blue-200 rounded bg-blue-50 hover:bg-blue-100"
+                      >
+                        {foto.split('/').pop()}
+                      </a>
+                      {!readOnly && (
+                        <button type="button"
+                          onClick={() => {
+                            const novasFotos = fotosExistentes.filter((_, i) => i !== index);
+                            setValue('fotos', novasFotos);
+                          }}
+                          className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-red-500 hover:text-red-700 transition-colors"
+                          title="Remover arquivo"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {!readOnly && (
+              <div className="mb-4">
+                <label className="block mb-1 font-medium text-gray-700">Documentos e Fotos Extras (Máx. 5)</label>
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <div className="relative flex-1">
+                    <input
+                      id="file-upload"
+                      type="file"
+                      multiple
+                      onChange={handleFileChange}
+                      className="w-full p-2 text-sm border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200 file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      accept="image/*,.pdf"
+                      title="Selecione arquivos para upload"
+                    />
+                  </div>
+                </div>
+
+                {isCameraOpen && (
+                  <CameraCapture
+                    onCapture={(file) => {
+                      setProfilePhoto(file);
+                    }}
+                    onClose={() => setIsCameraOpen(false)}
+                  />
+                )}
+
+                <div className="mt-2 space-y-1">
+                  {selectedFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 text-sm bg-gray-100 rounded">
+                      <span className="truncate max-w-[200px]">{file.name}</span>
+                      <button type="button" onClick={() => removeFile(index)} className="px-2 font-bold text-red-500 hover:text-red-700">✕</button>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-1 text-xs text-gray-500">{selectedFiles.length} de 5 arquivo(s) selecionado(s)</p>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-4">
             <div className="md:col-span-2">
@@ -306,8 +447,7 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
             <div className="relative md:col-span-2">
               <Input label="Rua" register={register('responsavel.rua')} error={errors.responsavel?.rua?.message} />
               {!readOnly && (
-                <button
-                  type="button"
+                <button type="button"
                   onClick={() => {
                     setValue('responsavel.rua', watch('rua') || '');
                     setValue('responsavel.numero', watch('numero') || '');
@@ -335,8 +475,6 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
               <Input label="Nome da Corporação" register={register('corporacao.nome')} error={errors.corporacao?.nome?.message} />
             </div>
             <Input label="Telefone da Corporação" register={register('corporacao.telefone')} error={errors.corporacao?.telefone?.message} />
-            <Input label="Série/Ano" register={register('corporacao.serie')} error={errors.corporacao?.serie?.message} />
-            <Input label="Turma" register={register('turma')} error={errors.turma?.message} />
             <Input label="Número da Matrícula" register={register('matriculaNumero')} error={errors.matriculaNumero?.message} />
           </div>
         </section>
@@ -428,16 +566,14 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
       <div className="flex justify-end gap-4 pt-6 print:hidden">
         {id && (
           <>
-            <button
-              type="button"
+            <button type="button"
               onClick={handlePrint}
               className="flex items-center gap-2 px-6 py-2 text-gray-700 transition-colors border border-gray-300 rounded-lg hover:bg-gray-100"
             >
               <Printer size={18} /> Imprimir
             </button>
             {!readOnly && (
-              <button
-                type="button"
+              <button type="button"
                 onClick={handleDelete}
                 className="flex items-center gap-2 px-6 py-2 text-red-600 transition-colors border border-red-300 rounded-lg hover:bg-red-50"
               >
@@ -450,11 +586,15 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
           {readOnly ? 'Voltar' : 'Cancelar'}
         </button>
         {!readOnly && (
-          <button type="submit" className="px-10 py-2 font-bold text-white transition-all transform bg-blue-600 rounded-lg shadow-md hover:bg-blue-700 hover:scale-105">
-            {id ? 'Salvar Alterações' : 'Finalizar Cadastro'}
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className={`px-10 py-2 font-bold text-white transition-all transform rounded-lg shadow-md hover:scale-105 ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+          >
+            {isSubmitting ? 'Salvando...' : (id ? 'Salvar Alterações' : 'Finalizar Cadastro')}
           </button>
         )}
       </div>
-    </form>
+    </form >
   );
 };

@@ -5,7 +5,14 @@ describe('Gestão de Integrantes - Fluxo Completo (Cypress Clean Code)', () => {
   const editado = { ...integrante, nome: integrante.nome + ' (EDITADO)' };
 
   beforeEach(() => {
-    cy.login();
+    // Login via UI para que o usuário possa acompanhar
+    cy.visit('/login');
+    cy.waitForHydration();
+    cy.get('input[name="email"]').type('admin@corporacao.com');
+    cy.get('input[name="password"]').type('admin123');
+    cy.get('button[type="submit"]').click();
+
+    cy.url().should('include', '/dashboard');
     cy.visit('/dashboard/integrantes');
     cy.waitForHydration();
   });
@@ -23,13 +30,12 @@ describe('Gestão de Integrantes - Fluxo Completo (Cypress Clean Code)', () => {
     // Responsável
     cy.get('input[name="responsavel.nome"]').type('Pai do Integrante');
     cy.get('input[name="responsavel.cpf"]').type('11122233344');
-    cy.get('input[name="responsavel.parentesco"]').type('Pai');
+    // parentesco deixado em branco para testar se é opcional
     cy.get('input[name="responsavel.telefone"]').type('11977776666');
 
     // Corporação
     cy.get('input[name="corporacao.nome"]').type('Corporação Cypress');
     cy.get('input[name="corporacao.telefone"]').type('1144443333');
-    cy.get('input[name="turma"]').type('Turma Cypress');
     cy.get('input[name="dataMatricula"]').type('2024-01-01');
 
     // Atuação
@@ -52,14 +58,10 @@ describe('Gestão de Integrantes - Fluxo Completo (Cypress Clean Code)', () => {
   });
 
   it('2. Deve pesquisar o integrante cadastrado (Busca sob demanda)', () => {
-    // Inicialmente deve mostrar estado de espera
-    cy.contains('Pronto para buscar').should('be.visible');
-
     // Pesquisar
     cy.get('input[placeholder="Filtrar por nome..."]').type(integrante.nome);
-    cy.contains('button', 'Filtrar').click();
 
-    // Validar resultado na tabela
+    // Validar resultado na tabela (o fetch é automático via debounce no componente)
     cy.get('table').contains(integrante.nome).should('be.visible');
     cy.get('table').contains(integrante.patrimonio).should('be.visible');
   });

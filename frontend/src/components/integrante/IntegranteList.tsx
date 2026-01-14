@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import api from '@/lib/api';
+import api, { getApiUrl } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
-import { Search, Edit, Trash2, Eye, Printer, FileDown } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Printer, FileDown, Camera } from 'lucide-react';
 import Link from 'next/link';
 
 export function IntegranteList() {
@@ -15,7 +15,6 @@ export function IntegranteList() {
   const [filters, setFilters] = useState({
     nome: '',
     cpf: '',
-    turma: '',
     tipoIntegrante: '',
     subtipoIntegrante: '',
     corporacao: '',
@@ -33,7 +32,6 @@ export function IntegranteList() {
       const params = new URLSearchParams();
       if (filters.nome) params.append('nome', filters.nome);
       if (filters.cpf) params.append('cpf', filters.cpf);
-      if (filters.turma) params.append('turma', filters.turma);
       if (filters.tipoIntegrante) params.append('tipoIntegrante', filters.tipoIntegrante);
       if (filters.subtipoIntegrante) params.append('subtipoIntegrante', filters.subtipoIntegrante);
       if (filters.corporacao) params.append('corporacao', filters.corporacao);
@@ -79,7 +77,10 @@ export function IntegranteList() {
   };
 
   const handlePrint = () => {
+    const originalTitle = document.title;
+    document.title = 'Lista de Integrantes';
     window.print();
+    document.title = originalTitle;
   };
 
   const getColCount = () => {
@@ -141,6 +142,15 @@ export function IntegranteList() {
 
   return (
     <div className="space-y-6 print:p-0">
+      {/* Título visível apenas na impressão */}
+      <div className="hidden print:block mb-4 border-b border-gray-800 pb-2">
+        <h1 className="text-3xl font-bold text-center text-gray-900">Lista de Integrantes</h1>
+        <div className="flex justify-between items-center mt-2 text-sm text-gray-700">
+          <p>Corporação AReis</p>
+          <p>Data: {new Date().toLocaleDateString('pt-BR')}</p>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between print:hidden">
         <h1 className="text-2xl font-bold text-gray-800">Gestão de Integrantes</h1>
         <div className="flex gap-2">
@@ -179,16 +189,6 @@ export function IntegranteList() {
             onChange={(e) => setFilters({ ...filters, cpf: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
             placeholder="Filtrar por CPF..."
-          />
-        </div>
-        <div>
-          <label className="block mb-1 text-sm font-medium text-gray-700">Turma</label>
-          <input
-            type="text"
-            value={filters.turma}
-            onChange={(e) => setFilters({ ...filters, turma: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
-            placeholder="Filtrar por turma..."
           />
         </div>
         <div>
@@ -303,7 +303,6 @@ export function IntegranteList() {
               setFilters({
                 nome: '',
                 cpf: '',
-                turma: '',
                 tipoIntegrante: '',
                 subtipoIntegrante: '',
                 corporacao: '',
@@ -330,13 +329,14 @@ export function IntegranteList() {
 
       {/* Tabela */}
       <div className="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-xl print:shadow-none print:border-none">
-        <table className="w-full text-left border-collapse print:text-sm">
+        <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-gray-100 bg-gray-50 print:bg-white print:border-b-2 print:border-gray-800">
-              <th className="p-4 font-semibold text-gray-700">Nome do Integrante</th>
-              <th className="p-4 font-semibold text-gray-700 hidden print:table-cell">CPF</th>
-              <th className="p-4 font-semibold text-gray-700 hidden print:table-cell">Telefone</th>
-              <th className="p-4 font-semibold text-gray-700 hidden print:table-cell">Check</th>
+            <tr className="border-b border-gray-100 bg-gray-50 print:bg-white print:border-b print:border-gray-800">
+              <th className="p-4 font-semibold text-gray-700 w-16 print:hidden">Foto</th>
+              <th className="p-4 print:py-2 font-semibold text-gray-700 print:text-[14px] print:font-normal">Nome do Integrante</th>
+              <th className="p-4 print:py-2 font-semibold text-gray-700 hidden print:table-cell print:text-[14px] print:font-normal">CPF</th>
+              <th className="p-4 print:py-2 font-semibold text-gray-700 hidden print:table-cell print:text-[14px] print:font-normal">Telefone</th>
+              <th className="p-4 print:py-2 font-semibold text-gray-700 hidden print:table-cell print:text-[14px] print:font-normal text-center">Check</th>
               {filters.statusDevolucao === 'NAO_DEVOLVIDO' ? (
                 <>
                   <th className="p-4 font-semibold text-gray-700 print:hidden">Patrimônio</th>
@@ -352,7 +352,6 @@ export function IntegranteList() {
               ) : (
                 <>
                   <th className="p-4 font-semibold text-gray-700 print:hidden">Corporação</th>
-                  <th className="p-4 font-semibold text-gray-700 print:hidden">Turma</th>
                   <th className="p-4 font-semibold text-gray-700 print:hidden">Tipo</th>
                   <th className="p-4 font-semibold text-gray-700 print:hidden">Patrimônio</th>
                 </>
@@ -377,9 +376,20 @@ export function IntegranteList() {
             ) : (
               integrantes.map((integrante: any) => (
                 <tr key={integrante.id} className="transition-colors border-b border-gray-50 hover:bg-gray-50 print:hover:bg-white">
-                  <td className="p-4 font-medium text-gray-800">{integrante.nome}</td>
-                  <td className="p-4 text-gray-600 hidden print:table-cell text-xs">{integrante.cpf}</td>
-                  <td className="p-4 text-gray-600 hidden print:table-cell text-xs">{integrante.telefone}</td>
+                  <td className="p-4 print:hidden">
+                    <div className="w-12 h-12 overflow-hidden bg-gray-100 rounded-full border border-gray-200 shadow-sm">
+                      {integrante.fotoPerfil ? (
+                        <img src={`${getApiUrl()}${integrante.fotoPerfil}`} alt="" className="object-cover w-full h-full" />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-300">
+                          <Camera size={20} />
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="p-4 font-medium text-gray-800 print:text-[14px] print:font-normal">{integrante.nome}</td>
+                  <td className="p-4 text-gray-600 hidden print:table-cell print:text-[14px]">{integrante.cpf}</td>
+                  <td className="p-4 text-gray-600 hidden print:table-cell print:text-[14px]">{integrante.telefone}</td>
                   <td className="p-4 text-gray-600 hidden print:table-cell">
                     <div className="w-4 h-4 border border-black mx-auto"></div>
                   </td>
@@ -403,7 +413,6 @@ export function IntegranteList() {
                   ) : (
                     <>
                       <td className="p-4 text-gray-600 print:hidden">{integrante.corporacao?.nome}</td>
-                      <td className="p-4 text-gray-600 print:hidden">{integrante.turma}</td>
                       <td className="p-4 text-sm text-gray-600 print:hidden">
                         <span className={`px-2 py-1 rounded-full text-xs ${integrante.tipoIntegrante === 'CORPO_MUSICAL' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'} print:p-0 print:text-black`}>
                           {integrante.tipoIntegrante.replace('_', ' ')}

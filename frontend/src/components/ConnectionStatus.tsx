@@ -10,7 +10,7 @@ export function ConnectionStatus() {
     const checkConnection = async () => {
       try {
         // Verifica se o backend está respondendo
-        await api.get('/health');
+        await api.get('/api/health');
         setStatus('online');
       } catch (error) {
         setStatus('offline');
