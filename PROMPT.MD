@@ -9,39 +9,43 @@ Este documento é a especificação técnica definitiva para o projeto **ReisCad
 O sistema deve gerenciar o ciclo de vida completo de integrantes de uma organização.
 
 ### Pilares Fundamentais:
+
 1.  **Autenticação**: Acesso restrito via JWT.
-2.  **Ficha Cadastral Robusta**: Dados do integrante, fotos múltiplas, vinculação automática de Responsável (via CPF) e Corporação (via Nome).
-3.  **Captura de Imagem**: Suporte a upload de arquivos e captura em tempo real via webcam/câmera integrada diretamente no formulário de cadastro.
+2.  **Ficha Cadastral Robusta**: Dados do integrante, foto de perfil (quadro destaque no topo esquerdo), múltiplas fotos de documentos (até 5 anexos), vinculação automática de Responsável (via CPF) e Corporação (via Nome).
+3.  **Captura de Imagem**: Suporte a upload de arquivos e captura em tempo real via câmera integrada. A foto de perfil é tratada como campo prioritário e exibida em listagens e buscas.
 4.  **Gestão de Recursos**: Controle de patrimônio, instrumentos e uniformes (tamanhos de bota e roupa).
 5.  **Relatórios Otimizados para Impressão**:
-    *   **Versão Checklist**: Listagem simplificada (Nome, Telefone, CPF e campo de Check) para conferência física.
-    *   **Versão Agrupada**: Relatórios separados por categoria (ex: Corporação) com quebras de página automáticas (`break-before-page`).
-5.  **Branding**: Toda a interface deve refletir a identidade da **Corporação AReis**.
+    - **Versão Checklist**: Listagem simplificada (Nome, Telefone, CPF e campo de Check) para conferência física.
+    - **Versão Agrupada**: Relatórios separados por categoria (ex: Corporação) com quebras de página automáticas (`break-before-page`).
+6.  **Branding**: Toda a interface deve refletir a identidade da **Corporação AReis**.
 
 ---
 
 ## 🛠️ Stack Tecnológica e Padrões
 
 ### 🟢 Backend (Node.js 22 LTS + Express + Prisma)
-*   **Arquitetura**: Controller-Service-Lib. Os controllers lidam com HTTP, Services com a lógica de negócio, e Lib com instâncias de ferramentas (Prisma).
-*   **Banco de Dados**: PostgreSQL rodando em Docker (Porta padrão interna 5432, mapeada para **5434** no host).
-*   **Upload de Fotos**: Uso de `multer` com salvamento em disco. **Requisito Crítico**: Na atualização, fotos removidas do JSON devem ser deletadas fisicamente (`fs.unlinkSync`).
-*   **Sanitização**: Converter `null` para `""` (string vazia) no retorno da API para evitar erros de renderização no React.
+
+- **Arquitetura**: Controller-Service-Lib. Os controllers lidam com HTTP, Services com a lógica de negócio, e Lib com instâncias de ferramentas (Prisma).
+- **Banco de Dados**: PostgreSQL rodando em Docker (Porta padrão interna 5432, mapeada para **5434** no host).
+- **Upload de Fotos**: Uso de `multer` com salvamento em disco. **Requisito Crítico**: Na atualização, fotos removidas do JSON devem ser deletadas fisicamente (`fs.unlinkSync`).
+- **Sanitização**: Converter `null` para `""` (string vazia) no retorno da API para evitar erros de renderização no React.
 
 ### 🔵 Frontend (Next.js 14 App Router + Tailwind + Lucide)
-*   **Layout**: Sidebar/Dashboard responsivo com abas (Cadastro, Consulta, Relatório, Resumo).
-*   **Componentização**: 
-    *   `IntegranteForm`: Formulário dinâmico que lida com Create e Update.
-    *   `IntegranteList`: Tabela com filtros avançados e suporte a impressão via CSS `@media print`.
-*   **CSS de Impressão (Crítico)**:
-    *   Ocultar elementos de UI (`nav`, `buttons`) usando classes `print:hidden`.
-    *   Ajustar fontes e bordas para economia de tinta e legibilidade.
-    *   Adicionar rodapé fixo na impressão: `© [Ano] - Corporação AReis`.
+
+- **Layout**: Sidebar/Dashboard responsivo com abas (Cadastro, Consulta, Relatório, Resumo).
+- **Componentização**:
+  - `IntegranteForm`: Formulário dinâmico que lida com Create e Update.
+  - `IntegranteList`: Tabela com filtros avançados e suporte a impressão via CSS `@media print`.
+- **CSS de Impressão (Crítico)**:
+  - Ocultar elementos de UI (`nav`, `buttons`) usando classes `print:hidden`.
+  - Ajustar fontes e bordas para economia de tinta e legibilidade.
+  - Adicionar rodapé fixo na impressão: `© [Ano] - Corporação AReis`.
 
 ### 🐳 Infraestrutura (Docker First)
-*   **Orquestração**: `docker-compose.yml` unificando DB, Backend e Frontend.
-*   **Volumes**: Persistência de dados do Postgres e da pasta de uploads de fotos.
-*   **Setup Automatizado**: Script `setup.sh` que instala dependências, sobe containers, roda migrations e faz o seed inicial.
+
+- **Orquestração**: `docker-compose.yml` unificando DB, Backend e Frontend.
+- **Volumes**: Persistência de dados do Postgres e da pasta de uploads de fotos.
+- **Setup Automatizado**: Script `setup.sh` que instala dependências, sobe containers, roda migrations e faz o seed inicial.
 
 ---
 
@@ -52,7 +56,8 @@ model Integrante {
   id              String         @id @default(uuid())
   nome            String
   cpf             String         @index
-  fotos           String[]       // Array de caminhos das imagens
+  fotoPerfil      String?        // Caminho da foto principal de perfil
+  fotos           String[]       // Array de caminhos de documentos/fotos extras
   tipoIntegrante  TipoIntegrante // Enum (CORPO_MUSICAL, LINHA_FRENTE)
   tamanhoUniforme String?
   tamanhoBota     String?
@@ -75,22 +80,25 @@ model Integrante {
 ## 📂 Diretrizes para Expansão
 
 Para replicar este projeto para "Cadastro de Alunos de Escola":
+
 1.  Trocar "Corporação" por "Turma" ou "Série".
 2.  Adaptar o `GroupedIntegranteList` para agrupar por "Série".
 3.  Manter a lógica de "Responsável" vinculado por CPF para evitar duplicidade de pais no banco.
 
 ---
-*Este documento é a alma do projeto ReisCadastro. Use-o com sabedoria.*
+
+_Este documento é a alma do projeto ReisCadastro. Use-o com sabedoria._
 DATABASE_URL="postgresql://user:password@localhost:5434/corporacao_db?schema=public"
 JWT_SECRET="sua_chave_secreta_aqui"
 PORT=3001
-```
+
+````
 
 **Frontend (`frontend/.env.local`):**
 
 ```env
 NEXT_PUBLIC_API_URL="http://localhost:3001"
-```
+````
 
 ### 2. Comandos de Inicialização (Docker - Recomendado)
 

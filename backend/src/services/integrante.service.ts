@@ -7,10 +7,11 @@ import path from 'path';
 interface CreateIntegranteDTO {
   data: any;
   fotos: string[];
+  fotoPerfil?: string;
 }
 
 export class IntegranteService {
-  async create({ data, fotos }: CreateIntegranteDTO) {
+  async create({ data, fotos, fotoPerfil }: CreateIntegranteDTO) {
     const { responsavel, corporacao, ...integranteData } = data;
 
     const resolvedResponsavel = await resolveResponsavel(responsavel);
@@ -42,6 +43,7 @@ export class IntegranteService {
       data: {
         ...integranteData,
         fotos,
+        fotoPerfil,
         responsavelId: resolvedResponsavel.id,
         corporacaoId: resolvedCorporacao.id,
       },
@@ -60,7 +62,6 @@ export class IntegranteService {
 
     if (filters.nome) where.nome = { contains: String(filters.nome), mode: 'insensitive' };
     if (filters.cpf) where.cpf = { contains: String(filters.cpf) };
-    if (filters.turma) where.turma = { contains: String(filters.turma), mode: 'insensitive' };
     if (filters.tipoIntegrante) where.tipoIntegrante = filters.tipoIntegrante;
     if (filters.subtipoIntegrante) where.subtipoIntegrante = filters.subtipoIntegrante;
 
@@ -119,9 +120,14 @@ export class IntegranteService {
     return integrante;
   }
 
-  async update(id: string, data: any, novasFotos: string[] = []) {
+  async update(id: string, data: any, novasFotos: string[] = [], novaFotoPerfil?: string) {
     const currentIntegrante = await this.findById(id);
     const { responsavel, corporacao, ...integranteData } = data;
+
+    console.log('--- Atualização de Integrante ---');
+    console.log('ID:', id);
+    console.log('Nova Foto Perfil (File):', novaFotoPerfil);
+    console.log('Foto Perfil nos Dados (JSON):', integranteData.fotoPerfil);
 
     let resolvedResponsavelId = currentIntegrante.responsavelId;
     if (responsavel) {
@@ -170,6 +176,19 @@ export class IntegranteService {
     }
     updateData.fotos = fotosFinal;
 
+    if (novaFotoPerfil) {
+      if (currentIntegrante.fotoPerfil) {
+        this.deleteFiles([currentIntegrante.fotoPerfil]);
+      }
+      updateData.fotoPerfil = novaFotoPerfil;
+    } else if (integranteData.fotoPerfil === "") {
+      // Se explicitamente enviado vazio no JSON, remove a foto atual
+      if (currentIntegrante.fotoPerfil) {
+        this.deleteFiles([currentIntegrante.fotoPerfil]);
+      }
+      updateData.fotoPerfil = null;
+    }
+
     return prisma.integrante.update({
       where: { id },
       data: updateData,
@@ -179,19 +198,29 @@ export class IntegranteService {
 
   async delete(id: string) {
     const integrante = await this.findById(id);
-    this.deleteFiles(integrante.fotos);
+    const allFiles = [...integrante.fotos];
+    if (integrante.fotoPerfil) allFiles.push(integrante.fotoPerfil);
+    this.deleteFiles(allFiles);
     return prisma.integrante.delete({ where: { id } });
   }
 
   private deleteFiles(filenames: string[]) {
     filenames.forEach(fotoPath => {
-      const fullPath = path.join(__dirname, '../../', fotoPath);
+      // Remover a barra inicial se existir para não quebrar o path.join
+      const normalizedPath = fotoPath.startsWith('/') ? fotoPath.substring(1) : fotoPath;
+      const fullPath = path.join(process.cwd(), normalizedPath);
+
+      console.log(`Tentando deletar arquivo: ${fullPath}`);
+
       if (fs.existsSync(fullPath)) {
         try {
           fs.unlinkSync(fullPath);
+          console.log(`Arquivo deletado com sucesso: ${fullPath}`);
         } catch (e) {
           console.error(`Erro ao deletar arquivo: ${fullPath}`, e);
         }
+      } else {
+        console.warn(`Arquivo não encontrado para deleção: ${fullPath}`);
       }
     });
   }

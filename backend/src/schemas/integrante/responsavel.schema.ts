@@ -9,5 +9,5 @@ export const responsavelSchema = z.object({
   numero: z.string().optional().nullable(),
   bairro: z.string().optional().nullable(),
   cep: z.string().optional().nullable(),
-  parentesco: z.string().min(1, 'Parentesco é obrigatório'),
+  parentesco: z.string().optional().nullable().or(z.literal('')),
 });

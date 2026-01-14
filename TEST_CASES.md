@@ -18,14 +18,14 @@ Este documento descreve os casos de teste necessários para garantir a qualidade
 
 ## 2. Gestão de Integrantes (CRUD)
 
-| ID      | Caso de Teste              | Descrição                                                                 | Resultado Esperado                                                                |
-| :------ | :------------------------- | :------------------------------------------------------------------------ | :-------------------------------------------------------------------------------- |
-| CRUD-01 | Cadastro Completo          | Preencher todos os campos (Integrante, Responsável, Corporação) e salvar. | Integrante criado no ba=nco, redirecionamento para listagem e mensagem de sucesso. |
+| ID      | Caso de Teste     | Descrição                                                                 | Resultado Esperado                                                                 |
+| :------ | :---------------- | :------------------------------------------------------------------------ | :--------------------------------------------------------------------------------- |
+| CRUD-01 | Cadastro Completo | Preencher todos os campos (Integrante, Responsável, Corporação) e salvar. | Integrante criado no ba=nco, redirecionamento para listagem e mensagem de sucesso. |
 
-| CRUD-02 | Não usado |Nesse caso o CPF podes ser duplicado porque se o inntegrante não tever o CPF usara do responsável Cadastro com CPF Duplicado | Tentar cadastrar um integrante com um CPF já existente.                   | Mensagem de erro "CPF já cadastrado" vinda do backend.                            |
-| CRUD-03 | Edição de Dados            | Alterar o nome ou telefone de um integrante existente.                    | Dados atualizados no banco e refletidos na interface.                             |
-| CRUD-04 | Exclusão com Confirmação   | Clicar em excluir e confirmar no modal/alert.                             | Registro removido da listagem e do banco de dados.                                |
-| CRUD-05 | Cancelamento de Exclusão   | Clicar em excluir e cancelar no modal/alert.                              | O registro deve permanecer intacto.                                               |
+| CRUD-02 | Não usado |Nesse caso o CPF podes ser duplicado porque se o inntegrante não tever o CPF usara do responsável Cadastro com CPF Duplicado | Tentar cadastrar um integrante com um CPF já existente. | Mensagem de erro "CPF já cadastrado" vinda do backend. |
+| CRUD-03 | Edição de Dados | Alterar o nome ou telefone de um integrante existente. | Dados atualizados no banco e refletidos na interface. |
+| CRUD-04 | Exclusão com Confirmação | Clicar em excluir e confirmar no modal/alert. | Registro removido da listagem e do banco de dados. |
+| CRUD-05 | Cancelamento de Exclusão | Clicar em excluir e cancelar no modal/alert. | O registro deve permanecer intacto. |
 
 ---
 

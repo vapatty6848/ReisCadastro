@@ -25,11 +25,17 @@ export const createIntegrante = async (req: Request, res: Response) => {
     throw new AppError('Dados inválidos: ' + JSON.stringify(result.error.format()), 400);
   }
 
-  const fotos = req.files && Array.isArray(req.files)
-    ? req.files.map((file: any) => `/uploads/${file.filename}`)
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+
+  const fotos = files?.fotos
+    ? files.fotos.map((file: any) => `/uploads/${file.filename}`)
     : [];
 
-  const integrante = await integranteService.create({ data: result.data, fotos });
+  const fotoPerfil = files?.fotoPerfil?.[0]
+    ? `/uploads/${files.fotoPerfil[0].filename}`
+    : undefined;
+
+  const integrante = await integranteService.create({ data: result.data, fotos, fotoPerfil });
   return res.status(201).json(integrante);
 };
 
@@ -68,11 +74,17 @@ export const updateIntegrante = async (req: Request, res: Response) => {
     throw new AppError('Dados inválidos: ' + JSON.stringify(result.error.format()), 400);
   }
 
-  const novasFotos = req.files && Array.isArray(req.files)
-    ? req.files.map((file: any) => `/uploads/${file.filename}`)
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+
+  const novasFotos = files?.fotos
+    ? files.fotos.map((file: any) => `/uploads/${file.filename}`)
     : [];
 
-  const integrante = await integranteService.update(id, result.data, novasFotos);
+  const novaFotoPerfil = files?.fotoPerfil?.[0]
+    ? `/uploads/${files.fotoPerfil[0].filename}`
+    : undefined;
+
+  const integrante = await integranteService.update(id, result.data, novasFotos, novaFotoPerfil);
   return res.json(integrante);
 };
 
