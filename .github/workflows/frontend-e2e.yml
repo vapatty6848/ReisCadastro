@@ -2,14 +2,16 @@ name: Frontend E2E Tests (Playwright)
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, CI/division-workflows]
     paths:
       - "frontend/**"
+      - "backend/**"
       - ".github/workflows/frontend-e2e.yml"
   pull_request:
-    branches: [main, master]
+    branches: [main, master, CI/division-workflows]
     paths:
       - "frontend/**"
+      - "backend/**"
       - ".github/workflows/frontend-e2e.yml"
 
 jobs:
@@ -20,7 +22,7 @@ jobs:
       DATABASE_URL: postgresql://user:password@localhost:5432/corporacao_db?schema=public
       JWT_SECRET: test_secret
       NEXT_PUBLIC_API_URL: http://localhost:3001
-    
+
     services:
       postgres:
         image: postgres:15-alpine
@@ -44,21 +46,33 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: "**/package-lock.json"
 
-      - name: Install Dependencies (Full Project)
+      - name: Install Dependencies
         run: |
           npm install
           cd backend && npm install
           cd ../frontend && npm install
 
-      - name: Setup Backend for E2E
+      - name: Setup Backend and Seed DB
         working-directory: ./backend
         run: |
           npx prisma generate
           npx prisma db push --accept-data-loss
+          npx prisma db seed
           npm run dev &
-          sleep 10 # Espera o backend subir
+          
+      - name: Wait for Backend
+        run: |
+          count=0
+          until $(curl --output /dev/null --silent --head --fail http://localhost:3001/api/auth/check-user); do
+            if [ $count -eq 30 ]; then
+              echo "Backend failed to start"
+              exit 1
+            fi
+            echo "Waiting for backend..."
+            sleep 2
+            count=$((count+1))
+          done
 
       - name: Install Playwright Browsers
         working-directory: ./frontend
@@ -67,6 +81,8 @@ jobs:
       - name: Run Playwright tests
         working-directory: ./frontend
         run: npm run test:e2e
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:3001
 
       - uses: actions/upload-artifact@v4
         if: always()
