@@ -17,7 +17,7 @@ on:
 jobs:
   backend-quality:
     name: Backend Lint and Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       DATABASE_URL: postgresql://user:password@localhost:5432/corporacao_db?schema=public
       JWT_SECRET: test_secret
