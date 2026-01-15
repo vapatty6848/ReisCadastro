@@ -20,6 +20,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ errors }) => {
       'numero': 'Número',
       'bairro': 'Bairro',
       'cep': 'CEP',
+      'dataMatricula': 'Data de Matrícula',
       'matriculaNumero': 'Número da Matrícula',
       'tipoIntegrante': 'Tipo de Integrante',
       'subtipoIntegrante': 'Subtipo',
@@ -42,13 +43,16 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ errors }) => {
     };
 
     const traverseErrors = (obj: any, prefix = '') => {
+      if (!obj || typeof obj !== 'object') return;
+
+      if (obj.message && typeof obj.message === 'string') {
+        messages.push(obj.message);
+        return;
+      }
+
       for (const key in obj) {
-        const fullKey = prefix ? `${prefix}.${key}` : key;
-        if (obj[key]?.message) {
-          const label = fieldLabels[fullKey] || fullKey;
-          messages.push(`${label}: ${obj[key].message}`);
-        } else if (typeof obj[key] === 'object' && obj[key] !== null) {
-          traverseErrors(obj[key], fullKey);
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+          traverseErrors(obj[key]);
         }
       }
     };
@@ -64,9 +68,9 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ errors }) => {
   return (
     <div className="p-4 mb-6 border-l-4 border-red-500 rounded-r-lg bg-red-50 print:hidden">
       <h4 className="mb-2 font-bold text-red-800">Por favor, corrija os seguintes erros:</h4>
-      <ul className="grid grid-cols-1 gap-1 md:grid-cols-2">
+      <ul className="space-y-1">
         {errorMessages.map((msg, idx) => (
-          <li key={idx} className="text-sm text-red-700 font-medium">• {msg}</li>
+          <li key={idx} className="text-sm text-red-700 font-medium whitespace-pre-wrap">• {msg}</li>
         ))}
       </ul>
     </div>

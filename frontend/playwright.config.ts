@@ -21,12 +21,12 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
-  /* webServer: {
+  webServer: {
     command: 'npm run dev',
     url: 'http://localhost:3000',
     reuseExistingServer: true,
     stdout: 'pipe',
     stderr: 'pipe',
     timeout: 600000, // 10 minutos
-  }, */
+  },
 });

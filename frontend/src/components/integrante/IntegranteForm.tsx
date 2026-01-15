@@ -40,6 +40,10 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
 
   return (
     <form onSubmit={handleSubmit} className="p-4 mx-auto max-w-7xl md:p-8">
+      <div className="flex flex-col gap-4 mb-8 md:flex-row md:items-center md:justify-between">
+        <h2 className="text-3xl font-bold text-gray-800">Ficha de Cadastro de Integrante</h2>
+      </div>
+
       <ErrorDisplay errors={errors} />
 
       <fieldset disabled={readOnly} className="space-y-8">
@@ -66,19 +70,19 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
           </div>
         </section>
 
-        <ResponsibleSection 
-          register={register} 
-          errors={errors} 
-          setValue={setValue} 
-          watch={watch} 
-          readOnly={readOnly} 
+        <ResponsibleSection
+          register={register}
+          errors={errors}
+          setValue={setValue}
+          watch={watch}
+          readOnly={readOnly}
         />
 
-        <CorporationSection 
-          register={register} 
-          errors={errors} 
-          watch={watch} 
-          setValue={setValue} 
+        <CorporationSection
+          register={register}
+          errors={errors}
+          watch={watch}
+          setValue={setValue}
           subtipoSelecionado={(subtipoSelecionado || '').toString()}
           showDevolucaoDate={showDevolucaoDate}
           setShowDevolucaoDate={setShowDevolucaoDate}
@@ -86,10 +90,10 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
         />
       </fieldset>
 
-      <FormActions 
-        id={id} 
-        readOnly={readOnly} 
-        isSubmitting={isSubmitting} 
+      <FormActions
+        id={id}
+        readOnly={readOnly}
+        isSubmitting={isSubmitting}
         onPrint={handlePrint}
         onDelete={handleDelete}
         onCancel={() => router.back()}
