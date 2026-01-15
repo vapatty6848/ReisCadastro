@@ -26,7 +26,7 @@ test.describe('Exemplos do Plano de Testes', () => {
     // Clica no botão para disparar a validação
     await page.click('button:has-text("Finalizar Cadastro")');
 
-    await expect(page.locator('text=CPF deve ter pelo menos 11')).toBeVisible();
+    await expect(page.locator('form p:text("CPF deve ter pelo menos 11")').first()).toBeVisible();
   });
 
   // ID: SRCH-03 - Filtro Vazio

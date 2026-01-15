@@ -46,15 +46,13 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ errors }) => {
       if (!obj || typeof obj !== 'object') return;
 
       if (obj.message && typeof obj.message === 'string') {
-        const label = fieldLabels[prefix] || prefix;
-        messages.push(label ? `${label}: ${obj.message}` : obj.message);
+        messages.push(obj.message);
         return;
       }
 
       for (const key in obj) {
         if (Object.prototype.hasOwnProperty.call(obj, key)) {
-          const newPrefix = prefix ? `${prefix}.${key}` : key;
-          traverseErrors(obj[key], newPrefix);
+          traverseErrors(obj[key]);
         }
       }
     };
@@ -69,7 +67,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ errors }) => {
 
   return (
     <div className="p-4 mb-6 border-l-4 border-red-500 rounded-r-lg bg-red-50 print:hidden">
-      <h4 className="mb-2 font-bold text-red-800">Não foi possível salvar. Verifique os campos:</h4>
+      <h4 className="mb-2 font-bold text-red-800">Por favor, corrija os seguintes erros:</h4>
       <ul className="space-y-1">
         {errorMessages.map((msg, idx) => (
           <li key={idx} className="text-sm text-red-700 font-medium whitespace-pre-wrap">• {msg}</li>
