@@ -1,39 +1,33 @@
 import { Request, Response } from 'express';
 import { integranteSchema, updateIntegranteSchema } from '../schemas/integrante.schema';
-import { AppError } from '../middlewares/error.middleware';
+import { ValidationError } from '../errors/app.errors';
 import { IntegranteService } from '../services/integrante.service';
+import { StorageService } from '../services/storage.service';
+import { sanitizeResponse } from '../utils/sanitize';
 
 const integranteService = new IntegranteService();
+const storageService = new StorageService();
 
-// Converte null para "" recursivamente para facilitar o uso no frontend
-const sanitize = (obj: any): any => {
-  if (obj === null) return "";
-  if (Array.isArray(obj)) return obj.map(sanitize);
-  if (typeof obj === 'object' && obj !== null && !(obj instanceof Date)) {
-    return Object.fromEntries(
-      Object.entries(obj).map(([k, v]) => [k, sanitize(v)])
-    );
-  }
-  return obj;
+// Auxiliar para extrair dados e arquivos da requisição multipart
+const getRequestMultipartData = (req: Request) => {
+  const data = typeof req.body.data === 'string' ? JSON.parse(req.body.data) : req.body;
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+
+  const fotos = storageService.formatMulterFiles(files?.fotos);
+  const fotoPerfil = files?.fotoPerfil?.[0]
+    ? storageService.getPublicUrl(files.fotoPerfil[0].filename)
+    : undefined;
+
+  return { data, fotos, fotoPerfil };
 };
 
 export const createIntegrante = async (req: Request, res: Response) => {
-  const data = typeof req.body.data === 'string' ? JSON.parse(req.body.data) : req.body;
+  const { data, fotos, fotoPerfil } = getRequestMultipartData(req);
 
   const result = integranteSchema.safeParse(data);
   if (!result.success) {
-    throw new AppError('Dados inválidos: ' + JSON.stringify(result.error.format()), 400);
+    throw new ValidationError('Dados inválidos: ' + JSON.stringify(result.error.format()));
   }
-
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-
-  const fotos = files?.fotos
-    ? files.fotos.map((file: any) => `/uploads/${file.filename}`)
-    : [];
-
-  const fotoPerfil = files?.fotoPerfil?.[0]
-    ? `/uploads/${files.fotoPerfil[0].filename}`
-    : undefined;
 
   const integrante = await integranteService.create({ data: result.data, fotos, fotoPerfil });
   return res.status(201).json(integrante);
@@ -62,29 +56,19 @@ export const listIntegrantes = async (req: Request, res: Response) => {
 export const getIntegrante = async (req: Request, res: Response) => {
   const { id } = req.params;
   const integrante = await integranteService.findById(id);
-  return res.json(sanitize(integrante));
+  return res.json(sanitizeResponse(integrante));
 };
 
 export const updateIntegrante = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const data = typeof req.body.data === 'string' ? JSON.parse(req.body.data) : req.body;
+  const { data, fotos, fotoPerfil } = getRequestMultipartData(req);
 
   const result = updateIntegranteSchema.safeParse(data);
   if (!result.success) {
-    throw new AppError('Dados inválidos: ' + JSON.stringify(result.error.format()), 400);
+    throw new ValidationError('Dados inválidos: ' + JSON.stringify(result.error.format()));
   }
 
-  const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
-
-  const novasFotos = files?.fotos
-    ? files.fotos.map((file: any) => `/uploads/${file.filename}`)
-    : [];
-
-  const novaFotoPerfil = files?.fotoPerfil?.[0]
-    ? `/uploads/${files.fotoPerfil[0].filename}`
-    : undefined;
-
-  const integrante = await integranteService.update(id, result.data, novasFotos, novaFotoPerfil);
+  const integrante = await integranteService.update(id, result.data, fotos, fotoPerfil);
   return res.json(integrante);
 };
 

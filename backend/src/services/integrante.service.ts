@@ -1,8 +1,9 @@
 import prisma from '../lib/prisma';
-import { AppError } from '../middlewares/error.middleware';
 import { resolveResponsavel, resolveCorporacao } from '../utils/resolvers';
-import fs from 'fs';
-import path from 'path';
+import { StorageService } from './storage.service';
+import { ConflictError, NotFoundError } from '../errors/app.errors';
+
+const storageService = new StorageService();
 
 interface CreateIntegranteDTO {
   data: any;
@@ -27,7 +28,7 @@ export class IntegranteService {
       });
 
       if (existingCpf) {
-        throw new AppError('Este CPF já está sendo utilizado por um integrante de outra família/responsável.', 400);
+        throw new ConflictError('Este CPF já está sendo utilizado por um integrante de outra família/responsável.');
       }
     }
 
@@ -35,7 +36,7 @@ export class IntegranteService {
     if (integranteData.matriculaNumero) {
       const existingMatricula = await prisma.integrante.findUnique({ where: { matriculaNumero: integranteData.matriculaNumero } });
       if (existingMatricula) {
-        throw new AppError('Já existe um integrante cadastrado com este número de matrícula.', 400);
+        throw new ConflictError('Já existe um integrante cadastrado com este número de matrícula.');
       }
     }
 
@@ -114,7 +115,7 @@ export class IntegranteService {
     });
 
     if (!integrante) {
-      throw new AppError('Integrante não encontrado', 404);
+      throw new NotFoundError('Integrante');
     }
 
     return integrante;
@@ -144,7 +145,7 @@ export class IntegranteService {
         }
       });
       if (existingCpf) {
-        throw new AppError('Este CPF já está sendo utilizado por outro integrante de outra família.', 400);
+        throw new ConflictError('Este CPF já está sendo utilizado por outro integrante de outra família.');
       }
     }
 
@@ -153,7 +154,7 @@ export class IntegranteService {
         where: { matriculaNumero: integranteData.matriculaNumero, NOT: { id } }
       });
       if (existingMatricula) {
-        throw new AppError('Já existe outro integrante cadastrado com este número de matrícula.', 400);
+        throw new ConflictError('Já existe outro integrante cadastrado com este número de matrícula.');
       }
     }
 
@@ -167,7 +168,7 @@ export class IntegranteService {
     let fotosFinal = currentIntegrante.fotos;
     if (integranteData.fotos !== undefined) {
       const removidas = currentIntegrante.fotos.filter(f => !integranteData.fotos!.includes(f));
-      this.deleteFiles(removidas);
+      storageService.deleteFiles(removidas);
       fotosFinal = integranteData.fotos;
     }
 
@@ -178,13 +179,13 @@ export class IntegranteService {
 
     if (novaFotoPerfil) {
       if (currentIntegrante.fotoPerfil) {
-        this.deleteFiles([currentIntegrante.fotoPerfil]);
+        storageService.deleteFiles([currentIntegrante.fotoPerfil]);
       }
       updateData.fotoPerfil = novaFotoPerfil;
     } else if (integranteData.fotoPerfil === "") {
       // Se explicitamente enviado vazio no JSON, remove a foto atual
       if (currentIntegrante.fotoPerfil) {
-        this.deleteFiles([currentIntegrante.fotoPerfil]);
+        storageService.deleteFiles([currentIntegrante.fotoPerfil]);
       }
       updateData.fotoPerfil = null;
     }
@@ -200,28 +201,7 @@ export class IntegranteService {
     const integrante = await this.findById(id);
     const allFiles = [...integrante.fotos];
     if (integrante.fotoPerfil) allFiles.push(integrante.fotoPerfil);
-    this.deleteFiles(allFiles);
+    storageService.deleteFiles(allFiles);
     return prisma.integrante.delete({ where: { id } });
-  }
-
-  private deleteFiles(filenames: string[]) {
-    filenames.forEach(fotoPath => {
-      // Remover a barra inicial se existir para não quebrar o path.join
-      const normalizedPath = fotoPath.startsWith('/') ? fotoPath.substring(1) : fotoPath;
-      const fullPath = path.join(process.cwd(), normalizedPath);
-
-      console.log(`Tentando deletar arquivo: ${fullPath}`);
-
-      if (fs.existsSync(fullPath)) {
-        try {
-          fs.unlinkSync(fullPath);
-          console.log(`Arquivo deletado com sucesso: ${fullPath}`);
-        } catch (e) {
-          console.error(`Erro ao deletar arquivo: ${fullPath}`, e);
-        }
-      } else {
-        console.warn(`Arquivo não encontrado para deleção: ${fullPath}`);
-      }
-    });
   }
 }
