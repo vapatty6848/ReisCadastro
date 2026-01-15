@@ -16,6 +16,26 @@ jobs:
   e2e-tests:
     name: Playwright E2E Tests
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://user:password@localhost:5432/corporacao_db?schema=public
+      JWT_SECRET: test_secret
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+    
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: corporacao_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,11 +44,21 @@ jobs:
         with:
           node-version: "22"
           cache: "npm"
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: "**/package-lock.json"
 
-      - name: Install dependencies
-        working-directory: ./frontend
-        run: npm install
+      - name: Install Dependencies (Full Project)
+        run: |
+          npm install
+          cd backend && npm install
+          cd ../frontend && npm install
+
+      - name: Setup Backend for E2E
+        working-directory: ./backend
+        run: |
+          npx prisma generate
+          npx prisma db push --accept-data-loss
+          npm run dev &
+          sleep 10 # Espera o backend subir
 
       - name: Install Playwright Browsers
         working-directory: ./frontend
