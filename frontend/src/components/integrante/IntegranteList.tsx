@@ -85,6 +85,7 @@ export function IntegranteList() {
 
   const getColCount = () => {
     if (filters.statusDevolucao === 'NAO_DEVOLVIDO') return 4;
+    if (filters.tamanhoBota || filters.tamanhoUniforme) return 7;
     if (filters.patrimonio || filters.instrumento || filters.statusDevolucao === 'DEVOLVIDO') return 6;
     return 6;
   };
@@ -342,6 +343,13 @@ export function IntegranteList() {
                   <th className="p-4 font-semibold text-gray-700 print:hidden">Patrimônio</th>
                   <th className="p-4 font-semibold text-gray-700 print:hidden">Data de Entrega</th>
                 </>
+              ) : (filters.tamanhoUniforme || filters.tamanhoBota) ? (
+                <>
+                  <th className="p-4 font-semibold text-gray-700 print:table-cell">Corporação</th>
+                  <th className="p-4 font-semibold text-gray-700 print:table-cell">Bota</th>
+                  <th className="p-4 font-semibold text-gray-700 print:table-cell">Uniforme</th>
+                  <th className="p-4 font-semibold text-gray-700 print:table-cell">Patrimônio</th>
+                </>
               ) : (filters.patrimonio || filters.instrumento || filters.statusDevolucao === 'DEVOLVIDO') ? (
                 <>
                   <th className="p-4 font-semibold text-gray-700 print:hidden">Instrumento</th>
@@ -398,6 +406,13 @@ export function IntegranteList() {
                     <>
                       <td className="p-4 text-gray-600 print:hidden">{integrante.patrimonio || '-'}</td>
                       <td className="p-4 text-gray-600 print:hidden">{formatDate(integrante.instrumentoRecebimento) || '-'}</td>
+                    </>
+                  ) : (filters.tamanhoUniforme || filters.tamanhoBota) ? (
+                    <>
+                      <td className="p-4 text-gray-600 print:table-cell">{integrante.corporacao?.nome}</td>
+                      <td className="p-4 text-gray-600 print:table-cell">{integrante.tamanhoBota || '-'}</td>
+                      <td className="p-4 text-gray-600 print:table-cell">{integrante.tamanhoUniforme || '-'}</td>
+                      <td className="p-4 text-gray-600 print:table-cell">{integrante.patrimonio || '-'}</td>
                     </>
                   ) : (filters.patrimonio || filters.instrumento || filters.statusDevolucao === 'DEVOLVIDO') ? (
                     <>
