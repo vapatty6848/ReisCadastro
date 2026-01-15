@@ -34,6 +34,7 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
             <Input label="Nome da Corporação" register={register('corporacao.nome')} error={errors.corporacao?.nome?.message} readOnly={readOnly} />
           </div>
           <Input label="Telefone da Corporação" register={register('corporacao.telefone')} error={errors.corporacao?.telefone?.message} readOnly={readOnly} />
+          <Input label="Data de Matrícula" type="date" register={register('dataMatricula')} error={errors.dataMatricula?.message} readOnly={readOnly} />
           <Input label="Número da Matrícula" register={register('matriculaNumero')} error={errors.matriculaNumero?.message} readOnly={readOnly} />
         </div>
       </section>

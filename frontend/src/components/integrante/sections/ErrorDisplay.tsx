@@ -45,8 +45,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ errors }) => {
       for (const key in obj) {
         const fullKey = prefix ? `${prefix}.${key}` : key;
         if (obj[key]?.message) {
-          const label = fieldLabels[fullKey] || fullKey;
-          messages.push(`${label}: ${obj[key].message}`);
+          messages.push(obj[key].message);
         } else if (typeof obj[key] === 'object' && obj[key] !== null) {
           traverseErrors(obj[key], fullKey);
         }

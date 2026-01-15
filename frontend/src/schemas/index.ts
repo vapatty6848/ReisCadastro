@@ -11,7 +11,7 @@ export const loginSchema = z.object({
 export const integranteSchema = z.object({
   nome: z.string().min(3, 'Nome deve ter pelo menos 3 caracteres'),
   dataNascimento: z.string().min(10, 'Data inválida'),
-  cpf: z.string().min(11, 'CPF deve ter pelo menos 11 caracteres').max(14, 'CPF muito longo').transform(v => v.replace(/\D/g, '')).refine(v => v.length === 11, 'CPF deve ter 11 dígitos'),
+  cpf: z.string().min(1, 'CPF deve ter 11 dígitos').refine(v => v.replace(/\D/g, '').length === 11, 'CPF deve ter 11 dígitos'),
   telefone: z.string().min(10, 'Telefone inválido'),
   email: z.string().email('Email inválido').nullish().or(z.literal('')),
   fotoPerfil: z.string().optional().nullable(),
