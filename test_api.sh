@@ -19,7 +19,7 @@ echo "✅ Token obtido com sucesso."
 echo -e "\n--- 1. Teste de Criação e Edição ---"
 NEW_ID=$(curl -s -X POST "$API_URL/integrantes" \
   -H "Authorization: Bearer $TOKEN" \
-  -F 'data={"nome":"Integrante Temporario","cpf":"99988877766","dataNascimento":"2010-01-01","telefone":"11999999999","turma":"A","tipoIntegrante":"CORPO_MUSICAL","dataMatricula":"2023-01-01","responsavel":{"nome":"Resp","cpf":"11122233344","telefone":"11000000000","parentesco":"Mãe"},"corporacao":{"nome":"Corporação","telefone":"11000000000"}}' | grep -oP '"id":"\K[^"]+')
+  -F 'data={"nome":"Integrante Temporario","cpf":"99988877766","dataNascimento":"2010-01-01","telefone":"11999999999","tipoIntegrante":"CORPO_MUSICAL","dataMatricula":"2023-01-01","responsavel":{"nome":"Resp","cpf":"11122233344","telefone":"11000000000","parentesco":"Mãe"},"corporacao":{"nome":"Corporação","telefone":"11000000000"}}' | grep -oP '"id":"\K[^"]+' | head -n 1)
 
 if [ -z "$NEW_ID" ]; then
   echo "❌ Erro ao criar integrante."
