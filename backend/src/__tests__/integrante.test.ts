@@ -66,7 +66,7 @@ describe('Integrante Endpoints (Mocked DB)', () => {
         .send({ nome: 'Incomplete' });
 
       expect(res.statusCode).toEqual(400);
-      expect(res.body.message).toContain('Dados inválidos');
+      expect(res.body.message).toContain('inválidos');
     });
   });
 

@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
 import { loginSchema } from '../schemas/auth.schema';
 import { AuthService } from '../services/auth.service';
+import { ValidationError } from '../errors/app.errors';
 
 const authService = new AuthService();
 
 export const login = async (req: Request, res: Response) => {
   const result = loginSchema.safeParse(req.body);
   if (!result.success) {
-    return res.status(400).json({ errors: result.error.format() });
+    throw new ValidationError('Dados de login inválidos', result.error.format());
   }
 
   const { email, password } = result.data;

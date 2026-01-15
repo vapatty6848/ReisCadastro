@@ -1,9 +1,12 @@
 import prisma from '../lib/prisma';
-import { resolveResponsavel, resolveCorporacao } from '../utils/resolvers';
 import { StorageService } from './storage.service';
+import { ResponsavelService } from './responsavel.service';
+import { CorporacaoService } from './corporacao.service';
 import { ConflictError, NotFoundError } from '../errors/app.errors';
 
 const storageService = new StorageService();
+const responsavelService = new ResponsavelService();
+const corporacaoService = new CorporacaoService();
 
 interface CreateIntegranteDTO {
   data: any;
@@ -18,8 +21,8 @@ export class IntegranteService {
   async criarIntegrante({ data, fotos, fotoPerfil }: CreateIntegranteDTO) {
     const { responsavel, corporacao, ...integranteData } = data;
 
-    const resolvedResponsavel = await resolveResponsavel(responsavel);
-    const resolvedCorporacao = await resolveCorporacao(corporacao);
+    const resolvedResponsavel = await responsavelService.resolverResponsavel(responsavel);
+    const resolvedCorporacao = await corporacaoService.resolverCorporacao(corporacao);
 
     await this.validarDadosUnicos(integranteData.cpf, integranteData.matriculaNumero, resolvedResponsavel.id);
 
@@ -86,7 +89,7 @@ export class IntegranteService {
 
     let resolvedResponsavelId = currentIntegrante.responsavelId;
     if (responsavel) {
-      const res = await resolveResponsavel(responsavel);
+      const res = await responsavelService.resolverResponsavel(responsavel);
       resolvedResponsavelId = res.id;
     }
 
@@ -95,7 +98,7 @@ export class IntegranteService {
     const updateData: any = { ...integranteData };
     if (responsavel) updateData.responsavelId = resolvedResponsavelId;
     if (corporacao) {
-      const res = await resolveCorporacao(corporacao);
+      const res = await corporacaoService.resolverCorporacao(corporacao);
       updateData.corporacaoId = res.id;
     }
 

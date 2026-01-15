@@ -26,7 +26,7 @@ export const createIntegrante = async (req: Request, res: Response) => {
 
   const result = integranteSchema.safeParse(data);
   if (!result.success) {
-    throw new ValidationError('Dados inválidos: ' + JSON.stringify(result.error.format()));
+    throw new ValidationError('Dados de integrante inválidos', result.error.format());
   }
 
   const integrante = await integranteService.criarIntegrante({ data: result.data, fotos, fotoPerfil });
@@ -65,7 +65,7 @@ export const updateIntegrante = async (req: Request, res: Response) => {
 
   const result = updateIntegranteSchema.safeParse(data);
   if (!result.success) {
-    throw new ValidationError('Dados inválidos: ' + JSON.stringify(result.error.format()));
+    throw new ValidationError('Dados de atualização inválidos', result.error.format());
   }
 
   const integrante = await integranteService.atualizarIntegrante(id, result.data, fotos, fotoPerfil);

@@ -1,17 +1,19 @@
 export class BaseError extends Error {
   public readonly statusCode: number;
+  public readonly details?: any;
 
-  constructor(message: string, statusCode: number) {
+  constructor(message: string, statusCode: number, details?: any) {
     super(message);
     this.statusCode = statusCode;
+    this.details = details;
     this.name = this.constructor.name;
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
 export class ValidationError extends BaseError {
-  constructor(message: string) {
-    super(message, 400);
+  constructor(message: string, details?: any) {
+    super(message, 400, details);
   }
 }
 

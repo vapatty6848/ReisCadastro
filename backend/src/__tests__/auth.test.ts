@@ -92,7 +92,7 @@ describe('Auth Endpoints (Mocked DB)', () => {
         });
 
       expect(res.statusCode).toEqual(400);
-      expect(res.body).toHaveProperty('errors');
+      expect(res.body).toHaveProperty('details');
     });
   });
 
