@@ -27,6 +27,7 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
     formState: { errors }
   } = useForm<IntegranteData>({
     resolver: zodResolver(integranteSchema),
+    mode: 'all',
   });
 
   const subtipoSelecionado = watch('subtipoIntegrante');
