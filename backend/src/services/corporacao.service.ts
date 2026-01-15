@@ -19,16 +19,11 @@ export class CorporacaoService {
    * Resolve uma corporação: se existir pelo nome, atualiza os dados; caso contrário, cria.
    */
   async resolverCorporacao(data: CorporacaoDTO) {
-    const existing = await prisma.corporacao.findUnique({ where: { nome: data.nome } });
-
-    if (existing) {
-      return await prisma.corporacao.update({
-        where: { nome: data.nome },
-        data
-      });
-    }
-
-    return await prisma.corporacao.create({ data });
+    return await prisma.corporacao.upsert({
+      where: { nome: data.nome },
+      update: data,
+      create: data,
+    });
   }
 
   async buscarPorNome(nome: string) {

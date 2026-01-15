@@ -50,6 +50,15 @@ Este documento registra os marcos, evoluções e decisões técnicas tomadas dur
 
 ---
 
+## 🏗️ Fase 7: Maturidade Arquitetural e Excelência em QA (Jan/2026)
+
+- **Service Layer Refactor**: Evolução radical do Backend para um modelo de serviços puramente lógicos. Criados `ResponsavelService` e `CorporacaoService` utilizando `upsert` do Prisma, garantindo operações atômicas e redução de dívida técnica.
+- **Padronização de Erros Semânticos**: Migração de tratamentos locais para um sistema de exceções global (`BaseError`). Agora a API responde com códigos HTTP precisos (`400`, `401`, `404`, `409`) e mensagens traduzidas, além de detalhes de validação Zod para o Frontend.
+- **Implementação de Page Object Model (POM)**: Refatoração integral das suítes de teste de **Playwright** e **Cypress**. Os seletores de interface foram isolados em classes de "Page", tornando os scripts de teste 100% focados no comportamento do usuário e fáceis de manter.
+- **Sincronização Swagger**: Documentação OpenAPI atualizada para incluir os novos modelos de erro e endpoints de auditoria (`/api/auth/me`).
+
+---
+
 ## ✅ Status Atual do Projeto
 
 - **Backend**: Estável, documentado via Swagger e com 100% de cobertura em validações.

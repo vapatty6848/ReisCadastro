@@ -25,17 +25,23 @@ O sistema deve gerenciar o ciclo de vida completo de integrantes de uma organiza
 
 ### 🟢 Backend (Node.js 22 LTS + Express + Prisma)
 
-- **Arquitetura**: Controller-Service-Lib. Os controllers lidam com HTTP, Services com a lógica de negócio, e Lib com instâncias de ferramentas (Prisma).
+- **Arquitetura**: Controller-Service-Lib. Os controllers lidam com HTTP e validação de schema (Zod), Services encapsulam a lógica de negócio e persistência segura (Prisma), e Lib com instâncias de ferramentas.
+- **Resolução de Entidades**: Uso de `upsert` para garantir idempotência ao resolver Responsáveis (via CPF) e Corporações (via Nome).
+- **Tratamento de Erros**: Sistema de erro semântico centralizado (`BaseError`). Suporte a `ValidationError` (400) com detalhes de campos, `UnauthorizedError` (401), `NotFoundError` (404) e `ConflictError` (409).
+- **Documentação**: OpenAPI/Swagger 3.0 auto-gerado via JSDoc em `src/docs/api-spec.ts`.
 - **Banco de Dados**: PostgreSQL rodando em Docker (Porta padrão interna 5432, mapeada para **5434** no host).
-- **Upload de Fotos**: Uso de `multer` com salvamento em disco. **Requisito Crítico**: Na atualização, fotos removidas do JSON devem ser deletadas fisicamente (`fs.unlinkSync`).
-- **Sanitização**: Converter `null` para `""` (string vazia) no retorno da API para evitar erros de renderização no React.
+- **Upload de Fotos**: Uso de `multer` com salvamento em disco. **Requisito Crítico**: Na atualização, fotos removidas do JSON devem ser deletadas fisicamente (`fs.unlinkSync`). Limpeza de arquivos órfãos garantida no service de exclusão.
+- **Sanitização**: Middleware de resposta (`sanitizeResponse`) que converte `null` para `""` (string vazia) no retorno da API para compatibilidade total com inputs controlados no React.
 
 ### 🔵 Frontend (Next.js 14 App Router + Tailwind + Lucide)
 
 - **Layout**: Sidebar/Dashboard responsivo com abas (Cadastro, Consulta, Relatório, Resumo).
 - **Componentização**:
-  - `IntegranteForm`: Formulário dinâmico que lida com Create e Update.
+  - `IntegranteForm`: Formulário dinâmico que lida com Create e Update usando `React Hook Form`.
   - `IntegranteList`: Tabela com filtros avançados e suporte a impressão via CSS `@media print`.
+- **Qualidade e QA**:
+  - **Page Object Model (POM)**: Testes E2E (Playwright e Cypress) desacoplados do DOM via classes de suporte em `support/pages`.
+  - **CI/CD**: Workflows de GitHub Actions para linting, unit tests e build de Docker images.
 - **CSS de Impressão (Crítico)**:
   - Ocultar elementos de UI (`nav`, `buttons`) usando classes `print:hidden`.
   - Ajustar fontes e bordas para economia de tinta e legibilidade.

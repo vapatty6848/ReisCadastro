@@ -7,21 +7,34 @@ Sistema full-stack para gestão de integrantes de corporação, incluindo dados 
 ### Backend
 
 - **Node.js 22** + **Express**
-- **PostgreSQL** + **Prisma ORM**
-- **JWT** para autenticação
-- **Zod** para validação de esquemas
-- **Jest** + **Supertest** para testes
-- **Swagger** para documentação da API
+- **PostgreSQL** + **Prisma ORM** (Adoção de `upsert` e `findUnique`)
+- **JWT** para autenticação segura
+- **Zod** para validação rigorosa de esquemas e contratos
+- **Arquitetura Service Layer**: Lógica desacoplada das rotas HTTP
+- **Jest** + **Supertest** para testes de integração
+- **Swagger** para documentação interativa em `/api-docs`
 
 ### Frontend
 
 - **Next.js 14** (App Router)
-- **TypeScript**
-- **Tailwind CSS**
+- **TypeScript** para segurança de tipos
+- **Tailwind CSS** + **Lucide Icons**
 - **React Hook Form** + **Zod**
-- **Axios**
-- **Jest** + **React Testing Library**
-- **Playwright** / **Cypress** para E2E
+- **Page Object Model (POM)**: Estrutura de testes sustentável
+- **Axios** com interceptores para auth
+- **Playwright** & **Cypress** para cobertura completa de E2E
+
+---
+
+## 🏗️ Infraestrutura e CI/CD
+
+O projeto conta com pipelines automatizados via **GitHub Actions** localizados em `.github/workflows/`:
+
+- **Quality**: Execução de linting e testes unitários a cada Push/PR.
+- **Docker**: Build automático e verificação de integridade das imagens de Backend e Frontend.
+- **E2E**: Execução de testes de fluxo completo (Cypress/Playwright).
+
+---
 
 ## ✨ Funcionalidades Avançadas
 

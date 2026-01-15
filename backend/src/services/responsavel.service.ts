@@ -17,16 +17,11 @@ export class ResponsavelService {
    * Resolve um responsável: se existir pelo CPF, atualiza os dados; caso contrário, cria.
    */
   async resolverResponsavel(data: ResponsavelDTO) {
-    const existing = await prisma.responsavel.findUnique({ where: { cpf: data.cpf } });
-
-    if (existing) {
-      return await prisma.responsavel.update({
-        where: { cpf: data.cpf },
-        data
-      });
-    }
-
-    return await prisma.responsavel.create({ data });
+    return await prisma.responsavel.upsert({
+      where: { cpf: data.cpf },
+      update: data,
+      create: data,
+    });
   }
 
   async buscarPorCpf(cpf: string) {
