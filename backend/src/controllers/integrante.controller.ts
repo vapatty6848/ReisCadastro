@@ -29,14 +29,14 @@ export const createIntegrante = async (req: Request, res: Response) => {
     throw new ValidationError('Dados inválidos: ' + JSON.stringify(result.error.format()));
   }
 
-  const integrante = await integranteService.create({ data: result.data, fotos, fotoPerfil });
+  const integrante = await integranteService.criarIntegrante({ data: result.data, fotos, fotoPerfil });
   return res.status(201).json(integrante);
 };
 
 export const listIntegrantes = async (req: Request, res: Response) => {
   const { page = 1, limit = 20, ...filters } = req.query;
 
-  const { data, total } = await integranteService.list(
+  const { data, total } = await integranteService.listarIntegrantes(
     filters,
     Math.max(1, Number(page)),
     Math.max(1, Number(limit))
@@ -55,7 +55,7 @@ export const listIntegrantes = async (req: Request, res: Response) => {
 
 export const getIntegrante = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const integrante = await integranteService.findById(id);
+  const integrante = await integranteService.buscarPorId(id);
   return res.json(sanitizeResponse(integrante));
 };
 
@@ -68,12 +68,12 @@ export const updateIntegrante = async (req: Request, res: Response) => {
     throw new ValidationError('Dados inválidos: ' + JSON.stringify(result.error.format()));
   }
 
-  const integrante = await integranteService.update(id, result.data, fotos, fotoPerfil);
+  const integrante = await integranteService.atualizarIntegrante(id, result.data, fotos, fotoPerfil);
   return res.json(integrante);
 };
 
 export const deleteIntegrante = async (req: Request, res: Response) => {
   const { id } = req.params;
-  await integranteService.delete(id);
+  await integranteService.excluirIntegrante(id);
   return res.status(204).send();
 };
