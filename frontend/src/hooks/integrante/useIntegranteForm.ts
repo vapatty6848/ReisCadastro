@@ -34,7 +34,7 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
 
   useEffect(() => {
     if (id) {
-      api.get(`/integrantes/${id}`).then((response) => {
+      api.get(`/api/integrantes/${id}`).then((response) => {
         const data = response.data;
         if (data.instrumentoDevolucao) {
           setShowDevolucaoDate(true);
@@ -56,8 +56,8 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
     if (!id) return;
     if (confirm('Tem certeza que deseja excluir este integrante?')) {
       try {
-        await api.delete(`/integrantes/${id}`);
-        router.push('/integrantes');
+        await api.delete(`/api/integrantes/${id}`);
+        router.push('/dashboard/integrantes');
       } catch (error) {
         console.error('Erro ao excluir:', error);
         alert('Erro ao excluir integrante.');
@@ -72,7 +72,7 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
       formData.append('data', JSON.stringify(data));
 
       if (profilePhoto) {
-        formData.append('foto_perfil', profilePhoto);
+        formData.append('fotoPerfil', profilePhoto);
       }
 
       selectedFiles.forEach((file) => {
@@ -80,17 +80,17 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
       });
 
       if (id) {
-        await api.put(`/integrantes/${id}`, formData, {
+        await api.patch(`/api/integrantes/${id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         alert('Integrante atualizado com sucesso!');
       } else {
-        await api.post('/integrantes', formData, {
+        await api.post('/api/integrantes', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         alert('Integrante cadastrado com sucesso!');
       }
-      router.push('/integrantes');
+      router.push('/dashboard/integrantes');
     } catch (error: any) {
       console.error('Erro ao salvar:', error);
       const errorMessage = error.response?.data?.message || 'Erro ao salvar integrante.';

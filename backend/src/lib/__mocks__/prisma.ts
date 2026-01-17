@@ -4,6 +4,7 @@ const createMockModel = () => ({
   findMany: jest.fn(),
   create: jest.fn(),
   update: jest.fn(),
+  upsert: jest.fn(),
   delete: jest.fn(),
   deleteMany: jest.fn(),
   count: jest.fn().mockResolvedValue(0),

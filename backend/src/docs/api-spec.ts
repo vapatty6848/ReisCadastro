@@ -1,5 +1,26 @@
 /**
  * @swagger
+ * components:
+ *   schemas:
+ *     Error:
+ *       type: object
+ *       properties:
+ *         status:
+ *           type: string
+ *           example: error
+ *         message:
+ *           type: string
+ *         details:
+ *           type: object
+ *     ValidationError:
+ *       allOf:
+ *         - $ref: '#/components/schemas/Error'
+ *         - type: object
+ *           properties:
+ *             details:
+ *               type: object
+ *               description: Detalhes específicos dos campos invalidados pelo Zod
+ *
  * tags:
  *   - name: Auth
  *     description: Endpoints de autenticação
@@ -31,6 +52,10 @@
  *         description: Login realizado com sucesso
  *       401:
  *         description: Credenciais inválidas
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *
  * /api/auth/me:
  *   get:
@@ -73,9 +98,23 @@
  *       201:
  *         description: Integrante criado com sucesso.
  *       400:
- *         description: Erro de validação (CPF duplicado, campos obrigatórios ausentes, formato inválido).
+ *         description: Erro de validação.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
  *       401:
  *         description: Não autorizado (Token ausente ou inválido).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       409:
+ *         description: Conflito (CPF ou Matrícula já existentes).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Erro interno do servidor.
  *   get:
@@ -145,6 +184,10 @@
  *         description: Dados do integrante.
  *       404:
  *         description: Integrante não encontrado.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *   patch:
  *     summary: Atualiza um integrante existente
  *     description: Permite atualização parcial dos dados. Se novas fotos forem enviadas, elas serão adicionadas à lista existente.
@@ -168,7 +211,17 @@
  *       200:
  *         description: Atualizado com sucesso.
  *       400:
- *         description: Erro de validação ou CPF/Matrícula já em uso por outro integrante.
+ *         description: Erro de validação.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ValidationError'
+ *       409:
+ *         description: Conflito (CPF de outra família ou Matrícula já em uso).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *   delete:
  *     summary: Remove um integrante
  *     tags: [Integrantes]

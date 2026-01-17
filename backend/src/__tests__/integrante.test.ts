@@ -35,11 +35,9 @@ describe('Integrante Endpoints (Mocked DB)', () => {
         subtipoIntegrante: 'INSTRUMENTOS'
       });
 
-      // Mocks para as dependências (Resolvers)
-      prismaMock.responsavel.findUnique.mockResolvedValue(null);
-      prismaMock.responsavel.create.mockResolvedValue({ id: 'resp-id', ...data.responsavel });
-      prismaMock.corporacao.findUnique.mockResolvedValue(null);
-      prismaMock.corporacao.create.mockResolvedValue({ id: 'corp-id', ...data.corporacao });
+      // Mocks para as dependências (Services via Upsert)
+      prismaMock.responsavel.upsert.mockResolvedValue({ id: 'resp-id', ...data.responsavel });
+      prismaMock.corporacao.upsert.mockResolvedValue({ id: 'corp-id', ...data.corporacao });
 
       prismaMock.integrante.findFirst.mockResolvedValue(null);
       prismaMock.integrante.create.mockResolvedValue({
@@ -66,7 +64,7 @@ describe('Integrante Endpoints (Mocked DB)', () => {
         .send({ nome: 'Incomplete' });
 
       expect(res.statusCode).toEqual(400);
-      expect(res.body.message).toContain('Dados inválidos');
+      expect(res.body.message).toContain('inválidos');
     });
   });
 

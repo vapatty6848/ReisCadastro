@@ -1,13 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-
-export class AppError extends Error {
-  public readonly statusCode: number;
-
-  constructor(message: string, statusCode = 400) {
-    super(message);
-    this.statusCode = statusCode;
-  }
-}
+import { BaseError } from '../errors/app.errors';
 
 export const errorMiddleware = (
   err: Error,
@@ -15,8 +7,18 @@ export const errorMiddleware = (
   res: Response,
   next: NextFunction
 ) => {
-  if (err instanceof AppError) {
+  if (err instanceof BaseError) {
     return res.status(err.statusCode).json({
+      status: 'error',
+      message: err.message,
+      ...(err.details && { details: err.details })
+    });
+  }
+
+  // Erros do Multer ou outros erros comuns que não são BaseError mas tem status
+  if ('statusCode' in err || 'status' in err) {
+    const statusCode = (err as any).statusCode || (err as any).status || 400;
+    return res.status(statusCode).json({
       status: 'error',
       message: err.message,
     });
