@@ -26,7 +26,17 @@ Sistema full-stack para gestão de integrantes de corporação, incluindo dados 
 
 ---
 
-## 🏗️ Infraestrutura e CI/CD
+## 🏗️ Infraestrutura e Deploy
+
+O projeto está configurado para ambientes de desenvolvimento e produção:
+
+### Produção (Arquitetura Atual)
+
+- **Frontend**: [Vercel](https://vercel.com) (Deploy automático via GitHub).
+- **Backend**: VPS [Hostinger](https://hostinger.com) rodando **Node.js 22** e gerenciado pelo **PM2**.
+- **Banco de Dados**: [Neon.tech](https://neon.tech) (PostgreSQL Serverless).
+
+### CI/CD e Qualidade
 
 O projeto conta com pipelines automatizados via **GitHub Actions** localizados em `.github/workflows/`:
 
@@ -98,6 +108,20 @@ npm run db:seed
 ```
 
 O sistema estará disponível em:
+
+- **Local**: `http://localhost:3000`
+- **Produção**: `https://reis-cadastro.vercel.app` (Ou seu domínio Vercel)
+
+---
+
+## 📚 Documentação Interna
+
+Para detalhes específicos de processos, consulte:
+
+- [Roteiro de Deploy](ROTEIRO_DEPLOY_AMANHA.md): Checklist e status da infraestrutura.
+- [Histórico de Projeto](Rascunhos/HISTORY.md): Evolução das fases de desenvolvimento.
+- [Guia de Replicação](Rascunhos/PROMPT.MD): Blueprint técnico para clonar o sistema.
+- [Diagnóstico de Erros](Rascunhos/acodespace/RELATORIO_FINAL.md): Relatório de correções críticas.
 
 - Frontend: `http://localhost:3000`
 - Backend API: `http://localhost:3001`
@@ -215,6 +239,15 @@ O projeto possui um workflow de Integração Contínua (`.github/workflows/ci.ym
 └── infra/               # Docker Compose e DB
 ```
 
-## 📝 Licença
+## �️ Troubleshooting de Build e Deploy
+
+### 🛑 Erro de Build Docker (Next.js Standalone)
+**Problema:** Erro `failed to solve: /app/.next/standalone: not found` durante o build da imagem Docker.
+**Causa:** O arquivo `next.config.js` estava sem a configuração `output: 'standalone'`.
+**Solução:** Sempre garantir que `output: 'standalone'` esteja presente no `next.config.js` do frontend, pois o Dockerfile depende dessa estrutura para imagens otimizadas de produção.
+
+---
+
+## �📝 Licença
 
 Este projeto está sob a licença MIT.
