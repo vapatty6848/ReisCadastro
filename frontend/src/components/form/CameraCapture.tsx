@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import React, { useRef, useState, useCallback } from 'react';
-import { Camera, X, Check, RefreshCw } from 'lucide-react';
+import React, { useRef, useState, useCallback } from "react";
+import { Camera, X, Check, RefreshCw } from "lucide-react";
+import Image from "next/image";
 
 interface CameraCaptureProps {
   onCapture: (file: File) => void;
@@ -18,7 +19,11 @@ export const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
   const startCamera = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } }
+        video: {
+          facingMode: "user",
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
@@ -34,7 +39,7 @@ export const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
   const stopCamera = useCallback(() => {
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
       videoRef.current.srcObject = null;
       setIsStreamActive(false);
     }
@@ -44,14 +49,14 @@ export const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
     if (videoRef.current && canvasRef.current) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
-      const context = canvas.getContext('2d');
+      const context = canvas.getContext("2d");
 
       if (context) {
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        const imageData = canvas.toDataURL('image/jpeg');
+        const imageData = canvas.toDataURL("image/jpeg");
         setCapturedImage(imageData);
         stopCamera();
       }
@@ -62,9 +67,11 @@ export const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
     if (capturedImage) {
       // Converter base64 para File
       fetch(capturedImage)
-        .then(res => res.blob())
-        .then(blob => {
-          const file = new File([blob], `captura_${Date.now()}.jpg`, { type: 'image/jpeg' });
+        .then((res) => res.blob())
+        .then((blob) => {
+          const file = new File([blob], `captura_${Date.now()}.jpg`, {
+            type: "image/jpeg",
+          });
           onCapture(file);
           onClose();
         });
@@ -119,10 +126,12 @@ export const CameraCapture = ({ onCapture, onClose }: CameraCaptureProps) => {
                   className="object-cover w-full h-full"
                 />
               ) : (
-                <img
+                <Image
                   src={capturedImage}
                   alt="Capturado"
-                  className="object-cover w-full h-full"
+                  fill
+                  className="object-cover"
+                  unoptimized
                 />
               )}
             </>

@@ -1,7 +1,8 @@
-import React from 'react';
-import { Camera } from 'lucide-react';
-import { CameraCapture } from '../../form/CameraCapture';
-import { getApiUrl } from '@/lib/api';
+import React from "react";
+import { Camera } from "lucide-react";
+import { CameraCapture } from "../../form/CameraCapture";
+import { getApiUrl } from "@/lib/api";
+import Image from "next/image";
 
 interface PhotoUploadSectionProps {
   register: any;
@@ -28,12 +29,14 @@ export const PhotoUploadSection: React.FC<PhotoUploadSectionProps> = ({
   removeFile,
   isCameraOpen,
   setIsCameraOpen,
-  readOnly
+  readOnly,
 }) => {
   return (
     <div className="md:col-span-1">
       <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
-        <label className="block mb-2 text-sm font-semibold text-gray-700">Foto e Documentos</label>
+        <label className="block mb-2 text-sm font-semibold text-gray-700">
+          Foto e Documentos
+        </label>
 
         {!readOnly && (
           <div className="space-y-4">
@@ -53,7 +56,9 @@ export const PhotoUploadSection: React.FC<PhotoUploadSectionProps> = ({
                   onChange={(e) => {
                     if (e.target.files) {
                       const filesArray = Array.from(e.target.files);
-                      setSelectedFiles((prev) => [...prev, ...filesArray].slice(0, 5));
+                      setSelectedFiles((prev) =>
+                        [...prev, ...filesArray].slice(0, 5),
+                      );
                     }
                   }}
                   className="hidden"
@@ -71,12 +76,18 @@ export const PhotoUploadSection: React.FC<PhotoUploadSectionProps> = ({
 
             {profilePhoto && (
               <div className="relative p-2 bg-blue-50 rounded-lg border border-blue-100">
-                <p className="mb-1 text-[10px] font-bold text-blue-600 uppercase">Nova Foto Capturada:</p>
-                <img
-                  src={URL.createObjectURL(profilePhoto)}
-                  alt="Preview"
-                  className="object-cover w-full h-40 rounded-lg"
-                />
+                <p className="mb-1 text-[10px] font-bold text-blue-600 uppercase">
+                  Nova Foto Capturada:
+                </p>
+                <div className="relative w-full h-40">
+                  <Image
+                    src={URL.createObjectURL(profilePhoto)}
+                    alt="Preview"
+                    fill
+                    className="object-cover rounded-lg"
+                    unoptimized
+                  />
+                </div>
                 <button
                   type="button"
                   onClick={() => setProfilePhoto(null)}
@@ -98,37 +109,60 @@ export const PhotoUploadSection: React.FC<PhotoUploadSectionProps> = ({
 
             <div className="mt-2 space-y-1">
               {selectedFiles.map((file, index) => (
-                <div key={index} className="flex items-center justify-between p-2 text-sm bg-white border border-gray-100 rounded shadow-sm">
-                  <span className="truncate max-w-[150px] text-gray-600">{file.name}</span>
-                  <button type="button" onClick={() => removeFile(index)} className="px-2 font-bold text-red-500 hover:text-red-700 transition-colors">✕</button>
+                <div
+                  key={index}
+                  className="flex items-center justify-between p-2 text-sm bg-white border border-gray-100 rounded shadow-sm"
+                >
+                  <span className="truncate max-w-[150px] text-gray-600">
+                    {file.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(index)}
+                    className="px-2 font-bold text-red-500 hover:text-red-700 transition-colors"
+                  >
+                    ✕
+                  </button>
                 </div>
               ))}
               {selectedFiles.length > 0 && (
-                <p className="mt-1 text-[10px] text-right text-gray-500">{selectedFiles.length} de 5 arquivo(s) selecionado(s)</p>
+                <p className="mt-1 text-[10px] text-right text-gray-500">
+                  {selectedFiles.length} de 5 arquivo(s) selecionado(s)
+                </p>
               )}
             </div>
           </div>
         )}
 
-        {readOnly && watch('foto_perfil') && (
+        {readOnly && watch("foto_perfil") && (
           <div className="mt-2">
-            <p className="mb-2 text-sm font-medium text-gray-500">Foto do Integrante:</p>
-            <img
-              src={`${getApiUrl()}/uploads/${watch('foto_perfil')}`}
-              alt="Foto de Perfil"
-              className="object-cover w-full h-48 border-2 border-blue-100 rounded-lg shadow-md"
-            />
+            <p className="mb-2 text-sm font-medium text-gray-500">
+              Foto do Integrante:
+            </p>
+            <div className="relative w-full h-48 border-2 border-blue-100 rounded-lg shadow-md overflow-hidden">
+              <Image
+                src={`${getApiUrl()}/uploads/${watch("foto_perfil")}`}
+                alt="Foto de Perfil"
+                fill
+                className="object-cover"
+              />
+            </div>
           </div>
         )}
 
-        {!readOnly && watch('foto_perfil') && !profilePhoto && (
+        {!readOnly && watch("foto_perfil") && !profilePhoto && (
           <div className="mt-4 opacity-75">
-            <p className="mb-1 text-[10px] font-bold text-gray-500 uppercase">Foto Atual:</p>
-            <img
-              src={`${getApiUrl()}/uploads/${watch('foto_perfil')}`}
-              alt="Foto Atual"
-              className="object-cover w-24 h-24 border border-gray-200 rounded-lg shadow-sm"
-            />
+            <p className="mb-1 text-[10px] font-bold text-gray-500 uppercase">
+              Foto Atual:
+            </p>
+            <div className="relative w-24 h-24 border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+              <Image
+                src={`${getApiUrl()}/uploads/${watch("foto_perfil")}`}
+                alt="Foto Atual"
+                fill
+                className="object-cover"
+              />
+            </div>
           </div>
         )}
       </div>
