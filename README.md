@@ -239,6 +239,15 @@ O projeto possui um workflow de Integração Contínua (`.github/workflows/ci.ym
 └── infra/               # Docker Compose e DB
 ```
 
-## 📝 Licença
+## �️ Troubleshooting de Build e Deploy
+
+### 🛑 Erro de Build Docker (Next.js Standalone)
+**Problema:** Erro `failed to solve: /app/.next/standalone: not found` durante o build da imagem Docker.
+**Causa:** O arquivo `next.config.js` estava sem a configuração `output: 'standalone'`.
+**Solução:** Sempre garantir que `output: 'standalone'` esteja presente no `next.config.js` do frontend, pois o Dockerfile depende dessa estrutura para imagens otimizadas de produção.
+
+---
+
+## �📝 Licença
 
 Este projeto está sob a licença MIT.
