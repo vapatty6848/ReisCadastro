@@ -4,7 +4,7 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "http",
+        protocol: "https",
         hostname: "76.13.69.213",
         port: "3001",
         pathname: "/uploads/**",
@@ -12,6 +12,11 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "api.areis.com",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "https",
+        hostname: "*.areis.com",
         pathname: "/uploads/**",
       },
     ],
