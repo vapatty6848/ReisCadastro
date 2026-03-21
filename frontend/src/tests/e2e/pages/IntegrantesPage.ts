@@ -131,8 +131,16 @@ export class IntegrantesPage {
   }
 
   async preencherCorporacao(data: any) {
-    if (data.nome)
-      await this.corporacaoSelect.selectOption(new RegExp(data.nome, "i"));
+    if (data.nome) {
+      // Buscar a opção que contém o nome da corporação
+      const option = await this.corporacaoSelect
+        .locator(`option:has-text("${data.nome}")`)
+        .first();
+      const value = await option.getAttribute("value");
+      if (value) {
+        await this.corporacaoSelect.selectOption(value);
+      }
+    }
     if (data.dataMatricula)
       await this.dataMatriculaInput.fill(data.dataMatricula);
   }
