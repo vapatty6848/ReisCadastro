@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
-import { loginAndSetStorage, waitForHydration } from './utils/auth-helper';
-import { IntegrantesPage } from './pages/IntegrantesPage';
+import { test, expect } from "@playwright/test";
+import { loginAndSetStorage, waitForHydration } from "./utils/auth-helper";
+import { IntegrantesPage } from "./pages/IntegrantesPage";
 
 /**
  * Factory para gerar dados de integrante para testes E2E.
@@ -11,34 +11,33 @@ const createTestData = () => {
   return {
     nome: `INTEGRANTE E2E ${timestamp}`,
     cpf: Math.floor(Math.random() * 90000000000 + 10000000000).toString(),
-    dataNascimento: '2005-10-20',
-    telefone: '11999998888',
+    dataNascimento: "2005-10-20",
+    telefone: "11999998888",
     responsavel: {
-      nome: 'Responsavel E2E',
-      cpf: '12312312311',
-      parentesco: 'Pai',
-      telefone: '11977776666'
+      nome: "Responsavel E2E",
+      cpf: "12312312311",
+      parentesco: "Pai",
+      telefone: "11977776666",
     },
     corporacao: {
-      nome: 'Corporação E2E',
-      telefone: '1133332222',
-      dataMatricula: '2024-01-01'
+      nome: "EM Dr Getúlio Vargas", // Usar corporação predefinida do seed
+      dataMatricula: "2024-01-01",
     },
     atuacao: {
-      tipo: 'CORPO_MUSICAL',
-      subtipo: 'INSTRUMENTOS',
-      instrumento: 'Saxofone',
+      tipo: "CORPO_MUSICAL",
+      subtipo: "INSTRUMENTOS",
+      instrumento: "Saxofone",
       patrimonio: `E2E-PAT-${timestamp}`,
-      origem: 'PROJETO'
+      origem: "PROJETO",
     },
     tamanhos: {
-      uniforme: '42',
-      bota: '40'
-    }
+      uniforme: "42",
+      bota: "40",
+    },
   };
 };
 
-test.describe.serial('Gestão de Integrantes (E2E)', () => {
+test.describe.serial("Gestão de Integrantes (E2E)", () => {
   const data = createTestData();
   const nomeEditado = `${data.nome} (EDITADO)`;
 
@@ -46,10 +45,12 @@ test.describe.serial('Gestão de Integrantes (E2E)', () => {
     await loginAndSetStorage(page);
     const integrantesPage = new IntegrantesPage(page);
     await integrantesPage.navegarParaLista();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
   });
 
-  test('deve navegar corretamente entre abas e cadastrar novo integrante', async ({ page }) => {
+  test("deve navegar corretamente entre abas e cadastrar novo integrante", async ({
+    page,
+  }) => {
     const integrantesPage = new IntegrantesPage(page);
     await integrantesPage.navegarParaNovo();
     await waitForHydration(page);
@@ -58,19 +59,19 @@ test.describe.serial('Gestão de Integrantes (E2E)', () => {
       nome: data.nome,
       cpf: data.cpf,
       dataNascimento: data.dataNascimento,
-      telefone: data.telefone
+      telefone: data.telefone,
     });
 
     await integrantesPage.preencherResponsavel({
       nome: data.responsavel.nome,
       cpf: data.responsavel.cpf,
-      telefone: data.responsavel.telefone
+      telefone: data.responsavel.telefone,
     });
 
     await integrantesPage.preencherCorporacao({
       nome: data.corporacao.nome,
       telefone: data.corporacao.telefone,
-      dataMatricula: data.corporacao.dataMatricula
+      dataMatricula: data.corporacao.dataMatricula,
     });
 
     await integrantesPage.preencherAtuacao(data.atuacao);
@@ -81,17 +82,21 @@ test.describe.serial('Gestão de Integrantes (E2E)', () => {
     await expect(page).toHaveURL(/\/dashboard\/integrantes/);
   });
 
-  test('deve realizar busca sob demanda e validar visualização', async ({ page }) => {
+  test("deve realizar busca sob demanda e validar visualização", async ({
+    page,
+  }) => {
     const integrantesPage = new IntegrantesPage(page);
 
     await integrantesPage.buscarPorNome(data.nome);
     await integrantesPage.validarVisibilidade(data.nome);
 
     await integrantesPage.buscarPorPatrimonio(data.atuacao.patrimonio);
-    await expect(page.locator('table >> text=Não devolvido').first()).toBeVisible();
+    await expect(
+      page.locator("table >> text=Não devolvido").first(),
+    ).toBeVisible();
   });
 
-  test('deve permitir editar e salvar alterações', async ({ page }) => {
+  test("deve permitir editar e salvar alterações", async ({ page }) => {
     const integrantesPage = new IntegrantesPage(page);
 
     await integrantesPage.buscarPorNome(data.nome);
@@ -109,14 +114,14 @@ test.describe.serial('Gestão de Integrantes (E2E)', () => {
 
     // Validar atualização na lista
     await integrantesPage.buscarPorNome(nomeEditado);
-    await integrantesPage.selecionarStatusFiltro('DEVOLVIDO');
+    await integrantesPage.selecionarStatusFiltro("DEVOLVIDO");
     await integrantesPage.btnFiltrar.click();
 
     await integrantesPage.validarVisibilidade(nomeEditado);
-    await expect(page.locator('table >> text=Não devolvido')).not.toBeVisible();
+    await expect(page.locator("table >> text=Não devolvido")).not.toBeVisible();
   });
 
-  test('deve excluir o integrante e limpar a lista', async ({ page }) => {
+  test("deve excluir o integrante e limpar a lista", async ({ page }) => {
     const integrantesPage = new IntegrantesPage(page);
 
     await integrantesPage.buscarPorNome(nomeEditado);
@@ -124,6 +129,8 @@ test.describe.serial('Gestão de Integrantes (E2E)', () => {
 
     await integrantesPage.excluir();
 
-    await expect(page.locator('text=Nenhum integrante encontrado')).toBeVisible();
+    await expect(
+      page.locator("text=Nenhum integrante encontrado"),
+    ).toBeVisible();
   });
 });
