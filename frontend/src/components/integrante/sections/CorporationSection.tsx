@@ -1,6 +1,7 @@
 import React from 'react';
 import { Input } from '../../form/Input';
 import { Select } from '../../form/Select';
+import { CorporacaoSelector } from './CorporacaoSelector';
 
 interface CorporationSectionProps {
   register: any;
@@ -29,13 +30,18 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
         <h3 className="flex items-center gap-2 mb-4 text-xl font-semibold text-blue-700">
           <span className="p-1 bg-blue-100 rounded">03</span> Dados da Corporação
         </h3>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <div className="md:col-span-2">
-            <Input label="Nome da Corporação" register={register('corporacao.nome')} error={errors.corporacao?.nome?.message} readOnly={readOnly} />
-          </div>
-          <Input label="Telefone da Corporação" register={register('corporacao.telefone')} error={errors.corporacao?.telefone?.message} readOnly={readOnly} />
+
+        <CorporacaoSelector
+          register={register}
+          errors={errors}
+          watch={watch}
+          setValue={setValue}
+          readOnly={readOnly}
+        />
+
+        <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-3">
           <Input label="Data de Matrícula" type="date" register={register('dataMatricula')} error={errors.dataMatricula?.message} readOnly={readOnly} />
-          <Input label="Número da Matrícula" register={register('matriculaNumero')} error={errors.matriculaNumero?.message} readOnly={readOnly} />
+          <Input label="Número da Matrícula (Auto)" register={register('matriculaNumero')} error={errors.matriculaNumero?.message} readOnly={true} placeholder="Gerado automaticamente" />
         </div>
       </section>
 
@@ -51,22 +57,25 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
             disabled={readOnly}
             options={[
               { value: 'CORPO_MUSICAL', label: 'Corpo Musical' },
-              { value: 'LINHA_FRENTE', label: 'Linha de Frente' }
+              { value: 'LINHA_FRENTE', label: 'Linha de Frente' },
+              { value: 'APOIO', label: 'Apoio' }
             ]}
           />
-          <Select
-            label="Subtipo"
-            register={register('subtipoIntegrante')}
-            error={errors.subtipoIntegrante?.message}
-            disabled={readOnly}
-            options={[
-              { value: 'INSTRUMENTOS', label: 'Instrumentos' },
-              { value: 'COMANDANTE_MOR', label: 'Comandante Mor' },
-              { value: 'PAVILHAO_NACIONAL', label: 'Pavilhão Nacional' },
-              { value: 'CORPO_COREOGRAFICO', label: 'Corpo Coreográfico' },
-              { value: 'BALIZAS', label: 'Balizas' }
-            ]}
-          />
+          {watch('tipoIntegrante') !== 'APOIO' && (
+            <Select
+              label="Subtipo"
+              register={register('subtipoIntegrante')}
+              error={errors.subtipoIntegrante?.message}
+              disabled={readOnly}
+              options={[
+                { value: 'INSTRUMENTOS', label: 'Instrumentos' },
+                { value: 'COMANDANTE_MOR', label: 'Comandante Mor' },
+                { value: 'PAVILHAO_NACIONAL', label: 'Pavilhão Nacional' },
+                { value: 'CORPO_COREOGRAFICO', label: 'Corpo Coreográfico' },
+                { value: 'BALIZAS', label: 'Balizas' }
+              ]}
+            />
+          )}
 
           {subtipoSelecionado === 'INSTRUMENTOS' && (
             <>

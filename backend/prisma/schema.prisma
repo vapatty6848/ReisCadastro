@@ -51,6 +51,7 @@ model Corporacao {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   integrantes     Integrante[]
+  isPredefinida   Boolean      @default(false)
 }
 
 model Integrante {
@@ -93,6 +94,7 @@ model Integrante {
 enum TipoIntegrante {
   CORPO_MUSICAL
   LINHA_FRENTE
+  APOIO
 }
 
 enum SubtipoIntegrante {
