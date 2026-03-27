@@ -58,6 +58,7 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
               register={register}
               errors={errors}
               watch={watch}
+              setValue={setValue}
               profilePhoto={profilePhoto}
               setProfilePhoto={setProfilePhoto}
               selectedFiles={selectedFiles}
