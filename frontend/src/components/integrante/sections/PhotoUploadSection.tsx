@@ -8,6 +8,7 @@ interface PhotoUploadSectionProps {
   register: any;
   errors: any;
   watch: any;
+  setValue: any;
   profilePhoto: File | null;
   setProfilePhoto: (file: File | null) => void;
   selectedFiles: File[];
@@ -22,6 +23,7 @@ export const PhotoUploadSection: React.FC<PhotoUploadSectionProps> = ({
   register,
   errors,
   watch,
+  setValue,
   profilePhoto,
   setProfilePhoto,
   selectedFiles,
@@ -31,6 +33,14 @@ export const PhotoUploadSection: React.FC<PhotoUploadSectionProps> = ({
   setIsCameraOpen,
   readOnly,
 }) => {
+  const fotoPerfilValue = watch('fotoPerfil');
+  const existingPhotos: string[] = watch('fotos') || [];
+
+  const removeExistingPhoto = (index: number) => {
+    const updated = existingPhotos.filter((_, i) => i !== index);
+    setValue('fotos', updated);
+  };
+
   return (
     <div className="md:col-span-1">
       <div className="p-4 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
@@ -130,18 +140,50 @@ export const PhotoUploadSection: React.FC<PhotoUploadSectionProps> = ({
                   {selectedFiles.length} de 5 arquivo(s) selecionado(s)
                 </p>
               )}
+
+              {existingPhotos.length > 0 && (
+                <div className="mt-3 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                  <p className="mb-2 text-xs font-semibold text-gray-600 uppercase">
+                    Documentos Existentes
+                  </p>
+                  <ul className="space-y-2">
+                    {existingPhotos.map((fileName, index) => (
+                      <li
+                        key={fileName}
+                        className="flex items-center justify-between p-2 bg-white border border-gray-100 rounded-md"
+                      >
+                        <a
+                          href={`${getApiUrl()}/uploads/${fileName}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="truncate max-w-[160px] text-sm text-blue-600 hover:underline"
+                        >
+                          {fileName}
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => removeExistingPhoto(index)}
+                          className="px-2 py-1 text-xs font-bold text-red-500 rounded hover:bg-red-50"
+                        >
+                          Remover
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {readOnly && watch("foto_perfil") && (
+        {readOnly && fotoPerfilValue && (
           <div className="mt-2">
             <p className="mb-2 text-sm font-medium text-gray-500">
               Foto do Integrante:
             </p>
             <div className="relative w-full h-48 border-2 border-blue-100 rounded-lg shadow-md overflow-hidden">
               <Image
-                src={`${getApiUrl()}/uploads/${watch("foto_perfil")}`}
+                src={`${getApiUrl()}/uploads/${fotoPerfilValue}`}
                 alt="Foto de Perfil"
                 fill
                 className="object-cover"
@@ -150,7 +192,7 @@ export const PhotoUploadSection: React.FC<PhotoUploadSectionProps> = ({
           </div>
         )}
 
-        {!readOnly && watch("foto_perfil") && !profilePhoto && (
+        {!readOnly && fotoPerfilValue && !profilePhoto && (
           <div className="mt-4 opacity-75">
             <p className="mb-1 text-[10px] font-bold text-gray-500 uppercase">
               Foto Atual:

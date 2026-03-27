@@ -81,3 +81,6 @@ paraamanha.md
 Rascunhos/
 ROTEIRO_DEPLOY_AMANHA.md
 notas.json
+# Ignore sensitive docs
+docs/
+*.md
