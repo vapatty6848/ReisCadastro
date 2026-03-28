@@ -37,12 +37,6 @@
     "Swagger API Documentation",
     "Zod validation on both ends"
   ],
-  "credentials": {
-    "admin": {
-      "email": "admin@corporacao.com",
-      "password": "admin123"
-    }
-  },
   "environment": {
     "backend": [
       "DATABASE_URL",

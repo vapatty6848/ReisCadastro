@@ -43,10 +43,10 @@
  *             properties:
  *               email:
  *                 type: string
- *                 example: admin@corporacao.com
+ *                 example: admin@exemplo.com
  *               password:
  *                 type: string
- *                 example: admin123
+ *                 example: senha123
  *     responses:
  *       200:
  *         description: Login realizado com sucesso
@@ -68,6 +68,39 @@
  *         description: Dados do usuário retornados com sucesso
  *       401:
  *         description: Token ausente ou inválido
+ *       404:
+ *         description: Usuário não encontrado
+ *
+ * /api/auth/change-password:
+ *   post:
+ *     summary: Altera a senha do usuário autenticado
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 description: Senha atual do usuário
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 6
+ *                 description: Nova senha (mínimo 6 caracteres)
+ *     responses:
+ *       200:
+ *         description: Senha alterada com sucesso
+ *       400:
+ *         description: Dados inválidos
+ *       401:
+ *         description: Token ausente/inválido ou senha atual incorreta
  *       404:
  *         description: Usuário não encontrado
  *
