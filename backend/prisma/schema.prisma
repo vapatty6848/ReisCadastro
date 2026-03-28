@@ -13,8 +13,14 @@ model User {
   email     String   @unique
   password  String
   name      String?
+  role      UserRole @default(ADMIN)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
 }
 
 model Responsavel {

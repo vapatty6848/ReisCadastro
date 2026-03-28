@@ -84,6 +84,7 @@ paraamanha.md
 Rascunhos/
 ROTEIRO_DEPLOY_AMANHA.md
 notas.json
+deploy-producao-rbac.sh
 # Ignore sensitive docs
 docs/
 *.md

@@ -57,6 +57,55 @@
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *
+ * /api/auth/forgot-password:
+ *   post:
+ *     summary: Solicita recuperação de senha
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *     responses:
+ *       200:
+ *         description: Solicitação processada com sucesso
+ *       400:
+ *         description: Dados inválidos
+ *
+ * /api/auth/reset-password:
+ *   post:
+ *     summary: Redefine senha com token de recuperação
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - token
+ *               - newPassword
+ *             properties:
+ *               token:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 6
+ *     responses:
+ *       200:
+ *         description: Senha redefinida com sucesso
+ *       400:
+ *         description: Dados inválidos
+ *       401:
+ *         description: Token inválido ou expirado
+ *
  * /api/auth/me:
  *   get:
  *     summary: Obtém os dados do usuário autenticado
@@ -103,6 +152,41 @@
  *         description: Token ausente/inválido ou senha atual incorreta
  *       404:
  *         description: Usuário não encontrado
+ *
+ * /api/auth/admins:
+ *   post:
+ *     summary: Cria novo usuário administrador (somente SUPER_ADMIN)
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               name:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *                 minLength: 8
+ *               role:
+ *                 type: string
+ *                 enum: [ADMIN, SUPER_ADMIN]
+ *     responses:
+ *       201:
+ *         description: Administrador criado com sucesso
+ *       401:
+ *         description: Sem permissão para a ação
+ *       409:
+ *         description: E-mail já existente
  *
  * /api/integrantes:
  *   post:

@@ -1,5 +1,11 @@
 import { Request, Response } from "express";
-import { loginSchema, changePasswordSchema } from "../schemas/auth.schema";
+import {
+  loginSchema,
+  changePasswordSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
+  createAdminSchema,
+} from "../schemas/auth.schema";
 import { AuthService } from "../services/auth.service";
 import { ValidationError } from "../errors/app.errors";
 
@@ -44,4 +50,47 @@ export const changePassword = async (req: Request, res: Response) => {
     newPassword,
   );
   return res.json(resultChange);
+};
+
+export const forgotPassword = async (req: Request, res: Response) => {
+  const result = forgotPasswordSchema.safeParse(req.body);
+  if (!result.success) {
+    throw new ValidationError(
+      "Dados de recuperação inválidos",
+      result.error.format(),
+    );
+  }
+
+  const data = await authService.forgotPassword(result.data.email);
+  return res.json(data);
+};
+
+export const resetPassword = async (req: Request, res: Response) => {
+  const result = resetPasswordSchema.safeParse(req.body);
+  if (!result.success) {
+    throw new ValidationError(
+      "Dados de redefinição inválidos",
+      result.error.format(),
+    );
+  }
+
+  const data = await authService.resetPassword(
+    result.data.token,
+    result.data.newPassword,
+  );
+  return res.json(data);
+};
+
+export const createAdmin = async (req: Request, res: Response) => {
+  const result = createAdminSchema.safeParse(req.body);
+  if (!result.success) {
+    throw new ValidationError(
+      "Dados para criação de administrador inválidos",
+      result.error.format(),
+    );
+  }
+
+  const requesterId = (req as any).userId;
+  const data = await authService.createAdmin(requesterId, result.data);
+  return res.status(201).json(data);
 };
