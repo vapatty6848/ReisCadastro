@@ -1,11 +1,13 @@
 #!/bin/bash
 
 API_URL="http://localhost:3001/api"
+ADMIN_EMAIL="${ADMIN_EMAIL:-admin@corporacao.com}"
+ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin123}"
 
 echo "--- 0. Autenticação ---"
 LOGIN_RESPONSE=$(curl -s -X POST "$API_URL/auth/login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@corporacao.com", "password":"admin123"}')
+  -d "{\"email\":\"$ADMIN_EMAIL\", \"password\":\"$ADMIN_PASSWORD\"}")
 
 TOKEN=$(echo $LOGIN_RESPONSE | grep -oP '"token":"\K[^"]+')
 
@@ -44,4 +46,21 @@ curl -s -X GET "$API_URL/integrantes" \
 echo -e "\n\n--- 4. Teste de Exclusão ---"
 curl -s -o /dev/null -w "%{http_code}" -X DELETE "$API_URL/integrantes/$NEW_ID" \
   -H "Authorization: Bearer $TOKEN"
+
+echo -e "\n\n--- 5. Teste de Mudança de Senha ---"
+curl -s -X POST "$API_URL/auth/change-password" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"currentPassword":"admin123","newPassword":"novaSenha123"}'
+
+echo -e "\n\n--- 6. Teste de Login com Nova Senha ---"
+NEW_TOKEN=$(curl -s -X POST "$API_URL/auth/login" \
+  -H "Content-Type: application/json" \
+  -d "{\"email\":\"$ADMIN_EMAIL\", \"password\":\"novaSenha123\"}" | grep -oP '"token":"\K[^"]+')
+
+if [ -n "$NEW_TOKEN" ]; then
+  echo "✅ Login com nova senha funcionou!"
+else
+  echo "❌ Falha no login com nova senha"
+fi
 echo -e " (Status Code)"

@@ -4,15 +4,16 @@ import { IntegranteForm } from '@/components/integrante/IntegranteForm';
 import { IntegranteList } from '@/components/integrante/IntegranteList';
 import { GroupedIntegranteList } from '@/components/integrante/GroupedIntegranteList';
 import { DashboardStats } from '@/components/dashboard/DashboardStats';
+import { AccountSecurityPanel } from '@/components/dashboard/AccountSecurityPanel';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { UserPlus, Users, LogOut, LayoutDashboard, FileText } from 'lucide-react';
+import { UserPlus, Users, LogOut, LayoutDashboard, FileText, ShieldCheck } from 'lucide-react';
 
 export default function DashboardPage() {
   const { isAuthenticated, logout, user } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<'lista' | 'cadastro' | 'resumo' | 'relatorio'>('cadastro');
+  const [activeTab, setActiveTab] = useState<'lista' | 'cadastro' | 'resumo' | 'relatorio' | 'conta'>('cadastro');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -96,6 +97,16 @@ export default function DashboardPage() {
               <LayoutDashboard size={18} />
               Visão Geral
             </button>
+            <button
+              onClick={() => setActiveTab('conta')}
+              className={`flex items-center gap-2 py-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'conta'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+            >
+              <ShieldCheck size={18} />
+              Conta e Segurança
+            </button>
           </nav>
         </div>
       </div>
@@ -108,6 +119,8 @@ export default function DashboardPage() {
           {activeTab === 'lista' && <IntegranteList />}
 
           {activeTab === 'relatorio' && <GroupedIntegranteList />}
+
+          {activeTab === 'conta' && <AccountSecurityPanel />}
 
           {activeTab === 'cadastro' && (
             <div className="print:hidden">
