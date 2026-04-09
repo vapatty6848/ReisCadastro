@@ -68,7 +68,6 @@ export const generateIntegranteData = (overrides = {}) => {
     },
     corporacao: {
       nome: "TEST_CORPORACAO",
-      telefone: "11777777777",
     },
     ...overrides,
   };

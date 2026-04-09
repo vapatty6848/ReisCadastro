@@ -16,7 +16,6 @@ export class IntegrantesPage {
 
   // Locators - Corporação
   readonly corporacaoSelect: Locator;
-  readonly corpTelefoneInput: Locator;
   readonly dataMatriculaInput: Locator;
 
   // Locators - Atuação
@@ -51,8 +50,7 @@ export class IntegrantesPage {
     this.respTelefoneInput = page.locator('input[name="responsavel.telefone"]');
 
     // Corporação
-    this.corporacaoSelect = page.locator('select[name="corporacao.id"]');
-    this.corpTelefoneInput = page.locator('input[name="corporacao.telefone"]');
+    this.corporacaoSelect = page.locator('select[name="corporacao.nome"]');
     this.dataMatriculaInput = page.locator('input[name="dataMatricula"]');
 
     // Atuação
@@ -132,14 +130,7 @@ export class IntegrantesPage {
 
   async preencherCorporacao(data: any) {
     if (data.nome) {
-      // Buscar a opção que contém o nome da corporação
-      const option = await this.corporacaoSelect
-        .locator(`option:has-text("${data.nome}")`)
-        .first();
-      const value = await option.getAttribute("value");
-      if (value) {
-        await this.corporacaoSelect.selectOption(value);
-      }
+      await this.corporacaoSelect.selectOption({ label: data.nome });
     }
     if (data.dataMatricula)
       await this.dataMatriculaInput.fill(data.dataMatricula);

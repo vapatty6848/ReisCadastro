@@ -48,7 +48,7 @@ model Corporacao {
   numero          String?
   bairro          String?
   cep             String?
-  telefone        String
+  telefone        String?
   email           String?
   cidade          String?
   estado          String?
