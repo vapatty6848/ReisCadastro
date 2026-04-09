@@ -53,7 +53,7 @@ async function main() {
           estado: "SP",
         },
         {
-          nome: "Banda Marcial de Tapirai",
+          nome: "Banda Marcial de Tapiraí",
           telefone: "(11) 3456-7891",
           isPredefinida: true,
           rua: "Avenida Principal",
@@ -64,7 +64,7 @@ async function main() {
           estado: "SP",
         },
         {
-          nome: "Fanfarra de Tapirai",
+          nome: "Fanfarra de Tapiraí",
           telefone: "(11) 3456-7892",
           isPredefinida: true,
           rua: "Rua da Música",
