@@ -53,7 +53,7 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
             <span className="p-1 bg-blue-100 rounded">01</span> Dados do Integrante
           </h3>
           <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-            <PersonalDataSection register={register} errors={errors} readOnly={readOnly} />
+            <PersonalDataSection register={register} errors={errors} watch={watch} readOnly={readOnly} />
             <PhotoUploadSection
               register={register}
               errors={errors}

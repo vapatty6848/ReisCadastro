@@ -32,7 +32,7 @@ export class IntegranteService {
       (await this.gerarMatriculaAutomatica(resolvedCorporacao.id));
 
     await this.validarDadosUnicos(
-      integranteData.cpf,
+      integranteData.documento,
       matriculaNumero,
       resolvedResponsavel.id,
     );
@@ -111,7 +111,7 @@ export class IntegranteService {
     }
 
     await this.validarDadosUnicos(
-      integranteData.cpf,
+      integranteData.documento,
       integranteData.matriculaNumero,
       resolvedResponsavelId,
       id,
@@ -192,22 +192,22 @@ export class IntegranteService {
   }
 
   private async validarDadosUnicos(
-    cpf?: string,
+    documento?: string,
     matricula?: string,
     responsavelId?: string,
     ignoreId?: string,
   ) {
-    if (cpf) {
-      const existingCpf = await prisma.integrante.findFirst({
+    if (documento) {
+      const existingDocumento = await prisma.integrante.findFirst({
         where: {
-          cpf,
+          documento,
           responsavelId: { not: responsavelId },
           ...(ignoreId && { NOT: { id: ignoreId } }),
         },
       });
-      if (existingCpf) {
+      if (existingDocumento) {
         throw new ConflictError(
-          "Este CPF já está sendo utilizado por outro integrante de outra família.",
+          "Este documento já está sendo utilizado por outro integrante de outra família.",
         );
       }
     }

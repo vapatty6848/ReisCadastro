@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import api from '@/lib/api';
-import { integranteSchema, IntegranteData } from '@/schemas';
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import api from "@/lib/api";
+import { integranteSchema, IntegranteData } from "@/schemas";
 
 interface UseIntegranteFormProps {
   id?: string;
@@ -24,13 +24,16 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
     setValue,
     watch,
     reset,
-    formState: { errors }
+    formState: { errors },
   } = useForm<IntegranteData>({
     resolver: zodResolver(integranteSchema),
-    mode: 'all',
+    mode: "all",
+    defaultValues: {
+      documentoTipo: "CPF",
+    },
   });
 
-  const subtipoSelecionado = watch('subtipoIntegrante');
+  const subtipoSelecionado = watch("subtipoIntegrante");
 
   useEffect(() => {
     if (id) {
@@ -54,13 +57,13 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
 
   const handleDelete = async () => {
     if (!id) return;
-    if (confirm('Tem certeza que deseja excluir este integrante?')) {
+    if (confirm("Tem certeza que deseja excluir este integrante?")) {
       try {
         await api.delete(`/api/integrantes/${id}`);
-        router.push('/dashboard/integrantes');
+        router.push("/dashboard/integrantes");
       } catch (error) {
-        console.error('Erro ao excluir:', error);
-        alert('Erro ao excluir integrante.');
+        console.error("Erro ao excluir:", error);
+        alert("Erro ao excluir integrante.");
       }
     }
   };
@@ -69,31 +72,32 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
     setIsSubmitting(true);
     try {
       const formData = new FormData();
-      formData.append('data', JSON.stringify(data));
+      formData.append("data", JSON.stringify(data));
 
       if (profilePhoto) {
-        formData.append('fotoPerfil', profilePhoto);
+        formData.append("fotoPerfil", profilePhoto);
       }
 
       selectedFiles.forEach((file) => {
-        formData.append('fotos', file);
+        formData.append("fotos", file);
       });
 
       if (id) {
         await api.patch(`/api/integrantes/${id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        alert('Integrante atualizado com sucesso!');
+        alert("Integrante atualizado com sucesso!");
       } else {
-        await api.post('/api/integrantes', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+        await api.post("/api/integrantes", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        alert('Integrante cadastrado com sucesso!');
+        alert("Integrante cadastrado com sucesso!");
       }
-      router.push('/dashboard/integrantes');
+      router.push("/dashboard/integrantes");
     } catch (error: any) {
-      console.error('Erro ao salvar:', error);
-      const errorMessage = error.response?.data?.message || 'Erro ao salvar integrante.';
+      console.error("Erro ao salvar:", error);
+      const errorMessage =
+        error.response?.data?.message || "Erro ao salvar integrante.";
       alert(errorMessage);
     } finally {
       setIsSubmitting(false);

@@ -17,22 +17,22 @@ test.describe("Exemplos do Plano de Testes", () => {
     await expect(page).toHaveURL("/login");
   });
 
-  // ID: VAL-01 - Formato de CPF (Validação Frontend)
-  test("VAL-01: deve validar formato de CPF inválido no frontend", async ({
+  // ID: VAL-01 - Formato de Documento (Validação Frontend)
+  test("VAL-01: deve validar formato de documento inválido no frontend", async ({
     page,
   }) => {
     await loginAndSetStorage(page);
     await page.goto("/dashboard/integrantes/novo");
     await waitForHydration(page);
 
-    const cpfInput = page.locator('input[name="cpf"]');
-    await cpfInput.fill("123456"); // Menos de 11 dígitos
+    const documentoInput = page.locator('input[name="documento"]');
+    await documentoInput.fill("123456"); // Menos de 11 dígitos
 
     // Clica no botão para disparar a validação
     await page.click('button:has-text("Finalizar Cadastro")');
 
     await expect(
-      page.locator('form p:text("CPF deve ter pelo menos 11")').first(),
+      page.locator("text=Documento deve ter pelo menos 11").first(),
     ).toBeVisible();
   });
 

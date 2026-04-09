@@ -10,7 +10,7 @@ const createTestData = () => {
   const timestamp = Date.now();
   return {
     nome: `INTEGRANTE E2E ${timestamp}`,
-    cpf: Math.floor(Math.random() * 90000000000 + 10000000000).toString(),
+    documento: Math.floor(Math.random() * 90000000000 + 10000000000).toString(),
     dataNascimento: "2005-10-20",
     telefone: "11999998888",
     responsavel: {
@@ -57,7 +57,7 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
 
     await integrantesPage.preencherIdentificacao({
       nome: data.nome,
-      cpf: data.cpf,
+      documento: data.documento,
       dataNascimento: data.dataNascimento,
       telefone: data.telefone,
     });
@@ -70,7 +70,6 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
 
     await integrantesPage.preencherCorporacao({
       nome: data.corporacao.nome,
-      telefone: data.corporacao.telefone,
       dataMatricula: data.corporacao.dataMatricula,
     });
 
