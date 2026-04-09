@@ -10,11 +10,6 @@ const CORPORACOES_PREDEFINIDAS = [
 ];
 
 const garantirCorporacoesPredefinidas = async () => {
-  const total = await prisma.corporacao.count({
-    where: { isPredefinida: true },
-  });
-  if (total > 0) return;
-
   await Promise.all(
     CORPORACOES_PREDEFINIDAS.map((corp) =>
       prisma.corporacao.upsert({
