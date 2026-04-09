@@ -5,7 +5,7 @@ export class IntegrantesPage {
 
   // Locators - Identificação
   readonly nomeInput: Locator;
-  readonly cpfInput: Locator;
+  readonly documentoInput: Locator;
   readonly dataNascimentoInput: Locator;
   readonly telefoneInput: Locator;
 
@@ -41,7 +41,7 @@ export class IntegrantesPage {
 
     // Identificação
     this.nomeInput = page.locator('input[name="nome"]');
-    this.cpfInput = page.locator('input[name="cpf"]');
+    this.documentoInput = page.locator('input[name="documento"]');
     this.dataNascimentoInput = page.locator('input[name="dataNascimento"]');
     this.telefoneInput = page.locator('input[name="telefone"]');
 
@@ -118,7 +118,7 @@ export class IntegrantesPage {
 
   async preencherIdentificacao(data: any) {
     if (data.nome) await this.nomeInput.fill(data.nome);
-    if (data.cpf) await this.cpfInput.fill(data.cpf);
+    if (data.documento) await this.documentoInput.fill(data.documento);
     if (data.dataNascimento)
       await this.dataNascimentoInput.fill(data.dataNascimento);
     if (data.telefone) await this.telefoneInput.fill(data.telefone);
