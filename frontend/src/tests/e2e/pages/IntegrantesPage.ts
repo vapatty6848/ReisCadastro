@@ -6,7 +6,6 @@ export class IntegrantesPage {
   // Locators - Identificação
   readonly nomeInput: Locator;
   readonly documentoInput: Locator;
-  readonly documentoTipoSelect: Locator;
   readonly dataNascimentoInput: Locator;
   readonly telefoneInput: Locator;
 
@@ -43,7 +42,6 @@ export class IntegrantesPage {
     // Identificação
     this.nomeInput = page.locator('input[name="nome"]');
     this.documentoInput = page.locator('input[name="documento"]');
-    this.documentoTipoSelect = page.locator('select[name="documentoTipo"]');
     this.dataNascimentoInput = page.locator('input[name="dataNascimento"]');
     this.telefoneInput = page.locator('input[name="telefone"]');
 
@@ -120,14 +118,6 @@ export class IntegrantesPage {
 
   async preencherIdentificacao(data: any) {
     if (data.nome) await this.nomeInput.fill(data.nome);
-    if (data.documentoTipo) {
-      await this.documentoTipoSelect.selectOption(data.documentoTipo);
-    } else {
-      const currentValue = await this.documentoTipoSelect.inputValue();
-      if (!currentValue) {
-        await this.documentoTipoSelect.selectOption("CPF");
-      }
-    }
     if (data.documento) await this.documentoInput.fill(data.documento);
     if (data.dataNascimento)
       await this.dataNascimentoInput.fill(data.dataNascimento);
