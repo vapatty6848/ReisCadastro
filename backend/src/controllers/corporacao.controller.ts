@@ -3,10 +3,10 @@ import prisma from "../lib/prisma";
 import { NotFoundError } from "../errors/app.errors";
 
 const CORPORACOES_PREDEFINIDAS = [
-  { nome: "EM Dr Getúlio Vargas", telefone: "(11) 3456-7890" },
-  { nome: "Banda Marcial de Tapiraí", telefone: "(11) 3456-7891" },
-  { nome: "Fanfarra de Tapiraí", telefone: "(11) 3456-7892" },
-  { nome: "EM Prof. Flávio de Souza Nogueira", telefone: "(11) 3456-7893" },
+  { nome: "EM Dr Getúlio Vargas" },
+  { nome: "Banda Marcial de Tapiraí" },
+  { nome: "Fanfarra de Tapiraí" },
+  { nome: "EM Prof. Flávio de Souza Nogueira" },
 ];
 
 const garantirCorporacoesPredefinidas = async () => {
@@ -15,12 +15,11 @@ const garantirCorporacoesPredefinidas = async () => {
       prisma.corporacao.upsert({
         where: { nome: corp.nome },
         update: {
-          telefone: corp.telefone,
+          nome: corp.nome,
           isPredefinida: true,
         },
         create: {
           nome: corp.nome,
-          telefone: corp.telefone,
           isPredefinida: true,
         },
       }),
@@ -39,7 +38,6 @@ export const listCorporacoesPredefinidas = async (
     select: {
       id: true,
       nome: true,
-      telefone: true,
     },
     orderBy: { nome: "asc" },
   });
@@ -61,7 +59,6 @@ export const listAllCorporacoes = async (req: Request, res: Response) => {
     select: {
       id: true,
       nome: true,
-      telefone: true,
       isPredefinida: true,
     },
     orderBy: [{ isPredefinida: "desc" }, { nome: "asc" }],
@@ -72,28 +69,15 @@ export const listAllCorporacoes = async (req: Request, res: Response) => {
 };
 
 export const createCorporacao = async (req: Request, res: Response) => {
-  const {
-    nome,
-    telefone,
-    email,
-    rua,
-    numero,
-    bairro,
-    cep,
-    cidade,
-    estado,
-    contatoNome,
-    contatoTelefone,
-  } = req.body;
+  const { nome } = req.body;
 
-  if (!nome || !telefone) {
+  if (!nome) {
     return res
       .status(400)
-      .json({ message: "Nome e telefone são obrigatórios" });
+      .json({ message: "Nome da corporação é obrigatório" });
   }
 
   const nomeNormalizado = String(nome).trim();
-  const telefoneNormalizado = String(telefone).trim();
 
   const existente = await prisma.corporacao.findFirst({
     where: {
@@ -111,16 +95,6 @@ export const createCorporacao = async (req: Request, res: Response) => {
   const corporacao = await prisma.corporacao.create({
     data: {
       nome: nomeNormalizado,
-      telefone: telefoneNormalizado,
-      email: email || null,
-      rua: rua || null,
-      numero: numero || null,
-      bairro: bairro || null,
-      cep: cep || null,
-      cidade: cidade || null,
-      estado: estado || null,
-      contatoNome: contatoNome || null,
-      contatoTelefone: contatoTelefone || null,
       isPredefinida: false,
     },
   });

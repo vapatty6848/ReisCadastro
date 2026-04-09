@@ -11,13 +11,13 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ errors }) => {
     // Mapeamento amigável para os caminhos de erro
     const fieldLabels: Record<string, string> = {
       'nome': 'Nome',
-      'cpf': 'CPF',
+      'documento': 'CPF ou CIN',
       'dataNascimento': 'Data de Nascimento',
       'telefone': 'Telefone',
       'email': 'Email',
-      'rg': 'RG',
       'rua': 'Rua',
       'numero': 'Número',
+      'complemento': 'Complemento',
       'bairro': 'Bairro',
       'cep': 'CEP',
       'dataMatricula': 'Data de Matrícula',
@@ -39,7 +39,6 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ errors }) => {
       'responsavel.numero': 'Número do Responsável',
       'responsavel.bairro': 'Bairro do Responsável',
       'corporacao.nome': 'Nome da Corporação',
-      'corporacao.telefone': 'Telefone da Corporação',
     };
 
     const traverseErrors = (obj: any, prefix = '') => {

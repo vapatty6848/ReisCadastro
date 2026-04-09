@@ -4,7 +4,6 @@ import api from '@/lib/api';
 interface CorporacaoOption {
   id: string;
   nome: string;
-  telefone: string;
   isPredefinida?: boolean;
 }
 
@@ -25,7 +24,6 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
   const [showNewCorporacao, setShowNewCorporacao] = useState(false);
   const [isLoadingCorporacoes, setIsLoadingCorporacoes] = useState(true);
   const [newCorporacaoName, setNewCorporacaoName] = useState('');
-  const [newCorporacaoPhone, setNewCorporacaoPhone] = useState('');
 
   useEffect(() => {
     carregarCorporacoes();
@@ -44,24 +42,20 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
   };
 
   const adicionarNovaCorporacao = async () => {
-    if (!newCorporacaoName || !newCorporacaoPhone) {
-      alert('Nome e telefone da corporação são obrigatórios');
+    if (!newCorporacaoName.trim()) {
+      alert('Nome da corporação é obrigatório');
       return;
     }
 
     try {
       const response = await api.post('/api/corporacoes', {
-        nome: newCorporacaoName,
-        telefone: newCorporacaoPhone
+        nome: newCorporacaoName
       });
 
       setCorporacoes([...corporacoes, response.data]);
-      setValue('corporacao.id', response.data.id);
       setValue('corporacao.nome', response.data.nome);
-      setValue('corporacao.telefone', response.data.telefone);
 
       setNewCorporacaoName('');
-      setNewCorporacaoPhone('');
       setShowNewCorporacao(false);
 
       alert('Corporação adicionada com sucesso!');
@@ -72,27 +66,23 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
   };
 
   const aoSelecionarCorporacao = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const id = e.target.value;
+    const nome = e.target.value;
 
-    if (id === 'new') {
+    if (nome === 'new') {
       setShowNewCorporacao(true);
-      setValue('corporacao.id', '');
       setValue('corporacao.nome', '');
-      setValue('corporacao.telefone', '');
       return;
     }
 
-    const corp = corporacoes.find(c => c.id === id);
+    const corp = corporacoes.find(c => c.nome === nome);
     if (corp) {
-      setValue('corporacao.id', corp.id);
       setValue('corporacao.nome', corp.nome);
-      setValue('corporacao.telefone', corp.telefone);
       setShowNewCorporacao(false);
     }
   };
 
   const opcoes = corporacoes.map(corp => ({
-    value: corp.id,
+    value: corp.nome,
     label: corp.nome
   }));
 
@@ -102,7 +92,7 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
         <div className="md:col-span-2">
           <label className="block text-gray-700 mb-1 font-medium">Selecionar Corporação</label>
           <select
-            {...register('corporacao.id')}
+            {...register('corporacao.nome')}
             onChange={aoSelecionarCorporacao}
             disabled={readOnly || isLoadingCorporacoes}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
@@ -113,26 +103,19 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
             ))}
             <option value="new">+ Adicionar Nova Corporação</option>
           </select>
-          {errors.corporacao?.id && <p className="text-red-500 text-sm mt-1">{errors.corporacao.id.message}</p>}
+          {errors.corporacao?.nome && <p className="text-red-500 text-sm mt-1">{errors.corporacao.nome.message}</p>}
         </div>
       </div>
 
       {showNewCorporacao && !readOnly && (
         <div className="p-4 mt-4 rounded-lg bg-blue-50 border border-blue-200">
           <h4 className="mb-3 font-semibold text-blue-800">Adicionar Nova Corporação</h4>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4">
             <input
               type="text"
               placeholder="Nome da corporação"
               value={newCorporacaoName}
               onChange={(e) => setNewCorporacaoName(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
-            />
-            <input
-              type="text"
-              placeholder="Telefone"
-              value={newCorporacaoPhone}
-              onChange={(e) => setNewCorporacaoPhone(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
             />
           </div>
@@ -149,7 +132,6 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
               onClick={() => {
                 setShowNewCorporacao(false);
                 setNewCorporacaoName('');
-                setNewCorporacaoPhone('');
               }}
               className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-sm font-medium"
             >
