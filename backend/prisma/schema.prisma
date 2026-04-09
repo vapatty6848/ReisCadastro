@@ -64,12 +64,14 @@ model Integrante {
   id                     String             @id @default(uuid())
   nome                   String
   dataNascimento         DateTime
-  cpf                    String
+  documento              String
+  documentoTipo          DocumentoTipo      @default(CPF)
   telefone               String
   email                  String?
   fotos                  String[]
   rua                    String?
   numero                 String?
+  complemento            String?
   bairro                 String?
   cep                    String?
   dataMatricula          DateTime
@@ -92,7 +94,7 @@ model Integrante {
   corporacao             Corporacao         @relation(fields: [corporacaoId], references: [id])
   responsavel            Responsavel        @relation(fields: [responsavelId], references: [id])
 
-  @@index([cpf])
+  @@index([documento])
   @@index([matriculaNumero])
   @@index([corporacaoId])
 }
@@ -114,4 +116,9 @@ enum SubtipoIntegrante {
 enum OrigemInstrumento {
   PROJETO
   EMPRESA
+}
+
+enum DocumentoTipo {
+  CPF
+  CIN
 }

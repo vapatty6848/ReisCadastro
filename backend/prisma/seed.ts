@@ -118,7 +118,8 @@ async function main() {
       await prisma.integrante.create({
         data: {
           nome: "João Silva - Corpo Musical",
-          cpf: "11111111111",
+          documento: "11111111111",
+          documentoTipo: "CPF",
           dataNascimento: new Date("2005-03-15"),
           telefone: "(11) 99999-1111",
           tipoIntegrante: "CORPO_MUSICAL",
@@ -136,7 +137,8 @@ async function main() {
       await prisma.integrante.create({
         data: {
           nome: "Ana Santos - Apoio",
-          cpf: "22222222222",
+          documento: "22222222222",
+          documentoTipo: "CPF",
           dataNascimento: new Date("2008-07-20"),
           telefone: "(11) 99999-2222",
           tipoIntegrante: "APOIO",
