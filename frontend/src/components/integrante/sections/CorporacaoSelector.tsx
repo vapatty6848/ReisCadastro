@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { Input } from '../../form/Input';
-import { Select } from '../../form/Select';
 import api from '@/lib/api';
 
 interface CorporacaoOption {
@@ -13,7 +11,6 @@ interface CorporacaoOption {
 interface CorporacaoSelectorProps {
   register: any;
   errors: any;
-  watch: any;
   setValue: any;
   readOnly?: boolean;
 }
@@ -21,7 +18,6 @@ interface CorporacaoSelectorProps {
 export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
   register,
   errors,
-  watch,
   setValue,
   readOnly
 }) => {
@@ -30,8 +26,6 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
   const [isLoadingCorporacoes, setIsLoadingCorporacoes] = useState(true);
   const [newCorporacaoName, setNewCorporacaoName] = useState('');
   const [newCorporacaoPhone, setNewCorporacaoPhone] = useState('');
-
-  const corporacaoSelecionada = watch('corporacao.id');
 
   useEffect(() => {
     carregarCorporacoes();

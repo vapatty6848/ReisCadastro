@@ -34,7 +34,6 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
         <CorporacaoSelector
           register={register}
           errors={errors}
-          watch={watch}
           setValue={setValue}
           readOnly={readOnly}
         />
