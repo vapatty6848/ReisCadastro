@@ -1,60 +1,77 @@
 #!/bin/bash
 
-# Cores para output
+set -euo pipefail
+
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+YELLOW='\033[1;33m'
+NC='\033[0m'
 
-echo -e "${BLUE}🚀 Iniciando setup automatizado do projeto Cadastro Integrantes Corporação...${NC}"
+# --- Cleanup automático em caso de erro ---
+cleanup() {
+  if [[ $? -ne 0 ]]; then
+    echo -e "\n${RED}❌ Erro durante o setup. Derrubando containers para manter ambiente limpo...${NC}"
+    npm run docker:down:clean 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT
 
-# Verificar Docker
-if ! [ -x "$(command -v docker)" ]; then
-  echo '❌ Erro: Docker não está instalado.' >&2
+# --- Verificações iniciais ---
+echo -e "${BLUE}🚀 Setup do ReisCadastro${NC}"
+echo "--------------------------------------------------"
+
+if ! command -v docker &>/dev/null; then
+  echo -e "${RED}❌ Docker não encontrado. Instale em https://docs.docker.com/get-docker/${NC}" >&2
   exit 1
 fi
 
-# Instalação de dependências
-echo -e "${BLUE}📦 Instalando dependências em todos os módulos...${NC}"
+if ! command -v node &>/dev/null; then
+  echo -e "${RED}❌ Node.js não encontrado. Instale a versão 22.x em https://nodejs.org/${NC}" >&2
+  exit 1
+fi
+
+# --- Dependências ---
+echo -e "${BLUE}📦 Instalando dependências...${NC}"
 npm run install:all
 
-# Infraestrutura
-echo -e "${BLUE}🐳 Limpando ambiente e subindo containers (Banco, Backend, Frontend)...${NC}"
-npm run docker:down
+# --- Containers ---
+echo -e "${BLUE}🐳 Limpando e reconstruindo containers...${NC}"
+npm run docker:down:clean
 npm run docker:build
 npm run docker:up
 
-echo -e "${BLUE}⏳ Aguardando serviços ficarem prontos...${NC}"
-# Aguarda até que os containers estejam realmente rodando
-max_attempts=30
-attempt=1
-while [ $attempt -le $max_attempts ]; do
-  if [ "$(docker inspect -f '{{.State.Running}}' reis_frontend_v2 2>/dev/null)" == "true" ]; then
-    echo -e "${GREEN}✅ Serviços iniciados!${NC}"
-    break
+# --- Aguardar backend saudável (health check real) ---
+echo -e "${BLUE}⏳ Aguardando backend ficar pronto...${NC}"
+MAX=40
+i=1
+until curl -sf http://localhost:3001/api/health >/dev/null 2>&1; do
+  if [[ $i -gt $MAX ]]; then
+    echo -e "\n${RED}❌ Backend não respondeu após $((MAX * 3)) segundos.${NC}"
+    echo -e "${YELLOW}Dica: verifique os logs com: npm run docker:logs${NC}"
+    exit 1
   fi
   echo -n "."
-  sleep 2
-  attempt=$((attempt + 1))
+  sleep 3
+  i=$((i + 1))
 done
+echo -e "\n${GREEN}✅ Backend pronto!${NC}"
 
-if [ $attempt -gt $max_attempts ]; then
-  echo -e "\n❌ ${RED}Erro: Os containers não iniciaram a tempo.${NC}"
-  echo -e "${BLUE}Dica: Tente rodar 'docker compose -f infra/docker-compose.yml logs' para ver o problema.${NC}"
-  exit 1
-fi
-
-# Banco de Dados
-echo -e "${BLUE}🔄 Aplicando migrações do Prisma...${NC}"
+# --- Banco de dados ---
+echo -e "${BLUE}🔄 Aplicando migrações...${NC}"
 npm run db:migrate
 
-echo -e "${BLUE}🌱 Populando banco de dados (Seed)...${NC}"
+echo -e "${BLUE}🌱 Populando banco de dados...${NC}"
 npm run db:seed
 
+# --- Sucesso ---
+echo ""
 echo -e "${GREEN}✅ Setup concluído com sucesso!${NC}"
 echo "--------------------------------------------------"
-echo -e "Frontend: ${GREEN}http://localhost:3000${NC}"
-echo -e "Backend:  ${GREEN}http://localhost:3001${NC}"
-echo -e "Swagger:  ${GREEN}http://localhost:3001/api-docs${NC}"
+echo -e "  Frontend : ${GREEN}http://localhost:3000${NC}"
+echo -e "  Backend  : ${GREEN}http://localhost:3001${NC}"
+echo -e "  Swagger  : ${GREEN}http://localhost:3001/api-docs${NC}"
 echo "--------------------------------------------------"
-echo "Para fazer login, use as credenciais definidas no seed do banco."
+echo -e "${YELLOW}Para derrubar o ambiente: npm run docker:down:clean${NC}"
+echo -e "${YELLOW}Para testar a API:        ./test_api.sh${NC}"
+echo "Credenciais iniciais definidas em backend/prisma/seed.ts"
