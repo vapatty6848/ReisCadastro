@@ -44,6 +44,21 @@ dist/
 .env.test.local
 .env.production.local
 
+# Secrets and private keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*.ovpn
+*.sql
+*.dump
+*.bak
+
 # Debug
 npm-debug.log*
 yarn-debug.log*
@@ -73,18 +88,8 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
-# Planejamento
-paraAmanha.md
-
-# Documentação de Erros (Codespace)
 acodespace/
 
-DEPLOYMENT.md
-paraamanha.md
 Rascunhos/
-ROTEIRO_DEPLOY_AMANHA.md
-notas.json
 deploy-producao-rbac.sh
-# Ignore sensitive docs
 docs/
-*.md

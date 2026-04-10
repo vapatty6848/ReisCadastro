@@ -24,6 +24,7 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
   const [showNewCorporacao, setShowNewCorporacao] = useState(false);
   const [isLoadingCorporacoes, setIsLoadingCorporacoes] = useState(true);
   const [newCorporacaoName, setNewCorporacaoName] = useState('');
+  const corporacaoNomeRegister = register('corporacao.nome');
 
   useEffect(() => {
     carregarCorporacoes();
@@ -53,7 +54,10 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
       });
 
       setCorporacoes([...corporacoes, response.data]);
-      setValue('corporacao.nome', response.data.nome);
+      setValue('corporacao.nome', response.data.nome, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
 
       setNewCorporacaoName('');
       setShowNewCorporacao(false);
@@ -70,13 +74,19 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
 
     if (nome === 'new') {
       setShowNewCorporacao(true);
-      setValue('corporacao.nome', '');
+      setValue('corporacao.nome', '', {
+        shouldValidate: false,
+        shouldDirty: true,
+      });
       return;
     }
 
     const corp = corporacoes.find(c => c.nome === nome);
     if (corp) {
-      setValue('corporacao.nome', corp.nome);
+      setValue('corporacao.nome', corp.nome, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
       setShowNewCorporacao(false);
     }
   };
@@ -92,8 +102,11 @@ export const CorporacaoSelector: React.FC<CorporacaoSelectorProps> = ({
         <div className="md:col-span-2">
           <label className="block text-gray-700 mb-1 font-medium">Selecionar Corporação</label>
           <select
-            {...register('corporacao.nome')}
-            onChange={aoSelecionarCorporacao}
+            {...corporacaoNomeRegister}
+            onChange={(e) => {
+              corporacaoNomeRegister.onChange(e);
+              aoSelecionarCorporacao(e);
+            }}
             disabled={readOnly || isLoadingCorporacoes}
             className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-200"
           >
