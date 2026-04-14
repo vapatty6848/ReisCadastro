@@ -26,7 +26,7 @@ export const ResponsibleSection: React.FC<ResponsibleSectionProps> = ({
   return (
     <section className="p-6 rounded-lg bg-gray-50/50 border border-gray-100">
       <h3 className="flex items-center gap-2 mb-4 text-xl font-semibold text-blue-700">
-        <span className="p-1 bg-blue-100 rounded">02</span> Dados do Responsável
+        <span className="p-1 bg-blue-100 rounded">04</span> Dados do Responsável
       </h3>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="md:col-span-2">
