@@ -207,7 +207,7 @@ export class IntegranteService {
   private async validarDadosUnicos(
     documento?: string,
     matricula?: string,
-    responsavelId?: string,
+    responsavelId?: string | null,
     ignoreId?: string,
   ) {
     if (documento) {
