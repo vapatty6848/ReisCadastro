@@ -1,4 +1,4 @@
-import { Page, expect, Locator } from '@playwright/test';
+import { Page, expect, Locator } from "@playwright/test";
 
 export class LoginPage {
   readonly page: Page;
@@ -14,7 +14,7 @@ export class LoginPage {
   }
 
   async navegar() {
-    await this.page.goto('/login');
+    await this.page.goto("/login");
   }
 
   async preencherCredenciais(email: string, pass: string) {
@@ -27,6 +27,10 @@ export class LoginPage {
   }
 
   async validarErro(mensagem: string) {
-    await expect(this.page.locator(`text=${mensagem}`)).toBeVisible();
+    await expect(
+      this.page
+        .locator("p.text-red-500, p.text-red-600")
+        .filter({ hasText: mensagem }),
+    ).toBeVisible();
   }
 }

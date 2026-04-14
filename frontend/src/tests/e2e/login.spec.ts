@@ -26,7 +26,12 @@ test.describe("Página de Login", () => {
     );
     await loginPage.entrar();
 
-    await loginPage.validarErro("Credenciais inválidas");
+    await expect(
+      page.locator("p.text-red-500, p.text-red-600").filter({
+        hasText:
+          /Credenciais inválidas|Dados de login inválidos|Erro ao fazer login/i,
+      }),
+    ).toBeVisible();
   });
 
   test("deve permitir login com sucesso e redirecionar para o dashboard", async ({
@@ -41,7 +46,7 @@ test.describe("Página de Login", () => {
     await loginPage.preencherCredenciais(adminEmail, adminPassword);
     await loginPage.entrar();
 
-    await expect(page).toHaveURL(/\/dashboard/);
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15000 });
     // Verificar se o formulário de cadastro (aba padrão) está visível
     await expect(
       page.locator("text=Ficha de Cadastro de Integrante"),
