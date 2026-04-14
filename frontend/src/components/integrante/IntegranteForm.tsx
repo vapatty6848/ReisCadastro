@@ -71,14 +71,6 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
           </div>
         </section>
 
-        <ResponsibleSection
-          register={register}
-          errors={errors}
-          setValue={setValue}
-          watch={watch}
-          readOnly={readOnly}
-        />
-
         <CorporationSection
           register={register}
           errors={errors}
@@ -87,6 +79,14 @@ export const IntegranteForm = ({ id, readOnly, onSuccess }: IntegranteFormProps)
           subtipoSelecionado={(subtipoSelecionado || '').toString()}
           showDevolucaoDate={showDevolucaoDate}
           setShowDevolucaoDate={setShowDevolucaoDate}
+          readOnly={readOnly}
+        />
+
+        <ResponsibleSection
+          register={register}
+          errors={errors}
+          setValue={setValue}
+          watch={watch}
           readOnly={readOnly}
         />
       </fieldset>

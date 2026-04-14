@@ -87,7 +87,10 @@ export class IntegrantesPage {
 
   async salvarAlteracoes() {
     const responsePromise = this.page.waitForResponse(
-      (res) => res.status() === 200,
+      (res) =>
+        res.url().includes("/api/integrantes") &&
+        res.request().method() === "PATCH" &&
+        res.status() === 200,
     );
     await this.page.click('button:has-text("Salvar Alterações")');
     await responsePromise;

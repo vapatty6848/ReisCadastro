@@ -8,6 +8,14 @@ import {
 import { responsavelSchema } from "./integrante/responsavel.schema";
 import { corporacaoSchema } from "./integrante/corporacao.schema";
 
+const emptyToUndefinedObject = (value: unknown) => {
+  if (!value || typeof value !== "object") return value;
+  const cleanedValues = Object.values(value as Record<string, unknown>).filter(
+    (v) => v !== "" && v !== null && v !== undefined,
+  );
+  return cleanedValues.length === 0 ? undefined : value;
+};
+
 export const loginSchema = z.object({
   email: z.string().email("Email inválido"),
   password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
@@ -71,7 +79,10 @@ export const integranteSchema = z.object({
   dataMatricula: z.string().min(10, "Data de matrícula inválida"),
   matriculaNumero: z.string().nullish().or(z.literal("")),
   tipoIntegrante: TipoIntegrante,
-  subtipoIntegrante: SubtipoIntegrante.nullish(),
+  subtipoIntegrante: z.preprocess(
+    (v) => (v === "" ? null : v),
+    SubtipoIntegrante.nullish(),
+  ),
   tamanhoUniforme: numericSizeSchema,
   tamanhoBota: numericSizeSchema,
   instrumento: z.string().nullish().or(z.literal("")),
@@ -83,7 +94,10 @@ export const integranteSchema = z.object({
   instrumentoRecebimento: z.string().nullish().or(z.literal("")),
   instrumentoDevolucao: z.string().nullish().or(z.literal("")),
   observacoes: z.string().nullish().or(z.literal("")),
-  responsavel: responsavelSchema,
+  responsavel: z.preprocess(
+    emptyToUndefinedObject,
+    responsavelSchema.optional(),
+  ),
   corporacao: corporacaoSchema,
 });
 

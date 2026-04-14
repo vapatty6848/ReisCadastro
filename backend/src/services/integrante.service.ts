@@ -8,6 +8,14 @@ const storageService = new StorageService();
 const responsavelService = new ResponsavelService();
 const corporacaoService = new CorporacaoService();
 
+const hasResponsavelData = (responsavel: any) => {
+  if (!responsavel || typeof responsavel !== "object") return false;
+  const nome = String(responsavel.nome || "").trim();
+  const cpf = String(responsavel.cpf || "").trim();
+  const telefone = String(responsavel.telefone || "").trim();
+  return !!(nome && cpf && telefone);
+};
+
 interface CreateIntegranteDTO {
   data: any;
   fotos: string[];
@@ -21,8 +29,9 @@ export class IntegranteService {
   async criarIntegrante({ data, fotos, fotoPerfil }: CreateIntegranteDTO) {
     const { responsavel, corporacao, ...integranteData } = data;
 
-    const resolvedResponsavel =
-      await responsavelService.resolverResponsavel(responsavel);
+    const resolvedResponsavel = hasResponsavelData(responsavel)
+      ? await responsavelService.resolverResponsavel(responsavel)
+      : null;
     const resolvedCorporacao =
       await corporacaoService.resolverCorporacao(corporacao);
 
@@ -34,7 +43,7 @@ export class IntegranteService {
     await this.validarDadosUnicos(
       integranteData.documento,
       matriculaNumero,
-      resolvedResponsavel.id,
+      resolvedResponsavel?.id,
     );
 
     return await prisma.integrante.create({
@@ -43,7 +52,7 @@ export class IntegranteService {
         matriculaNumero,
         fotos,
         fotoPerfil,
-        responsavelId: resolvedResponsavel.id,
+        responsavelId: resolvedResponsavel?.id ?? null,
         corporacaoId: resolvedCorporacao.id,
       },
       include: {
@@ -105,7 +114,7 @@ export class IntegranteService {
     const { responsavel, corporacao, ...integranteData } = data;
 
     let resolvedResponsavelId = currentIntegrante.responsavelId;
-    if (responsavel) {
+    if (hasResponsavelData(responsavel)) {
       const res = await responsavelService.resolverResponsavel(responsavel);
       resolvedResponsavelId = res.id;
     }
@@ -118,7 +127,11 @@ export class IntegranteService {
     );
 
     const updateData: any = { ...integranteData };
-    if (responsavel) updateData.responsavelId = resolvedResponsavelId;
+    if (hasResponsavelData(responsavel)) {
+      updateData.responsavelId = resolvedResponsavelId;
+    } else if (responsavel && typeof responsavel === "object") {
+      updateData.responsavelId = null;
+    }
     if (corporacao) {
       const res = await corporacaoService.resolverCorporacao(corporacao);
       updateData.corporacaoId = res.id;
@@ -194,7 +207,7 @@ export class IntegranteService {
   private async validarDadosUnicos(
     documento?: string,
     matricula?: string,
-    responsavelId?: string,
+    responsavelId?: string | null,
     ignoreId?: string,
   ) {
     if (documento) {

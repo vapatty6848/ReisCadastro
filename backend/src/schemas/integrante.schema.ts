@@ -8,6 +8,14 @@ import {
 import { responsavelSchema } from "./integrante/responsavel.schema";
 import { corporacaoSchema } from "./integrante/corporacao.schema";
 
+const emptyToUndefinedObject = (value: unknown) => {
+  if (!value || typeof value !== "object") return value;
+  const cleanedValues = Object.values(value as Record<string, unknown>).filter(
+    (v) => v !== "" && v !== null && v !== undefined,
+  );
+  return cleanedValues.length === 0 ? undefined : value;
+};
+
 export const integranteSchema = z.object({
   nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
   dataNascimento: z.string().transform((str) => new Date(str)),
@@ -34,7 +42,10 @@ export const integranteSchema = z.object({
     .optional()
     .nullable(),
   tipoIntegrante: TipoIntegrante,
-  subtipoIntegrante: SubtipoIntegrante.optional().nullable(),
+  subtipoIntegrante: z.preprocess(
+    (v) => (v === "" ? null : v),
+    SubtipoIntegrante.optional().nullable(),
+  ),
   tamanhoUniforme: numericSizeSchema.nullable(),
   tamanhoBota: numericSizeSchema.nullable(),
   instrumento: z.string().optional().nullable().or(z.literal("")),
@@ -54,7 +65,10 @@ export const integranteSchema = z.object({
     .nullable(),
   patrimonio: z.string().optional().nullable(),
   observacoes: z.string().optional().nullable(),
-  responsavel: responsavelSchema,
+  responsavel: z.preprocess(
+    emptyToUndefinedObject,
+    responsavelSchema.optional(),
+  ),
   corporacao: corporacaoSchema,
 });
 

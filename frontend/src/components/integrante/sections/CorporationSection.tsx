@@ -26,27 +26,9 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
 }) => {
   return (
     <>
-      <section className="p-6 rounded-lg bg-white border border-gray-100 shadow-sm">
-        <h3 className="flex items-center gap-2 mb-4 text-xl font-semibold text-blue-700">
-          <span className="p-1 bg-blue-100 rounded">03</span> Dados da Corporação
-        </h3>
-
-        <CorporacaoSelector
-          register={register}
-          errors={errors}
-          setValue={setValue}
-          readOnly={readOnly}
-        />
-
-        <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-3">
-          <Input label="Data de Matrícula" type="date" register={register('dataMatricula')} error={errors.dataMatricula?.message} readOnly={readOnly} />
-          <Input label="Número da Matrícula (Auto)" register={register('matriculaNumero')} error={errors.matriculaNumero?.message} readOnly={true} placeholder="Gerado automaticamente" />
-        </div>
-      </section>
-
       <section className="p-6 rounded-lg bg-blue-50/50 border border-blue-100">
         <h3 className="flex items-center gap-2 mb-4 text-xl font-semibold text-blue-700">
-          <span className="p-1 bg-blue-100 rounded">04</span> Atuação na Corporação
+          <span className="p-1 bg-blue-100 rounded">02</span> Atuação na Corporação
         </h3>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <Select
@@ -129,6 +111,24 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
             readOnly={readOnly}
             className="w-full h-24 p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200 bg-white"
           />
+        </div>
+      </section>
+
+      <section className="p-6 rounded-lg bg-white border border-gray-100 shadow-sm">
+        <h3 className="flex items-center gap-2 mb-4 text-xl font-semibold text-blue-700">
+          <span className="p-1 bg-blue-100 rounded">03</span> Dados da Corporação
+        </h3>
+
+        <CorporacaoSelector
+          register={register}
+          errors={errors}
+          setValue={setValue}
+          readOnly={readOnly}
+        />
+
+        <div className="grid grid-cols-1 gap-4 mt-4 md:grid-cols-3">
+          <Input label="Data de Matrícula" type="date" register={register('dataMatricula')} error={errors.dataMatricula?.message} readOnly={readOnly} />
+          <Input label="Número da Matrícula (Auto)" register={register('matriculaNumero')} error={errors.matriculaNumero?.message} readOnly={true} placeholder="Gerado automaticamente" />
         </div>
       </section>
     </>

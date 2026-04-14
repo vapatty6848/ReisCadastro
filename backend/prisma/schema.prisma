@@ -85,14 +85,14 @@ model Integrante {
   instrumentoRecebimento DateTime?
   instrumentoDevolucao   DateTime?
   observacoes            String?
-  responsavelId          String
+  responsavelId          String?
   corporacaoId           String
   createdAt              DateTime           @default(now())
   updatedAt              DateTime           @updatedAt
   patrimonio             String?
   fotoPerfil             String?
   corporacao             Corporacao         @relation(fields: [corporacaoId], references: [id])
-  responsavel            Responsavel        @relation(fields: [responsavelId], references: [id])
+  responsavel            Responsavel?       @relation(fields: [responsavelId], references: [id])
 
   @@index([documento])
   @@index([matriculaNumero])
