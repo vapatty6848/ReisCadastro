@@ -13,6 +13,7 @@ const createTestData = () => {
     documento: Math.floor(Math.random() * 90000000000 + 10000000000).toString(),
     dataNascimento: "2005-10-20",
     telefone: "11999998888",
+    email: `integrante.${timestamp}@e2e.com`,
     responsavel: {
       nome: "Responsavel E2E",
       cpf: "12312312311",
@@ -60,13 +61,14 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
       documento: data.documento,
       dataNascimento: data.dataNascimento,
       telefone: data.telefone,
+      email: data.email,
     });
 
     await integrantesPage.preencherResponsavel({
       nome: data.responsavel.nome,
-      cpf: data.responsavel.cpf,
-      telefone: data.responsavel.telefone,
     });
+    await integrantesPage.copiarDadosIntegranteParaResponsavel();
+    await integrantesPage.validarResponsavelComDadosDoIntegrante(data);
 
     await integrantesPage.preencherCorporacao({
       nome: data.corporacao.nome,
@@ -131,5 +133,26 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
     await expect(
       page.locator("text=Nenhum integrante encontrado"),
     ).toBeVisible();
+  });
+
+  test("deve exibir campos corretos para subtipo Instrumentos/Rotativos", async ({
+    page,
+  }) => {
+    const integrantesPage = new IntegrantesPage(page);
+    await integrantesPage.navegarParaNovo();
+    await waitForHydration(page);
+
+    await integrantesPage.preencherAtuacao({
+      tipo: "CORPO_MUSICAL",
+      subtipo: "INSTRUMENTOS_ROTATIVOS",
+    });
+
+    await expect(integrantesPage.instrumentoInput).toBeVisible();
+    await expect(integrantesPage.origemSelect).toBeVisible();
+    await expect(integrantesPage.patrimonioInput).not.toBeVisible();
+    await expect(integrantesPage.chkDevolvido).not.toBeVisible();
+    await expect(
+      page.locator('input[name="instrumentoDevolucao"]'),
+    ).not.toBeVisible();
   });
 });

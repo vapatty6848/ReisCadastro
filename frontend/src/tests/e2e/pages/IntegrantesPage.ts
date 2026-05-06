@@ -8,11 +8,15 @@ export class IntegrantesPage {
   readonly documentoInput: Locator;
   readonly dataNascimentoInput: Locator;
   readonly telefoneInput: Locator;
+  readonly emailInput: Locator;
 
   // Locators - Responsável
   readonly respNomeInput: Locator;
   readonly respCpfInput: Locator;
   readonly respTelefoneInput: Locator;
+  readonly respEmailInput: Locator;
+  readonly btnCopiarDadosIntegrante: Locator;
+  readonly chkDevolvido: Locator;
 
   // Locators - Corporação
   readonly corporacaoSelect: Locator;
@@ -43,11 +47,17 @@ export class IntegrantesPage {
     this.documentoInput = page.locator('input[name="documento"]');
     this.dataNascimentoInput = page.locator('input[name="dataNascimento"]');
     this.telefoneInput = page.locator('input[name="telefone"]');
+    this.emailInput = page.locator('input[name="email"]');
 
     // Responsável
     this.respNomeInput = page.locator('input[name="responsavel.nome"]');
     this.respCpfInput = page.locator('input[name="responsavel.cpf"]');
     this.respTelefoneInput = page.locator('input[name="responsavel.telefone"]');
+    this.respEmailInput = page.locator('input[name="responsavel.email"]');
+    this.btnCopiarDadosIntegrante = page.locator(
+      '[data-testid="btn-copiar-dados-integrante"]',
+    );
+    this.chkDevolvido = page.locator("#chkDevolvido");
 
     // Corporação
     this.corporacaoSelect = page.locator('select[name="corporacao.nome"]');
@@ -123,12 +133,27 @@ export class IntegrantesPage {
     if (data.dataNascimento)
       await this.dataNascimentoInput.fill(data.dataNascimento);
     if (data.telefone) await this.telefoneInput.fill(data.telefone);
+    if (data.email) await this.emailInput.fill(data.email);
   }
 
   async preencherResponsavel(data: any) {
     if (data.nome) await this.respNomeInput.fill(data.nome);
     if (data.cpf) await this.respCpfInput.fill(data.cpf);
     if (data.telefone) await this.respTelefoneInput.fill(data.telefone);
+    if (data.email) await this.respEmailInput.fill(data.email);
+  }
+
+  async copiarDadosIntegranteParaResponsavel() {
+    await this.btnCopiarDadosIntegrante.scrollIntoViewIfNeeded();
+    await this.btnCopiarDadosIntegrante.click();
+  }
+
+  async validarResponsavelComDadosDoIntegrante(data: any) {
+    if (data.documento)
+      await expect(this.respCpfInput).toHaveValue(data.documento);
+    if (data.telefone)
+      await expect(this.respTelefoneInput).toHaveValue(data.telefone);
+    if (data.email) await expect(this.respEmailInput).toHaveValue(data.email);
   }
 
   async preencherCorporacao(data: any) {

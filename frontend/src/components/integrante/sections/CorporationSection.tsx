@@ -24,6 +24,10 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
   setShowDevolucaoDate,
   readOnly
 }) => {
+  const isInstrumentos = subtipoSelecionado === 'INSTRUMENTOS';
+  const isInstrumentosRotativos = subtipoSelecionado === 'INSTRUMENTOS_ROTATIVOS';
+  const isSubtipoComInstrumento = isInstrumentos || isInstrumentosRotativos;
+
   return (
     <>
       <section className="p-6 rounded-lg bg-blue-50/50 border border-blue-100">
@@ -50,6 +54,7 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
               disabled={readOnly}
               options={[
                 { value: 'INSTRUMENTOS', label: 'Instrumentos' },
+                { value: 'INSTRUMENTOS_ROTATIVOS', label: 'Instrumentos/Rotativos' },
                 { value: 'COMANDANTE_MOR', label: 'Comandante Mor' },
                 { value: 'PAVILHAO_NACIONAL', label: 'Pavilhão Nacional' },
                 { value: 'CORPO_COREOGRAFICO', label: 'Corpo Coreográfico' },
@@ -58,10 +63,9 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
             />
           )}
 
-          {subtipoSelecionado === 'INSTRUMENTOS' && (
+          {isSubtipoComInstrumento && (
             <>
               <Input label="Instrumento" register={register('instrumento')} error={errors.instrumento?.message} readOnly={readOnly} />
-              <Input label="Patrimônio" register={register('patrimonio')} error={errors.patrimonio?.message} readOnly={readOnly} />
               <Select
                 label="Origem do Instrumento"
                 register={register('instrumentoOrigem')}
@@ -72,9 +76,15 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
                   { value: 'EMPRESA', label: 'Empresa' }
                 ]}
               />
-              <Input label="Data Recebimento" type="date" register={register('instrumentoRecebimento')} error={errors.instrumentoRecebimento?.message as string} readOnly={readOnly} />
 
-              {!readOnly && (
+              {isInstrumentos && (
+                <>
+                  <Input label="Patrimônio" register={register('patrimonio')} error={errors.patrimonio?.message} readOnly={readOnly} />
+                  <Input label="Data Recebimento" type="date" register={register('instrumentoRecebimento')} error={errors.instrumentoRecebimento?.message as string} readOnly={readOnly} />
+                </>
+              )}
+
+              {isInstrumentos && !readOnly && (
                 <div className="flex items-center gap-2 col-span-full">
                   <input
                     type="checkbox"
@@ -95,7 +105,7 @@ export const CorporationSection: React.FC<CorporationSectionProps> = ({
                 </div>
               )}
 
-              {(showDevolucaoDate || (readOnly && watch('instrumentoDevolucao'))) && (
+              {isInstrumentos && (showDevolucaoDate || (readOnly && watch('instrumentoDevolucao'))) && (
                 <Input label="Data Devolução" type="date" register={register('instrumentoDevolucao')} error={errors.instrumentoDevolucao?.message as string} readOnly={readOnly} />
               )}
             </>
