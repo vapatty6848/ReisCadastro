@@ -81,6 +81,61 @@ describe("Integrante Endpoints (Mocked DB)", () => {
       expect(res.statusCode).toEqual(400);
       expect(res.body.message).toContain("inválidos");
     });
+
+    it("should sanitize instrument fields for INSTRUMENTOS_ROTATIVOS", async () => {
+      const data = generateIntegranteData({
+        nome: "TEST_ROTATIVO_SANITIZE",
+        tipoIntegrante: "CORPO_MUSICAL",
+        subtipoIntegrante: "INSTRUMENTOS_ROTATIVOS",
+        instrumento: "Clarinete",
+        instrumentoOrigem: "PROJETO",
+        patrimonio: "PAT-ROT-001",
+        instrumentoRecebimento: "2024-03-01",
+        instrumentoDevolucao: "2024-03-10",
+      } as any);
+
+      prismaMock.responsavel.upsert.mockResolvedValue({
+        id: "resp-id",
+        ...data.responsavel,
+      });
+      prismaMock.corporacao.upsert.mockResolvedValue({
+        id: "corp-id",
+        ...data.corporacao,
+      });
+      prismaMock.corporacao.findUnique.mockResolvedValue({
+        id: "corp-id",
+        nome: "Test Corp",
+      });
+
+      prismaMock.integrante.findFirst.mockResolvedValue(null);
+      prismaMock.integrante.count.mockResolvedValue(0);
+      prismaMock.integrante.create.mockResolvedValue({
+        id: "mock-uuid",
+        ...data,
+        matriculaNumero: "0001-TC",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as any);
+
+      const res = await request(app)
+        .post("/api/integrantes")
+        .set("Authorization", `Bearer ${token}`)
+        .send(data);
+
+      expect(res.statusCode).toEqual(201);
+      expect(prismaMock.integrante.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            subtipoIntegrante: "INSTRUMENTOS_ROTATIVOS",
+            instrumento: "Clarinete",
+            instrumentoOrigem: "PROJETO",
+            patrimonio: null,
+            instrumentoRecebimento: null,
+            instrumentoDevolucao: null,
+          }),
+        }),
+      );
+    });
   });
 
   describe("GET /api/integrantes", () => {

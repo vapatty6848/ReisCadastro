@@ -17,6 +17,9 @@ export const ResponsibleSection: React.FC<ResponsibleSectionProps> = ({
   readOnly
 }) => {
   const handleCopyAddress = () => {
+    setValue('responsavel.cpf', watch('documento') || '');
+    setValue('responsavel.telefone', watch('telefone') || '');
+    setValue('responsavel.email', watch('email') || '');
     setValue('responsavel.rua', watch('rua') || '');
     setValue('responsavel.numero', watch('numero') || '');
     setValue('responsavel.bairro', watch('bairro') || '');
@@ -41,11 +44,13 @@ export const ResponsibleSection: React.FC<ResponsibleSectionProps> = ({
         <div className="relative md:col-span-2">
           <Input label="Rua" register={register('responsavel.rua')} error={errors.responsavel?.rua?.message} readOnly={readOnly} />
           {!readOnly && (
-            <button type="button"
+            <button
+              type="button"
+              data-testid="btn-copiar-dados-integrante"
               onClick={handleCopyAddress}
               className="absolute right-0 top-0 text-[10px] text-blue-600 hover:underline font-medium"
             >
-              Copiar Endereço do Integrante
+              Copiar Dados do Integrante
             </button>
           )}
         </div>

@@ -1,0 +1,6 @@
+DO $$
+BEGIN
+  ALTER TYPE "SubtipoIntegrante" ADD VALUE 'INSTRUMENTOS_ROTATIVOS';
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END $$;

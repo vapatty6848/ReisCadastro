@@ -28,6 +28,8 @@ export class IntegranteService {
    */
   async criarIntegrante({ data, fotos, fotoPerfil }: CreateIntegranteDTO) {
     const { responsavel, corporacao, ...integranteData } = data;
+    const integranteDataNormalizado =
+      this.normalizarCamposInstrumento(integranteData);
 
     const resolvedResponsavel = hasResponsavelData(responsavel)
       ? await responsavelService.resolverResponsavel(responsavel)
@@ -37,18 +39,18 @@ export class IntegranteService {
 
     // Gerar matrícula automaticamente se não fornecida
     const matriculaNumero =
-      integranteData.matriculaNumero ||
+      integranteDataNormalizado.matriculaNumero ||
       (await this.gerarMatriculaAutomatica(resolvedCorporacao.id));
 
     await this.validarDadosUnicos(
-      integranteData.documento,
+      integranteDataNormalizado.documento,
       matriculaNumero,
       resolvedResponsavel?.id,
     );
 
     return await prisma.integrante.create({
       data: {
-        ...integranteData,
+        ...integranteDataNormalizado,
         matriculaNumero,
         fotos,
         fotoPerfil,
@@ -112,6 +114,8 @@ export class IntegranteService {
   ) {
     const currentIntegrante = await this.buscarPorId(id);
     const { responsavel, corporacao, ...integranteData } = data;
+    const integranteDataNormalizado =
+      this.normalizarCamposInstrumento(integranteData);
 
     let resolvedResponsavelId = currentIntegrante.responsavelId;
     if (hasResponsavelData(responsavel)) {
@@ -120,13 +124,13 @@ export class IntegranteService {
     }
 
     await this.validarDadosUnicos(
-      integranteData.documento,
-      integranteData.matriculaNumero,
+      integranteDataNormalizado.documento,
+      integranteDataNormalizado.matriculaNumero,
       resolvedResponsavelId,
       id,
     );
 
-    const updateData: any = { ...integranteData };
+    const updateData: any = { ...integranteDataNormalizado };
     if (hasResponsavelData(responsavel)) {
       updateData.responsavelId = resolvedResponsavelId;
     } else if (responsavel && typeof responsavel === "object") {
@@ -140,13 +144,13 @@ export class IntegranteService {
     // Gestão de Arquivos
     updateData.fotos = this.processarFotos(
       currentIntegrante.fotos,
-      integranteData.fotos,
+      integranteDataNormalizado.fotos,
       novasFotos,
     );
     updateData.fotoPerfil = this.processarFotoPerfil(
       currentIntegrante.fotoPerfil,
       novaFotoPerfil,
-      integranteData.fotoPerfil,
+      integranteDataNormalizado.fotoPerfil,
     );
 
     return prisma.integrante.update({
@@ -214,7 +218,7 @@ export class IntegranteService {
       const existingDocumento = await prisma.integrante.findFirst({
         where: {
           documento,
-          responsavelId: { not: responsavelId },
+          ...(responsavelId ? { responsavelId: { not: responsavelId } } : {}),
           ...(ignoreId && { NOT: { id: ignoreId } }),
         },
       });
@@ -294,6 +298,32 @@ export class IntegranteService {
       ];
     }
     return where;
+  }
+
+  private normalizarCamposInstrumento(integranteData: any) {
+    const subtipo = integranteData?.subtipoIntegrante;
+
+    if (subtipo === "INSTRUMENTOS_ROTATIVOS") {
+      return {
+        ...integranteData,
+        patrimonio: null,
+        instrumentoRecebimento: null,
+        instrumentoDevolucao: null,
+      };
+    }
+
+    if (subtipo !== "INSTRUMENTOS") {
+      return {
+        ...integranteData,
+        instrumento: null,
+        instrumentoOrigem: null,
+        instrumentoRecebimento: null,
+        instrumentoDevolucao: null,
+        patrimonio: null,
+      };
+    }
+
+    return integranteData;
   }
 
   private processarFotos(

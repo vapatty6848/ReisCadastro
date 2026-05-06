@@ -279,6 +279,7 @@ export function IntegranteList() {
           >
             <option value="">Todos</option>
             <option value="INSTRUMENTOS">Instrumentos</option>
+            <option value="INSTRUMENTOS_ROTATIVOS">Instrumentos/Rotativos</option>
             <option value="COMANDANTE_MOR">Comandante Mor</option>
             <option value="PAVILHAO_NACIONAL">Pavilhão Nacional</option>
             <option value="CORPO_COREOGRAFICO">Corpo Coreográfico</option>

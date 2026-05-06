@@ -13,6 +13,7 @@ export const TipoIntegrante = z.enum([
 ]);
 export const SubtipoIntegrante = z.enum([
   "INSTRUMENTOS",
+  "INSTRUMENTOS_ROTATIVOS",
   "COMANDANTE_MOR",
   "PAVILHAO_NACIONAL",
   "CORPO_COREOGRAFICO",

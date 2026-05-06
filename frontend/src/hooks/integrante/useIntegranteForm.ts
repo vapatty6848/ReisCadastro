@@ -36,6 +36,25 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
   const subtipoSelecionado = watch("subtipoIntegrante");
 
   useEffect(() => {
+    if (subtipoSelecionado === "INSTRUMENTOS_ROTATIVOS") {
+      setValue("patrimonio", "");
+      setValue("instrumentoRecebimento", "");
+      setValue("instrumentoDevolucao", "");
+      setShowDevolucaoDate(false);
+      return;
+    }
+
+    if (subtipoSelecionado !== "INSTRUMENTOS") {
+      setValue("instrumento", "");
+      setValue("instrumentoOrigem", null);
+      setValue("patrimonio", "");
+      setValue("instrumentoRecebimento", "");
+      setValue("instrumentoDevolucao", "");
+      setShowDevolucaoDate(false);
+    }
+  }, [subtipoSelecionado, setValue]);
+
+  useEffect(() => {
     if (id) {
       api.get(`/api/integrantes/${id}`).then((response) => {
         const data = response.data;
