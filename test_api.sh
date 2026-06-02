@@ -17,6 +17,7 @@ NC='\033[0m'
 API_URL="http://localhost:3001/api"
 ADMIN_EMAIL="${1:-admin@corporacao.com}"
 ADMIN_PASSWORD="${2:-admin123}"
+AUTO_SETUP="${AUTO_SETUP:-1}"
 
 PASS=0
 FAIL=0
@@ -46,8 +47,23 @@ header "0. Health Check"
 if curl -sf "$API_URL/health" >/dev/null 2>&1; then
   ok "Backend respondendo em $API_URL"
 else
-  fail "Backend não está respondendo. Rode: npm run docker:up"
-  exit 1
+  if [[ "$AUTO_SETUP" == "1" ]]; then
+    echo -e "  ${YELLOW}⚠️ Backend indisponível. Tentando preparar ambiente automaticamente...${NC}"
+    if npm run setup -- --skip-install; then
+      if curl -sf "$API_URL/health" >/dev/null 2>&1; then
+        ok "Backend respondeu após setup automático"
+      else
+        fail "Backend ainda indisponível após setup automático"
+        exit 1
+      fi
+    else
+      fail "Falha no setup automático"
+      exit 1
+    fi
+  else
+    fail "Backend não está respondendo. Rode: npm run setup"
+    exit 1
+  fi
 fi
 
 # --- Autenticação ---
@@ -78,7 +94,7 @@ fi
 header "3. Criação de integrante"
 CREATE_RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$API_URL/integrantes" \
   -H "Authorization: Bearer $TOKEN" \
-  -F 'data={"nome":"Integrante Teste API","documento":"99988877766","documentoTipo":"CPF","dataNascimento":"2010-01-01","telefone":"11999999999","tipoIntegrante":"CORPO_MUSICAL","dataMatricula":"2023-01-01","responsavel":{"nome":"Responsavel Teste","cpf":"11122233344","telefone":"11000000000","parentesco":"Mãe"},"corporacao":{"nome":"EM Dr Getúlio Vargas"}}')
+  -F 'data={"nome":"Integrante Teste API","documento":"99988877766","documentoTipo":"CIN","dataNascimento":"2010-01-01","telefone":"11999999999","tipoIntegrante":"CORPO_MUSICAL","dataMatricula":"2023-01-01","responsavel":{"nome":"Responsavel Teste","cin":"11122233344","telefone":"11000000000","parentesco":"Mãe"},"corporacao":{"nome":"EM Dr Getúlio Vargas"}}')
 
 HTTP_STATUS=$(echo "$CREATE_RESPONSE" | tail -n1)
 CREATE_BODY=$(echo "$CREATE_RESPONSE" | head -n-1)

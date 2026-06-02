@@ -19,7 +19,7 @@ export const PersonalDataSection: React.FC<PersonalDataSectionProps> = ({
           <Input label="Nome Completo" register={register('nome')} error={errors.nome?.message} readOnly={readOnly} />
         </div>
         <Input
-          label="CPF ou CIN"
+          label="CIN"
           register={register('documento')}
           error={errors.documento?.message}
           readOnly={readOnly}

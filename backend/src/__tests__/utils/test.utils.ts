@@ -51,7 +51,7 @@ export const generateIntegranteData = (overrides = {}) => {
   return {
     nome: `TEST_INTEGRANTE_${Math.random().toString(36).substring(7)}`,
     documento: Math.floor(Math.random() * 90000000000 + 10000000000).toString(),
-    documentoTipo: "CPF",
+    documentoTipo: "CIN",
     dataNascimento: "1990-01-01",
     dataMatricula: "2023-01-01",
     tipoIntegrante: "CORPO_MUSICAL",
@@ -62,7 +62,7 @@ export const generateIntegranteData = (overrides = {}) => {
     tamanhoBota: "40",
     responsavel: {
       nome: "TEST_RESPONSAVEL",
-      cpf: "98765432100",
+      cin: "98765432100",
       telefone: "11888888888",
       parentesco: "Pai",
     },

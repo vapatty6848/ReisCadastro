@@ -6,9 +6,9 @@ export const responsavelSchema = z.object({
     .min(3, "Nome do responsável deve ter pelo menos 3 caracteres")
     .optional()
     .or(z.literal("")),
-  cpf: z
+  cin: z
     .string()
-    .length(11, "CPF do responsável deve ter 11 dígitos")
+    .length(11, "CIN do responsável deve ter 11 dígitos")
     .optional()
     .or(z.literal("")),
   telefone: z

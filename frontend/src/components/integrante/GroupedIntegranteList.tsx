@@ -7,7 +7,8 @@ import { Users, Building2, User } from 'lucide-react';
 interface Integrante {
   id: string;
   nome: string;
-  cpf: string;
+  cin?: string;
+  documento?: string;
   telefone: string;
   rua: string;
   numero: string;
@@ -108,6 +109,7 @@ export function GroupedIntegranteList() {
               value={filter.corporacao}
               onChange={(e) => setFilter({ ...filter, corporacao: e.target.value })}
               className="w-full p-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 text-sm"
+              aria-label="Filtrar por corporação"
             />
           </div>
           <div>
@@ -116,6 +118,7 @@ export function GroupedIntegranteList() {
               value={filter.tipoIntegrante}
               onChange={(e) => setFilter({ ...filter, tipoIntegrante: e.target.value })}
               className="w-full p-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 text-sm"
+              aria-label="Filtrar por tipo"
             >
               <option value="">Todos os Tipos</option>
               <option value="CORPO_MUSICAL">Corpo Musical</option>
@@ -128,6 +131,7 @@ export function GroupedIntegranteList() {
               value={filter.statusDevolucao}
               onChange={(e) => setFilter({ ...filter, statusDevolucao: e.target.value })}
               className="w-full p-2 bg-white border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-200 text-sm"
+              aria-label="Situação de devolução"
             >
               <option value="">Todos (Ativos e Devolvidos)</option>
               <option value="NAO_DEVOLVIDO">Instrumentos Pendentes (Ativos)</option>
@@ -165,7 +169,7 @@ export function GroupedIntegranteList() {
                 <thead className="bg-gray-50 border-b border-gray-100">
                   <tr>
                     <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:text-[14px] print:font-normal">Nome</th>
-                    <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:text-[14px] print:font-normal">CPF</th>
+                    <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:text-[14px] print:font-normal">CIN</th>
                     <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:text-[14px] print:font-normal">Telefone</th>
                     <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:hidden">Endereço</th>
                     <th className="px-6 py-3 print:py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider print:hidden">Tipo</th>
@@ -184,7 +188,7 @@ export function GroupedIntegranteList() {
                         </div>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 print:text-[14px]">
-                        {integrante.cpf}
+                        {integrante.cin || integrante.documento || ""}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-600 print:text-[14px]">
                         {integrante.telefone}

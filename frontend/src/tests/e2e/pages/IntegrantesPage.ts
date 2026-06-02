@@ -12,7 +12,7 @@ export class IntegrantesPage {
 
   // Locators - Responsável
   readonly respNomeInput: Locator;
-  readonly respCpfInput: Locator;
+  readonly respCinInput: Locator;
   readonly respTelefoneInput: Locator;
   readonly respEmailInput: Locator;
   readonly btnCopiarDadosIntegrante: Locator;
@@ -51,7 +51,7 @@ export class IntegrantesPage {
 
     // Responsável
     this.respNomeInput = page.locator('input[name="responsavel.nome"]');
-    this.respCpfInput = page.locator('input[name="responsavel.cpf"]');
+    this.respCinInput = page.locator('input[name="responsavel.cin"]');
     this.respTelefoneInput = page.locator('input[name="responsavel.telefone"]');
     this.respEmailInput = page.locator('input[name="responsavel.email"]');
     this.btnCopiarDadosIntegrante = page.locator(
@@ -91,8 +91,19 @@ export class IntegrantesPage {
     await this.page.goto("/dashboard/integrantes");
   }
 
+  async waitForListaPronta() {
+    await expect(this.page).toHaveURL(/\/dashboard\/integrantes/);
+    await expect(this.searchInput).toBeVisible();
+  }
+
   async abrirEdicao() {
     await this.page.click('a[title="Editar"]');
+  }
+
+  async abrirEdicaoPorNome(nome: string) {
+    const row = this.page.locator("tbody tr", { hasText: nome }).first();
+    await expect(row).toBeVisible();
+    await row.locator('a[title="Editar"]').click();
   }
 
   async salvarAlteracoes() {
@@ -138,7 +149,7 @@ export class IntegrantesPage {
 
   async preencherResponsavel(data: any) {
     if (data.nome) await this.respNomeInput.fill(data.nome);
-    if (data.cpf) await this.respCpfInput.fill(data.cpf);
+    if (data.cin) await this.respCinInput.fill(data.cin);
     if (data.telefone) await this.respTelefoneInput.fill(data.telefone);
     if (data.email) await this.respEmailInput.fill(data.email);
   }
@@ -150,7 +161,7 @@ export class IntegrantesPage {
 
   async validarResponsavelComDadosDoIntegrante(data: any) {
     if (data.documento)
-      await expect(this.respCpfInput).toHaveValue(data.documento);
+      await expect(this.respCinInput).toHaveValue(data.documento);
     if (data.telefone)
       await expect(this.respTelefoneInput).toHaveValue(data.telefone);
     if (data.email) await expect(this.respEmailInput).toHaveValue(data.email);
@@ -194,6 +205,7 @@ export class IntegrantesPage {
   }
 
   async buscarPorNome(nome: string) {
+    await expect(this.searchInput).toBeVisible();
     await this.searchInput.fill(nome);
   }
 

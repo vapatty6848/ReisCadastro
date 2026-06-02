@@ -17,7 +17,7 @@ export const ResponsibleSection: React.FC<ResponsibleSectionProps> = ({
   readOnly
 }) => {
   const handleCopyAddress = () => {
-    setValue('responsavel.cpf', watch('documento') || '');
+    setValue('responsavel.cin', watch('documento') || '');
     setValue('responsavel.telefone', watch('telefone') || '');
     setValue('responsavel.email', watch('email') || '');
     setValue('responsavel.rua', watch('rua') || '');
@@ -35,7 +35,7 @@ export const ResponsibleSection: React.FC<ResponsibleSectionProps> = ({
         <div className="md:col-span-2">
           <Input label="Nome do Responsável" register={register('responsavel.nome')} error={errors.responsavel?.nome?.message} readOnly={readOnly} />
         </div>
-        <Input label="CPF do Responsável" register={register('responsavel.cpf')} error={errors.responsavel?.cpf?.message} readOnly={readOnly} />
+        <Input label="CIN do Responsável" register={register('responsavel.cin')} error={errors.responsavel?.cin?.message} readOnly={readOnly} />
         <Input label="Parentesco" register={register('responsavel.parentesco')} error={errors.responsavel?.parentesco?.message} readOnly={readOnly} />
         <Input label="Telefone" register={register('responsavel.telefone')} error={errors.responsavel?.telefone?.message} readOnly={readOnly} />
         <Input label="Email" type="email" register={register('responsavel.email')} error={errors.responsavel?.email?.message} readOnly={readOnly} />

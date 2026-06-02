@@ -20,7 +20,7 @@ export const integranteSchema = z.object({
   nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
   dataNascimento: z.string().transform((str) => new Date(str)),
   documento: z.string().min(11, "Documento deve ter pelo menos 11 dígitos"),
-  documentoTipo: z.enum(["CPF", "CIN"]).default("CPF"),
+  documentoTipo: z.enum(["CPF", "CIN"]).default("CIN"),
   telefone: z.string().min(10, "Telefone inválido"),
   email: z
     .string()

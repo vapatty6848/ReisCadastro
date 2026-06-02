@@ -29,11 +29,21 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
     resolver: zodResolver(integranteSchema),
     mode: "all",
     defaultValues: {
-      documentoTipo: "CPF",
+      documentoTipo: "CIN",
     },
   });
 
   const subtipoSelecionado = watch("subtipoIntegrante");
+
+  const toDateInputValue = (value?: string | null) => {
+    if (!value) return "";
+    if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
+      return value;
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toISOString().slice(0, 10);
+  };
 
   useEffect(() => {
     if (subtipoSelecionado === "INSTRUMENTOS_ROTATIVOS") {
@@ -58,13 +68,30 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
     if (id) {
       api.get(`/api/integrantes/${id}`).then((response) => {
         const data = response.data;
+        const formattedData = {
+          ...data,
+          dataNascimento: toDateInputValue(data.dataNascimento),
+          dataMatricula: toDateInputValue(data.dataMatricula),
+          instrumentoRecebimento: toDateInputValue(data.instrumentoRecebimento),
+          instrumentoDevolucao: toDateInputValue(data.instrumentoDevolucao),
+        };
         if (data.instrumentoDevolucao) {
           setShowDevolucaoDate(true);
         }
-        reset(data);
+        reset(formattedData);
+        setValue("dataNascimento", formattedData.dataNascimento || "");
+        setValue("dataMatricula", formattedData.dataMatricula || "");
+        setValue(
+          "instrumentoRecebimento",
+          formattedData.instrumentoRecebimento || "",
+        );
+        setValue(
+          "instrumentoDevolucao",
+          formattedData.instrumentoDevolucao || "",
+        );
       });
     }
-  }, [id, reset]);
+  }, [id, reset, setValue]);
 
   const removeFile = (index: number) => {
     setSelectedFiles((prev) => prev.filter((_, i) => i !== index));

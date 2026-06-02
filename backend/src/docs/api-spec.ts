@@ -204,7 +204,7 @@
  *             properties:
  *               data:
  *                 type: string
- *                 description: JSON string contendo os dados do integrante (nome, cpf, responsavel, corporacao, etc.)
+ *                 description: JSON string contendo os dados do integrante (nome, cin, responsavel, corporacao, etc.)
  *               fotos:
  *                 type: array
  *                 items:
@@ -227,7 +227,7 @@
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       409:
- *         description: Conflito (CPF ou Matrícula já existentes).
+ *         description: Conflito (CIN ou Matrícula já existentes).
  *         content:
  *           application/json:
  *             schema:
@@ -334,7 +334,7 @@
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  *       409:
- *         description: Conflito (CPF de outra família ou Matrícula já em uso).
+ *         description: Conflito (CIN de outra família ou Matrícula já em uso).
  *         content:
  *           application/json:
  *             schema:

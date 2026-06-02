@@ -23,7 +23,7 @@ export function IntegranteList() {
   const [meta, setMeta] = useState({ page: 1, totalPages: 1, total: 0 });
   const [filters, setFilters] = useState({
     nome: "",
-    cpf: "",
+    cin: "",
     tipoIntegrante: "",
     subtipoIntegrante: "",
     corporacao: "",
@@ -41,7 +41,7 @@ export function IntegranteList() {
       try {
         const params = new URLSearchParams();
         if (filters.nome) params.append("nome", filters.nome);
-        if (filters.cpf) params.append("cpf", filters.cpf);
+        if (filters.cin) params.append("cin", filters.cin);
         if (filters.tipoIntegrante)
           params.append("tipoIntegrante", filters.tipoIntegrante);
         if (filters.subtipoIntegrante)
@@ -238,14 +238,14 @@ export function IntegranteList() {
         </div>
         <div>
           <label className="block mb-1 text-sm font-medium text-gray-700">
-            CPF
+            CIN
           </label>
           <input
             type="text"
-            value={filters.cpf}
-            onChange={(e) => setFilters({ ...filters, cpf: e.target.value })}
+            value={filters.cin}
+            onChange={(e) => setFilters({ ...filters, cin: e.target.value })}
             className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
-            placeholder="Filtrar por CPF..."
+            placeholder="Filtrar por CIN..."
           />
         </div>
         <div>
@@ -392,6 +392,7 @@ export function IntegranteList() {
                 setFilters({ ...filters, dataDevolucao: e.target.value })
               }
               className="w-full p-2 border border-gray-300 rounded outline-none focus:ring-2 focus:ring-blue-200"
+              aria-label="Até a data de devolução"
             />
           </div>
         )}
@@ -401,7 +402,7 @@ export function IntegranteList() {
             onClick={() => {
               setFilters({
                 nome: "",
-                cpf: "",
+                cin: "",
                 tipoIntegrante: "",
                 subtipoIntegrante: "",
                 corporacao: "",
@@ -438,7 +439,7 @@ export function IntegranteList() {
                 Nome do Integrante
               </th>
               <th className="p-4 print:py-2 font-semibold text-gray-700 hidden print:table-cell print:text-[14px] print:font-normal">
-                CPF
+                CIN
               </th>
               <th className="p-4 print:py-2 font-semibold text-gray-700 hidden print:table-cell print:text-[14px] print:font-normal">
                 Telefone
@@ -567,7 +568,7 @@ export function IntegranteList() {
                     {integrante.nome}
                   </td>
                   <td className="p-4 text-gray-600 hidden print:table-cell print:text-[14px]">
-                    {integrante.cpf}
+                    {integrante.cin || integrante.documento}
                   </td>
                   <td className="p-4 text-gray-600 hidden print:table-cell print:text-[14px]">
                     {integrante.telefone}

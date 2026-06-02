@@ -20,6 +20,14 @@ test.describe("Página de Login", () => {
     const loginPage = new LoginPage(page);
     await waitForHydration(page);
 
+    await page.route("**/api/auth/login", async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: "application/json",
+        body: JSON.stringify({ message: "Credenciais inválidas" }),
+      });
+    });
+
     await loginPage.preencherCredenciais(
       "usuario_errado@teste.com",
       "senha_incorreta",
@@ -39,6 +47,22 @@ test.describe("Página de Login", () => {
   }) => {
     const loginPage = new LoginPage(page);
     await waitForHydration(page);
+
+    await page.route("**/api/auth/login", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          token: "token-e2e",
+          user: {
+            id: "user-e2e",
+            email: "admin@corporacao.com",
+            name: "Administrador",
+            role: "SUPER_ADMIN",
+          },
+        }),
+      });
+    });
 
     const adminEmail = process.env.ADMIN_EMAIL || "admin@corporacao.com";
     const adminPassword = process.env.ADMIN_PASSWORD || "admin123";

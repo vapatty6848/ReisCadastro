@@ -19,6 +19,7 @@
     "docker:logs": "docker compose -p reis_cadastro_v2 -f infra/docker-compose.yml logs -f",
     "docker:status": "docker compose -p reis_cadastro_v2 -f infra/docker-compose.yml ps",
     "docker:reset": "npm run docker:down:clean && npm run docker:build && npm run docker:up",
+    "local:refresh-and-test": "npm run setup -- --skip-install && npm run test:api",
     "db:migrate": "docker exec reis_backend_v2 npx prisma migrate deploy",
     "db:seed": "docker exec reis_backend_v2 npx prisma db seed",
     "db:reset": "docker exec reis_backend_v2 npx prisma migrate reset --force",
