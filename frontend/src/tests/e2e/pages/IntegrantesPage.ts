@@ -15,7 +15,10 @@ export class IntegrantesPage {
   readonly respCinInput: Locator;
   readonly respTelefoneInput: Locator;
   readonly respEmailInput: Locator;
-  readonly btnCopiarDadosIntegrante: Locator;
+  readonly btnCopiarEnderecoIntegrante: Locator;
+  readonly btnCopiarTelefoneIntegrante: Locator;
+  readonly btnCopiarEmailIntegrante: Locator;
+  readonly btnCopiarDadosIntegranteLegado: Locator;
   readonly chkDevolvido: Locator;
 
   // Locators - Corporação
@@ -54,7 +57,16 @@ export class IntegrantesPage {
     this.respCinInput = page.locator('input[name="responsavel.cin"]');
     this.respTelefoneInput = page.locator('input[name="responsavel.telefone"]');
     this.respEmailInput = page.locator('input[name="responsavel.email"]');
-    this.btnCopiarDadosIntegrante = page.locator(
+    this.btnCopiarEnderecoIntegrante = page.locator(
+      '[data-testid="btn-copiar-endereco-integrante"]',
+    );
+    this.btnCopiarTelefoneIntegrante = page.locator(
+      '[data-testid="btn-copiar-telefone-integrante"]',
+    );
+    this.btnCopiarEmailIntegrante = page.locator(
+      '[data-testid="btn-copiar-email-integrante"]',
+    );
+    this.btnCopiarDadosIntegranteLegado = page.locator(
       '[data-testid="btn-copiar-dados-integrante"]',
     );
     this.chkDevolvido = page.locator("#chkDevolvido");
@@ -155,13 +167,26 @@ export class IntegrantesPage {
   }
 
   async copiarDadosIntegranteParaResponsavel() {
-    await this.btnCopiarDadosIntegrante.scrollIntoViewIfNeeded();
-    await this.btnCopiarDadosIntegrante.click();
+    const hasNovoFluxo = (await this.btnCopiarTelefoneIntegrante.count()) > 0;
+
+    if (hasNovoFluxo) {
+      await this.btnCopiarTelefoneIntegrante.scrollIntoViewIfNeeded();
+      await this.btnCopiarTelefoneIntegrante.click();
+      await this.btnCopiarEmailIntegrante.scrollIntoViewIfNeeded();
+      await this.btnCopiarEmailIntegrante.click();
+      await this.btnCopiarEnderecoIntegrante.scrollIntoViewIfNeeded();
+      await this.btnCopiarEnderecoIntegrante.click();
+      return;
+    }
+
+    await this.btnCopiarDadosIntegranteLegado.scrollIntoViewIfNeeded();
+    await this.btnCopiarDadosIntegranteLegado.click();
   }
 
   async validarResponsavelComDadosDoIntegrante(data: any) {
-    if (data.documento)
-      await expect(this.respCinInput).toHaveValue(data.documento);
+    if (data.responsavel?.cin) {
+      await expect(this.respCinInput).toHaveValue(data.responsavel.cin);
+    }
     if (data.telefone)
       await expect(this.respTelefoneInput).toHaveValue(data.telefone);
     if (data.email) await expect(this.respEmailInput).toHaveValue(data.email);
