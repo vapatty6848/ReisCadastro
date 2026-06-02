@@ -110,7 +110,7 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
 
     await integrantesPage.preencherResponsavel({
       nome: dadosIntegranteTeste.responsavel.nome,
-      cin: dadosIntegranteTeste.documento,
+      cin: dadosIntegranteTeste.responsavel.cin,
     });
     await integrantesPage.copiarDadosIntegranteParaResponsavel();
     await integrantesPage.validarResponsavelComDadosDoIntegrante(
