@@ -11,7 +11,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ errors }) => {
     // Mapeamento amigável para os caminhos de erro
     const fieldLabels: Record<string, string> = {
       'nome': 'Nome',
-      'documento': 'CPF ou CIN',
+      'documento': 'CIN',
       'dataNascimento': 'Data de Nascimento',
       'telefone': 'Telefone',
       'email': 'Email',
@@ -31,7 +31,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ errors }) => {
       'tamanhoUniforme': 'Uniforme',
       'tamanhoBota': 'Bota',
       'responsavel.nome': 'Nome do Responsável',
-      'responsavel.cpf': 'CPF do Responsável',
+      'responsavel.cin': 'CIN do Responsável',
       'responsavel.parentesco': 'Parentesco',
       'responsavel.telefone': 'Telefone do Responsável',
       'responsavel.email': 'Email do Responsável',

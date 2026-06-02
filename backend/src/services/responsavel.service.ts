@@ -1,8 +1,8 @@
-import prisma from '../lib/prisma';
+import prisma from "../lib/prisma";
 
 export interface ResponsavelDTO {
   nome: string;
-  cpf: string;
+  cin: string;
   telefone: string;
   email?: string | null;
   rua?: string | null;
@@ -14,17 +14,17 @@ export interface ResponsavelDTO {
 
 export class ResponsavelService {
   /**
-   * Resolve um responsável: se existir pelo CPF, atualiza os dados; caso contrário, cria.
+   * Resolve um responsável: se existir pelo CIN, atualiza os dados; caso contrário, cria.
    */
   async resolverResponsavel(data: ResponsavelDTO) {
     return await prisma.responsavel.upsert({
-      where: { cpf: data.cpf },
+      where: { cin: data.cin },
       update: data,
       create: data,
     });
   }
 
-  async buscarPorCpf(cpf: string) {
-    return await prisma.responsavel.findUnique({ where: { cpf } });
+  async buscarPorCin(cin: string) {
+    return await prisma.responsavel.findUnique({ where: { cin } });
   }
 }

@@ -66,7 +66,7 @@ async function main() {
     const responsavel = await prisma.responsavel.create({
       data: {
         nome: "Maria da Silva",
-        cpf: "12345678901",
+        cin: "12345678901",
         telefone: "(11) 98765-4321",
         email: "maria@example.com",
         rua: "Rua Exemplo",
@@ -91,7 +91,7 @@ async function main() {
         data: {
           nome: "João Silva - Corpo Musical",
           documento: "11111111111",
-          documentoTipo: "CPF",
+          documentoTipo: "CIN",
           dataNascimento: new Date("2005-03-15"),
           telefone: "(11) 99999-1111",
           tipoIntegrante: "CORPO_MUSICAL",
@@ -110,7 +110,7 @@ async function main() {
         data: {
           nome: "Ana Santos - Apoio",
           documento: "22222222222",
-          documentoTipo: "CPF",
+          documentoTipo: "CIN",
           dataNascimento: new Date("2008-07-20"),
           telefone: "(11) 99999-2222",
           tipoIntegrante: "APOIO",

@@ -29,7 +29,7 @@ export function useIntegranteForm({ id, readOnly }: UseIntegranteFormProps) {
     resolver: zodResolver(integranteSchema),
     mode: "all",
     defaultValues: {
-      documentoTipo: "CPF",
+      documentoTipo: "CIN",
     },
   });
 

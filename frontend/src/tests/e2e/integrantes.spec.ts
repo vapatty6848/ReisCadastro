@@ -16,7 +16,7 @@ const createTestData = () => {
     email: `integrante.${timestamp}@e2e.com`,
     responsavel: {
       nome: "Responsavel E2E",
-      cpf: "12312312311",
+      cin: "12312312311",
       parentesco: "Pai",
       telefone: "11977776666",
     },
@@ -38,9 +38,51 @@ const createTestData = () => {
   };
 };
 
+async function validarCamposPreenchidosNaEdicao(
+  integrantesPage: IntegrantesPage,
+  dadosIntegranteTeste: ReturnType<typeof createTestData>,
+) {
+  await expect(integrantesPage.nomeInput).toHaveValue(
+    dadosIntegranteTeste.nome,
+  );
+  await expect(integrantesPage.documentoInput).toHaveValue(
+    dadosIntegranteTeste.documento,
+  );
+  await expect(integrantesPage.dataNascimentoInput).toHaveValue(
+    dadosIntegranteTeste.dataNascimento,
+  );
+  await expect(integrantesPage.telefoneInput).toHaveValue(
+    dadosIntegranteTeste.telefone,
+  );
+  await expect(integrantesPage.emailInput).toHaveValue(
+    dadosIntegranteTeste.email,
+  );
+  await expect(integrantesPage.corporacaoSelect).toHaveValue(
+    dadosIntegranteTeste.corporacao.nome,
+  );
+  await expect(integrantesPage.dataMatriculaInput).toHaveValue(
+    dadosIntegranteTeste.corporacao.dataMatricula,
+  );
+  await expect(
+    integrantesPage.page.locator('input[name="matriculaNumero"]'),
+  ).not.toHaveValue("");
+  await expect(integrantesPage.tipoSelect).toHaveValue(
+    dadosIntegranteTeste.atuacao.tipo,
+  );
+  await expect(integrantesPage.subtipoSelect).toHaveValue(
+    dadosIntegranteTeste.atuacao.subtipo,
+  );
+  await expect(integrantesPage.instrumentoInput).toHaveValue(
+    dadosIntegranteTeste.atuacao.instrumento,
+  );
+  await expect(integrantesPage.origemSelect).toHaveValue(
+    dadosIntegranteTeste.atuacao.origem,
+  );
+}
+
 test.describe.serial("Gestão de Integrantes (E2E)", () => {
-  const data = createTestData();
-  const nomeEditado = `${data.nome} (EDITADO)`;
+  const dadosIntegranteTeste = createTestData();
+  const nomeIntegranteEditado = `${dadosIntegranteTeste.nome} (EDITADO)`;
 
   test.beforeEach(async ({ page }) => {
     await loginAndSetStorage(page);
@@ -57,26 +99,29 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
     await waitForHydration(page);
 
     await integrantesPage.preencherIdentificacao({
-      nome: data.nome,
-      documento: data.documento,
-      dataNascimento: data.dataNascimento,
-      telefone: data.telefone,
-      email: data.email,
+      nome: dadosIntegranteTeste.nome,
+      documento: dadosIntegranteTeste.documento,
+      dataNascimento: dadosIntegranteTeste.dataNascimento,
+      telefone: dadosIntegranteTeste.telefone,
+      email: dadosIntegranteTeste.email,
     });
 
     await integrantesPage.preencherResponsavel({
-      nome: data.responsavel.nome,
+      nome: dadosIntegranteTeste.responsavel.nome,
+      cin: dadosIntegranteTeste.documento,
     });
     await integrantesPage.copiarDadosIntegranteParaResponsavel();
-    await integrantesPage.validarResponsavelComDadosDoIntegrante(data);
+    await integrantesPage.validarResponsavelComDadosDoIntegrante(
+      dadosIntegranteTeste,
+    );
 
     await integrantesPage.preencherCorporacao({
-      nome: data.corporacao.nome,
-      dataMatricula: data.corporacao.dataMatricula,
+      nome: dadosIntegranteTeste.corporacao.nome,
+      dataMatricula: dadosIntegranteTeste.corporacao.dataMatricula,
     });
 
-    await integrantesPage.preencherAtuacao(data.atuacao);
-    await integrantesPage.preencherTamanhos(data.tamanhos);
+    await integrantesPage.preencherAtuacao(dadosIntegranteTeste.atuacao);
+    await integrantesPage.preencherTamanhos(dadosIntegranteTeste.tamanhos);
 
     await integrantesPage.finalizarCadastro();
 
@@ -88,10 +133,12 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
   }) => {
     const integrantesPage = new IntegrantesPage(page);
 
-    await integrantesPage.buscarPorNome(data.nome);
-    await integrantesPage.validarVisibilidade(data.nome);
+    await integrantesPage.buscarPorNome(dadosIntegranteTeste.nome);
+    await integrantesPage.validarVisibilidade(dadosIntegranteTeste.nome);
 
-    await integrantesPage.buscarPorPatrimonio(data.atuacao.patrimonio);
+    await integrantesPage.buscarPorPatrimonio(
+      dadosIntegranteTeste.atuacao.patrimonio,
+    );
     await expect(
       page.locator("table >> text=Não devolvido").first(),
     ).toBeVisible();
@@ -100,13 +147,20 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
   test("deve permitir editar e salvar alterações", async ({ page }) => {
     const integrantesPage = new IntegrantesPage(page);
 
-    await integrantesPage.buscarPorNome(data.nome);
+    await integrantesPage.buscarPorNome(dadosIntegranteTeste.nome);
     await integrantesPage.btnFiltrar.click();
 
     await integrantesPage.abrirEdicao();
     await waitForHydration(page);
 
-    await integrantesPage.preencherIdentificacao({ nome: nomeEditado });
+    await validarCamposPreenchidosNaEdicao(
+      integrantesPage,
+      dadosIntegranteTeste,
+    );
+
+    await integrantesPage.preencherIdentificacao({
+      nome: nomeIntegranteEditado,
+    });
     await integrantesPage.marcarDevolvido();
 
     await integrantesPage.salvarAlteracoes();
@@ -114,18 +168,50 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
     await expect(page).toHaveURL(/\/dashboard\/integrantes/);
 
     // Validar atualização na lista
-    await integrantesPage.buscarPorNome(nomeEditado);
+    await integrantesPage.buscarPorNome(nomeIntegranteEditado);
     await integrantesPage.selecionarStatusFiltro("DEVOLVIDO");
     await integrantesPage.btnFiltrar.click();
 
-    await integrantesPage.validarVisibilidade(nomeEditado);
+    await integrantesPage.validarVisibilidade(nomeIntegranteEditado);
     await expect(page.locator("table >> text=Não devolvido")).not.toBeVisible();
+  });
+
+  test("deve editar no celular mantendo os campos preenchidos", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 375, height: 812 });
+
+    const integrantesPage = new IntegrantesPage(page);
+
+    await integrantesPage.buscarPorNome(dadosIntegranteTeste.nome);
+    await integrantesPage.btnFiltrar.click();
+
+    await integrantesPage.abrirEdicao();
+    await waitForHydration(page);
+
+    await validarCamposPreenchidosNaEdicao(
+      integrantesPage,
+      dadosIntegranteTeste,
+    );
+
+    await integrantesPage.preencherIdentificacao({
+      nome: `${nomeIntegranteEditado} MOBILE`,
+    });
+
+    await integrantesPage.salvarAlteracoes();
+
+    await expect(page).toHaveURL(/\/dashboard\/integrantes/);
+    await integrantesPage.buscarPorNome(`${nomeIntegranteEditado} MOBILE`);
+    await integrantesPage.btnFiltrar.click();
+    await integrantesPage.validarVisibilidade(
+      `${nomeIntegranteEditado} MOBILE`,
+    );
   });
 
   test("deve excluir o integrante e limpar a lista", async ({ page }) => {
     const integrantesPage = new IntegrantesPage(page);
 
-    await integrantesPage.buscarPorNome(nomeEditado);
+    await integrantesPage.buscarPorNome(nomeIntegranteEditado);
     await integrantesPage.btnFiltrar.click();
 
     await integrantesPage.excluir();

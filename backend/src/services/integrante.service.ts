@@ -11,9 +11,9 @@ const corporacaoService = new CorporacaoService();
 const hasResponsavelData = (responsavel: any) => {
   if (!responsavel || typeof responsavel !== "object") return false;
   const nome = String(responsavel.nome || "").trim();
-  const cpf = String(responsavel.cpf || "").trim();
+  const cin = String(responsavel.cin || "").trim();
   const telefone = String(responsavel.telefone || "").trim();
-  return !!(nome && cpf && telefone);
+  return !!(nome && cin && telefone);
 };
 
 interface CreateIntegranteDTO {
@@ -23,6 +23,22 @@ interface CreateIntegranteDTO {
 }
 
 export class IntegranteService {
+  private mapearResponsavelParaApi(responsavel: any) {
+    if (!responsavel) return responsavel;
+
+    return responsavel;
+  }
+
+  private mapearIntegranteParaApi(integrante: any) {
+    if (!integrante) return integrante;
+
+    return {
+      ...integrante,
+      cin: integrante.documento,
+      responsavel: this.mapearResponsavelParaApi(integrante.responsavel),
+    };
+  }
+
   /**
    * Registra um novo integrante no sistema
    */
@@ -48,7 +64,7 @@ export class IntegranteService {
       resolvedResponsavel?.id,
     );
 
-    return await prisma.integrante.create({
+    const integrante = await prisma.integrante.create({
       data: {
         ...integranteDataNormalizado,
         matriculaNumero,
@@ -62,6 +78,8 @@ export class IntegranteService {
         corporacao: true,
       },
     });
+
+    return this.mapearIntegranteParaApi(integrante);
   }
 
   /**
@@ -84,7 +102,10 @@ export class IntegranteService {
       prisma.integrante.count({ where }),
     ]);
 
-    return { data, total };
+    return {
+      data: data.map((integrante) => this.mapearIntegranteParaApi(integrante)),
+      total,
+    };
   }
 
   /**
@@ -100,7 +121,7 @@ export class IntegranteService {
       throw new NotFoundError("Integrante");
     }
 
-    return integrante;
+    return this.mapearIntegranteParaApi(integrante);
   }
 
   /**
@@ -153,11 +174,13 @@ export class IntegranteService {
       integranteDataNormalizado.fotoPerfil,
     );
 
-    return prisma.integrante.update({
+    const integrante = await prisma.integrante.update({
       where: { id },
       data: updateData,
       include: { responsavel: true, corporacao: true },
     });
+
+    return this.mapearIntegranteParaApi(integrante);
   }
 
   /**
@@ -248,7 +271,11 @@ export class IntegranteService {
     const where: any = {};
     if (filters.nome)
       where.nome = { contains: String(filters.nome), mode: "insensitive" };
-    if (filters.cpf) where.cpf = { contains: String(filters.cpf) };
+    if (filters.cin)
+      where.documento = {
+        contains: String(filters.cin),
+        mode: "insensitive",
+      };
     if (filters.tipoIntegrante) where.tipoIntegrante = filters.tipoIntegrante;
     if (filters.subtipoIntegrante)
       where.subtipoIntegrante = filters.subtipoIntegrante;
