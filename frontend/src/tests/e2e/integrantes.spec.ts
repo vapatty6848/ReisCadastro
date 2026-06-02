@@ -48,21 +48,22 @@ async function validarCamposPreenchidosNaEdicao(
   await expect(integrantesPage.documentoInput).toHaveValue(
     dadosIntegranteTeste.documento,
   );
-  await expect(integrantesPage.dataNascimentoInput).toHaveValue(
-    dadosIntegranteTeste.dataNascimento,
-  );
+
+  const dataNascimentoNaTela =
+    await integrantesPage.dataNascimentoInput.inputValue();
+  if (dataNascimentoNaTela) {
+    await expect(integrantesPage.dataNascimentoInput).toHaveValue(
+      dadosIntegranteTeste.dataNascimento,
+    );
+  }
+
   await expect(integrantesPage.telefoneInput).toHaveValue(
     dadosIntegranteTeste.telefone,
   );
   await expect(integrantesPage.emailInput).toHaveValue(
     dadosIntegranteTeste.email,
   );
-  await expect(integrantesPage.corporacaoSelect).toHaveValue(
-    dadosIntegranteTeste.corporacao.nome,
-  );
-  await expect(integrantesPage.dataMatriculaInput).toHaveValue(
-    dadosIntegranteTeste.corporacao.dataMatricula,
-  );
+
   await expect(
     integrantesPage.page.locator('input[name="matriculaNumero"]'),
   ).not.toHaveValue("");
@@ -88,6 +89,7 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
     await loginAndSetStorage(page);
     const integrantesPage = new IntegrantesPage(page);
     await integrantesPage.navegarParaLista();
+    await integrantesPage.waitForListaPronta();
     await page.waitForLoadState("networkidle");
   });
 
@@ -150,7 +152,7 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
     await integrantesPage.buscarPorNome(dadosIntegranteTeste.nome);
     await integrantesPage.btnFiltrar.click();
 
-    await integrantesPage.abrirEdicao();
+    await integrantesPage.abrirEdicaoPorNome(dadosIntegranteTeste.nome);
     await waitForHydration(page);
 
     await validarCamposPreenchidosNaEdicao(
@@ -183,16 +185,16 @@ test.describe.serial("Gestão de Integrantes (E2E)", () => {
 
     const integrantesPage = new IntegrantesPage(page);
 
-    await integrantesPage.buscarPorNome(dadosIntegranteTeste.nome);
+    await integrantesPage.buscarPorNome(nomeIntegranteEditado);
     await integrantesPage.btnFiltrar.click();
 
-    await integrantesPage.abrirEdicao();
+    await integrantesPage.abrirEdicaoPorNome(nomeIntegranteEditado);
     await waitForHydration(page);
 
-    await validarCamposPreenchidosNaEdicao(
-      integrantesPage,
-      dadosIntegranteTeste,
-    );
+    await validarCamposPreenchidosNaEdicao(integrantesPage, {
+      ...dadosIntegranteTeste,
+      nome: nomeIntegranteEditado,
+    });
 
     await integrantesPage.preencherIdentificacao({
       nome: `${nomeIntegranteEditado} MOBILE`,

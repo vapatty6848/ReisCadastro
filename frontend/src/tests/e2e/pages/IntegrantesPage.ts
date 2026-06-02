@@ -91,8 +91,19 @@ export class IntegrantesPage {
     await this.page.goto("/dashboard/integrantes");
   }
 
+  async waitForListaPronta() {
+    await expect(this.page).toHaveURL(/\/dashboard\/integrantes/);
+    await expect(this.searchInput).toBeVisible();
+  }
+
   async abrirEdicao() {
     await this.page.click('a[title="Editar"]');
+  }
+
+  async abrirEdicaoPorNome(nome: string) {
+    const row = this.page.locator("tbody tr", { hasText: nome }).first();
+    await expect(row).toBeVisible();
+    await row.locator('a[title="Editar"]').click();
   }
 
   async salvarAlteracoes() {
@@ -194,6 +205,7 @@ export class IntegrantesPage {
   }
 
   async buscarPorNome(nome: string) {
+    await expect(this.searchInput).toBeVisible();
     await this.searchInput.fill(nome);
   }
 
